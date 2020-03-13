@@ -141,7 +141,6 @@ export class UploadPage extends PureComponent {
   handleDealImage = ({ file }) => {
     getBase64(file).then((src) => {
       const uid = getUniqueId();
-      console.log(uid, 'handleDealImage')
       this.setState({
         imgList: [...this.state.imgList, {
           src,
@@ -166,11 +165,15 @@ export class UploadPage extends PureComponent {
     })
   }
 
+  /** 预览图片 */
+  handlePreview = (file) => {
+    const index = this.state.imgList.findIndex(item => item.uid === file.uid)
+    this.clipRef.handleShow(index);
+  }
+
   /** 编辑成功之后的回调 */
   handleSave = (imgs) => {
     const { onChange } = this.props
-
-    console.log(imgs)
 
     imgs.forEach((item) => {
       if (item.hasClip) {
@@ -218,8 +221,6 @@ export class UploadPage extends PureComponent {
   render() {
     const { imgList, fileList } = this.state;
 
-    // console.log({ imgList, fileList })
-
     return (
       <div>
         <Clip
@@ -236,6 +237,7 @@ export class UploadPage extends PureComponent {
           beforeUpload={this.handleBeforeUpload}
           customRequest={this.handleCustomRequest}
           onRemove={this.handleRemove}
+          onPreview={this.handlePreview}
         >
           {fileList.length >= maxSize ? null : uploadButton}
         </Upload>

@@ -60,9 +60,13 @@ class Clip extends PureComponent {
 
   static getDerivedStateFromProps(nextProps, preState) {
     if (nextProps.imgList !== preState.preImgs) {
+      // 获取第一张待编辑的索引
+      const index = nextProps.imgList.findIndex(item => item.hasClip)
+
       return {
         imgs: nextProps.imgList,
-        preImgs: nextProps.imgList
+        preImgs: nextProps.imgList,
+        current: index >= 0 ? index : 0
       }
     }
     return null
@@ -171,10 +175,12 @@ class Clip extends PureComponent {
   }
 
   /** 模态框显示 */
-  handleShow = () => {
-    this.setState({
+  handleShow = (index) => {
+    const state = {
       visible: true
-    })
+    }
+    if (index !== undefined) state.current = index
+    this.setState(state)
   }
 
   /** 模态框消失 */
@@ -197,7 +203,7 @@ class Clip extends PureComponent {
 
     return (
       <Modal
-        width="80%"
+        width={800}
         visible={visible}
         className={styles.wrap}
         onCancel={this.handleCancel}
@@ -210,6 +216,8 @@ class Clip extends PureComponent {
           // aspectRatio={1 / 1}
           guides={false}
           src={currentSrc}
+          minContainerWidth={752}
+          minContainerHeight={500}
           ref={cropper => { this.cropper = cropper; }}
         />
         {/* 图片上一张下一章 */}
