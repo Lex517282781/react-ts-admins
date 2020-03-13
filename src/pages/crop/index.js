@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import Cropper from 'react-cropper';
 import 'cropperjs/dist/cropper.css';
-import src from '../..//assets/imgs/1.jpg';
+import src from '@/assets/imgs/1.jpg';
 
 // const src = '@/assets/imgs/1.jpg';
 
-class Crop extends Component {
+class CropPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -55,7 +55,7 @@ class Crop extends Component {
           <br />
           <Cropper
             style={{ height: 400, width: '100%' }}
-            aspectRatio={16 / 9}
+            // aspectRatio={1 / 1}
             preview=".img-preview"
             guides={false}
             src={this.state.src}
@@ -83,4 +83,4 @@ class Crop extends Component {
   }
 }
 
-export default Crop
+export default CropPage
