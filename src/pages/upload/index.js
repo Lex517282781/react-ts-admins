@@ -1,51 +1,15 @@
 import React, { PureComponent } from 'react'
 import { Upload, Icon, message } from 'antd';
+import PropTypes from 'prop-types';
 import { isEqual } from 'lodash';
 import Clip from './clip'
-// import Cropper from 'react-cropper';
-// import 'cropperjs/dist/cropper.css';
-// import styles from './style.module.styl'
-
-const getUniqueId = (() => {
-  let index = 0
-  const prefix = 'key_' + new Date().getTime() + '_'
-  return () => {
-    index++
-    const id = prefix + index
-    return id
-  }
-})()
-
-const uploadImgs = () => {
-  return new Promise((r) => {
-    setTimeout(() => {
-      r({
-        url: 'https://assets.hzxituan.com/crm/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8551583809428505.jpg',
-      })
-    }, 200);
-  })
-}
-
-function getBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-}
-
-function dataURLtoFile(dataurl, filename) {
-  var arr = dataurl.split(','),
-    mime = arr[0].match(/:(.*?);/)[1],
-    bstr = atob(arr[1]),
-    n = bstr.length,
-    u8arr = new Uint8Array(n);
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
-  }
-  return new File([u8arr], filename, { type: mime });
-}
+import {
+  getUniqueId,
+  uploadImgs,
+  getBase64,
+  dataURLtoFile,
+  isPic
+} from './config'
 
 const uploadButton = (
   <div>
@@ -54,7 +18,6 @@ const uploadButton = (
   </div>
 );
 
-const maxSize = 3;
 let fileLength = 0; // 已经上传的文件数量
 
 export class UploadPage extends PureComponent {
@@ -99,7 +62,7 @@ export class UploadPage extends PureComponent {
         }
       })
 
-      fileLength = fileList.length;
+      fileLength = fileList.length; // 设置上传文件的数量
 
       return {
         fileList,
@@ -107,7 +70,8 @@ export class UploadPage extends PureComponent {
           src: item.url,
           name: item.uid,
           uid: item.uid,
-          hasClip: false // 是否裁剪 假如没有裁剪的话 不需要发送至后端保存图片
+          hasClip: false, // 是否裁剪 假如没有裁剪的话 不需要发送至后端保存图片
+          size: 0
         })),
         preFileList: fileList
       }
@@ -119,12 +83,17 @@ export class UploadPage extends PureComponent {
   customRequestSuccessCollect = {};
 
   /** 上传限制 */
-  handleBeforeUpload = () => {
-    if (fileLength >= maxSize) {
-      message.warn(`只能最多上传${maxSize}张图片哦~`)
+  handleBeforeUpload = (file) => {
+    const { maxAmount } = this.props;
+    if (!isPic(file.type)) { // 图片类型限制
+      message.warn(`只能上传图片哦~`)
       return false
     }
-    fileLength += 1;
+    if (fileLength >= maxAmount) { // 图片数量限制
+      message.warn(`只能最多上传${maxAmount}张图片哦~`)
+      return false
+    }
+    fileLength += 1; // 上传文件的数量添加
     return true
   }
 
@@ -146,7 +115,8 @@ export class UploadPage extends PureComponent {
           src,
           name: uid,
           uid,
-          hasClip: true
+          hasClip: true,
+          size: file.size
         }],
       })
     })
@@ -220,6 +190,7 @@ export class UploadPage extends PureComponent {
 
   render() {
     const { imgList, fileList } = this.state;
+    const { maxAmount, maxSize, clipWidth, clipHeigth } = this.props;
 
     return (
       <div>
@@ -228,9 +199,12 @@ export class UploadPage extends PureComponent {
           imgList={imgList}
           onSave={this.handleSave}
           onAfterClose={this.handleAfterClose}
+          maxSize={maxSize}
+          clipWidth={clipWidth}
+          clipHeigth={clipHeigth}
         />
         <Upload
-          name="img"
+          accept="image/*"
           multiple
           listType="picture-card"
           fileList={fileList}
@@ -239,11 +213,25 @@ export class UploadPage extends PureComponent {
           onRemove={this.handleRemove}
           onPreview={this.handlePreview}
         >
-          {fileList.length >= maxSize ? null : uploadButton}
+          {fileList.length >= maxAmount ? null : uploadButton}
         </Upload>
       </div>
     )
   }
 }
+
+UploadPage.defaultProps = {
+  clipWidth: 750,
+  clipHeigth: 750,
+  maxAmount: 9,
+  maxSize: .3
+};
+
+UploadPage.propTypes = {
+  clipWidth: PropTypes.number, // 裁剪宽度
+  clipHeigth: PropTypes.number, // 裁剪宽度
+  maxAmount: PropTypes.number, // 图片数量
+  maxSize: PropTypes.number // 图片大小 maxSize为n n小于1的 (n*1000)kb n大于等于1 (n)mb，1000kb-1024kb区间不支持设置 
+};
 
 export default UploadPage;

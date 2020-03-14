@@ -3,36 +3,42 @@ import { Modal, Icon, message, Button, Divider } from 'antd';
 import Cropper from 'react-cropper';
 import 'cropperjs/dist/cropper.css';
 import classNames from 'classnames';
+import {
+  getBase64Size,
+  sizeOverflow
+} from './config'
 import styles from './style.module.styl'
 
 const { confirm } = Modal;
 
 /** 选择图组件 */
-const ImgWrap = ({ index, item, active, onItemClick, onRefreshClick }) => {
+const ImgWrap = ({ index, overflow, item, active, onItemClick, onRefreshClick }) => {
 
   const cls = classNames(
-    styles[`img-wrap`],
-    styles[`img-wrap-block`],
-    { [styles[`img-wrap-active`]]: active }
+    styles[`clip-preview-wrap`],
+    styles[`clip-preview-wrap-content`],
+    { [styles[`clip-preview-wrap-active`]]: active }
   )
 
   return (
-    <div
-      title='点击切换裁剪图片'
-      onClick={onItemClick.bind(null, index)}
-      className={cls}
-    >
-      <img
-        className={styles[`img`]}
-        alt="img"
-        src={item.src}
-      />
-      <Icon
-        title='点击恢复原图'
-        onClick={onRefreshClick.bind(null, index)}
-        className={styles[`reset`]}
-        type="redo"
-      />
+    <div className={cls}>
+      <div
+        title='点击切换裁剪图片'
+        onClick={onItemClick.bind(null, index)}
+        className={styles[`clip-preview-img-wrap`]}
+      >
+        <img
+          className={styles[`clip-preview-img`]}
+          alt="img"
+          src={item.src}
+        />
+        {
+          overflow && <span className={styles[`clip-preview-error`]}>超出大小限制</span>
+        }
+      </div>
+      <div onClick={onRefreshClick.bind(null, index)} className={styles[`clip-preview-text`]}>
+        重置
+      </div>
     </div>
   )
 }
@@ -40,7 +46,7 @@ const ImgWrap = ({ index, item, active, onItemClick, onRefreshClick }) => {
 /** 选择图占位组件 */
 const ImgWrapTemp = () => {
   return (
-    <div className={styles[`img-wrap`]}></div>
+    <div className={styles[`clip-preview-wrap`]}></div>
   )
 }
 
@@ -129,10 +135,28 @@ class Clip extends PureComponent {
     })
   }
 
+  /** 判断图片是否超出预定大小 */
+  isOverflow = (item) => {
+    let overflow = false
+    if (item.hasClip) {
+      // 对裁剪的图片需要做判断大小
+      const size = getBase64Size(item.src);
+      if (sizeOverflow(size, this.props.maxSize)) {
+        overflow = true
+      }
+    }
+    return overflow
+  }
+
   /** 保存所有图片 */
   handleSave = () => {
     const { onSave } = this.props;
     const { imgs } = this.state;
+    const isOverflow = imgs.some(this.isOverflow)
+    if (isOverflow) {
+      message.warn('有图片超出大小限制, 请裁剪合格之后再保存图片~')
+      return;
+    }
     onSave && onSave(imgs);
     message.success('图片编辑成功!');
     this.setState({
@@ -192,6 +216,9 @@ class Clip extends PureComponent {
 
   render() {
     const { visible, imgs, current, preImgs } = this.state
+    const { clipWidth, clipHeigth } = this.props
+
+    const CropperStyleHeight = clipHeigth + 50
 
     const placeholder = [...Array(ImgMaxCount - imgs.length).keys()]
 
@@ -203,31 +230,35 @@ class Clip extends PureComponent {
 
     return (
       <Modal
-        width={800}
+        width={1000}
         visible={visible}
-        className={styles.wrap}
+        className={styles[`clip-wrap`]}
         onCancel={this.handleCancel}
         afterClose={this.handleAfterCloase}
         footer={null}
       >
         {/* 图片裁剪区 */}
         <Cropper
-          style={{ height: 500, width: '100%' }}
-          // aspectRatio={1 / 1}
+          style={{ height: CropperStyleHeight, width: '100%' }}
           guides={false}
+          dragMode="move"
           src={currentSrc}
-          minContainerWidth={752}
-          minContainerHeight={500}
+          minContainerWidth={952}
+          minContainerHeight={CropperStyleHeight}
+          minCropBoxWidth={clipWidth}
+          minCropBoxHeight={clipHeigth}
+          cropBoxResizable={false}
+          cropBoxMovable={false}
           ref={cropper => { this.cropper = cropper; }}
         />
         {/* 图片上一张下一章 */}
         <Icon
-          className={styles.pre}
+          className={styles[`clip-pre`]}
           onClick={this.handleSwitch.bind(this, 'pre')}
           type="left"
         />
         <Icon
-          className={styles.next}
+          className={styles[`clip-next`]}
           onClick={this.handleSwitch.bind(this, 'next')}
           type="right"
         />
@@ -243,6 +274,7 @@ class Clip extends PureComponent {
             imgs.map((item, i) => (
               <ImgWrap key={i}
                 index={i}
+                overflow={this.isOverflow(item)}
                 item={item || preImgs[current]}
                 active={current === i}
                 onItemClick={this.handleImg}
@@ -258,7 +290,7 @@ class Clip extends PureComponent {
         </div>
         <Divider />
         {/* 操作区 */}
-        <div className={styles.actions}>
+        <div className={styles[`clip-actions`]}>
           <Button onClick={this.handleClip} type="primary">确认 ({current + 1} / {imgs.length}) 裁剪</Button>
           <Button onClick={this.handleSave} type="primary" style={{ marginLeft: 16 }}>保存所有图片</Button>
           <Button onClick={this.handleCancel} style={{ marginLeft: 16 }}>取消</Button>

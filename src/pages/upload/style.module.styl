@@ -1,45 +1,64 @@
-.wrap
+.clip-wrap
   position: relative
   user-select: none
 
-.img-wrap
+.clip-preview-wrap
   width: 10%
-  height 0
-  position: relative
-  padding-bottom: 10%
-  overflow: hidden
   border: 1px solid transparent
 
-.img-wrap-block
+.clip-preview-wrap-content
   background: #f5f5f5
   cursor: pointer
 
-.img-wrap-active
+.clip-preview-wrap-active
   border-color: red
 
-.img
-  width: 100%;
+.clip-preview-img-wrap 
+  width: 100%
+  height 0
+  position: relative
+  padding-bottom: 100%
+  overflow: hidden
+
+.clip-preview-img
+  width: 100%
   position: absolute
   top: 50%
   left: 50%
   transform: translate(-50%, -50%)
 
-.pre, .next
+.clip-preview-error
   position: absolute
-  top: 280px
-  font-size: 40px
-  cursor: pointer
+  width: 100%
+  text-align: center;
+  top: 0
+  line-height: 1.5
+  font-size: 12px
+  color: red
+  background: rgba(0, 0, 0, .25)
 
-.next
-  right: 24px
+.clip-preview-text
+  text-align: center
+  line-height: 1.5
+  font-size: 12px
+  text-decoration: underline
+  color: #666
 
-.reset
+.clip-preview-reset
   position: absolute
   z-index: 1
   bottom: 10px
   right: 10px
   color: #1890ff
 
-.actions
+.clip-pre, .clip-next
+  position: absolute
+  top: 280px
+  font-size: 40px
+  cursor: pointer
+
+.clip-next
+  right: 24px
+
+.clip-actions
   text-align: center
-  margin: 32px 0 8px
