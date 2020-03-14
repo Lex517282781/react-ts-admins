@@ -37,7 +37,7 @@ const ImgWrap = ({ index, overflow, item, active, onItemClick, onRefreshClick })
         }
       </div>
       <div onClick={onRefreshClick.bind(null, index)} className={styles[`clip-preview-text`]}>
-        重置
+        恢复原图
       </div>
     </div>
   )
