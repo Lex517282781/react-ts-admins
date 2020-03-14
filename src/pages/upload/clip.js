@@ -236,30 +236,31 @@ class Clip extends PureComponent {
         footer={null}
       >
         {/* 图片裁剪区 */}
-        <Cropper
-          style={{ height: CropperStyleHeight, width: '100%' }}
-          guides={false}
-          dragMode="move"
-          src={currentSrc}
-          minContainerWidth={952}
-          minContainerHeight={CropperStyleHeight}
-          minCropBoxWidth={clipWidth}
-          minCropBoxHeight={clipHeigth}
-          cropBoxResizable={false}
-          cropBoxMovable={false}
-          ref={cropper => { this.cropper = cropper; }}
-        />
-        {/* 图片上一张下一章 */}
-        <Icon
-          className={styles[`clip-pre`]}
-          onClick={this.handleSwitch.bind(this, 'pre')}
-          type="left"
-        />
-        <Icon
-          className={styles[`clip-next`]}
-          onClick={this.handleSwitch.bind(this, 'next')}
-          type="right"
-        />
+        <div className={styles[`clip-main`]}>
+          <Cropper
+            style={{ height: CropperStyleHeight, width: '100%' }}
+            guides={false}
+            dragMode="move"
+            src={currentSrc}
+            minContainerWidth={952}
+            minContainerHeight={CropperStyleHeight}
+            minCropBoxWidth={clipWidth}
+            minCropBoxHeight={clipHeigth}
+            cropBoxResizable={false}
+            cropBoxMovable={false}
+            ref={cropper => { this.cropper = cropper; }}
+          />
+          <Icon
+            className={styles[`clip-pre`]}
+            onClick={this.handleSwitch.bind(this, 'pre')}
+            type="left"
+          />
+          <Icon
+            className={styles[`clip-next`]}
+            onClick={this.handleSwitch.bind(this, 'next')}
+            type="right"
+          />
+        </div>
         {/* 图片选择区 */}
         <div
           style={{

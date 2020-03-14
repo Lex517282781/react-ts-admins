@@ -2,6 +2,9 @@
   position: relative
   user-select: none
 
+.clip-main
+  position: relative
+
 .clip-preview-wrap
   width: 10%
   border: 1px solid transparent
@@ -53,12 +56,13 @@
 
 .clip-pre, .clip-next
   position: absolute
-  top: 280px
+  top: 50%
+  transform: translateY(-50)
   font-size: 40px
   cursor: pointer
 
 .clip-next
-  right: 24px
+  right: 0
 
 .clip-actions
   text-align: center
