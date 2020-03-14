@@ -158,9 +158,7 @@ class Clip extends PureComponent {
       return;
     }
     onSave && onSave(imgs);
-    message.success('图片编辑成功!');
     this.setState({
-      visible: false,
       isSave: true
     })
   }
@@ -216,7 +214,7 @@ class Clip extends PureComponent {
 
   render() {
     const { visible, imgs, current, preImgs } = this.state
-    const { clipWidth, clipHeigth } = this.props
+    const { clipWidth, clipHeigth, loading } = this.props
 
     const CropperStyleHeight = clipHeigth + 50
 
@@ -291,9 +289,26 @@ class Clip extends PureComponent {
         <Divider />
         {/* 操作区 */}
         <div className={styles[`clip-actions`]}>
-          <Button onClick={this.handleClip} type="primary">确认 ({current + 1} / {imgs.length}) 裁剪</Button>
-          <Button onClick={this.handleSave} type="primary" style={{ marginLeft: 16 }}>保存所有图片</Button>
-          <Button onClick={this.handleCancel} style={{ marginLeft: 16 }}>取消</Button>
+          <Button
+            onClick={this.handleClip}
+            type="primary"
+          >
+            确认 ({current + 1} / {imgs.length}) 裁剪
+          </Button>
+          <Button
+            loading={loading}
+            onClick={this.handleSave}
+            type="primary"
+            style={{ marginLeft: 16 }}
+          >
+            保存所有图片
+          </Button>
+          <Button
+            onClick={this.handleCancel}
+            style={{ marginLeft: 16 }}
+          >
+            取消
+          </Button>
         </div>
       </Modal>
     )

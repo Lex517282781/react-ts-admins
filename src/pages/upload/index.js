@@ -36,7 +36,8 @@ export class UploadPage extends PureComponent {
     /** 
      * preFileList 保存上次的props 在 getDerivedStateFromProps 做比较使用
     */
-    preFileList: []
+    preFileList: [],
+    loading: false
   }
 
   static getDerivedStateFromProps(nextProps, preState) {
@@ -145,6 +146,13 @@ export class UploadPage extends PureComponent {
   handleSave = (imgs) => {
     const { onChange } = this.props
 
+    // 需要远程保存的图片数量
+    let hasClipImgsAmount = imgs.reduce((pre, next) => next.hasClip ? pre + 1 : pre, 0)
+
+    this.setState({
+      loading: true
+    })
+
     imgs.forEach((item) => {
       if (item.hasClip) {
         // 编辑过的图片需要重新上传
@@ -159,14 +167,28 @@ export class UploadPage extends PureComponent {
               name: item.name,
               url: res.url,
               type: ''
-            }))
+            })),
+            loading: false
           }, () => {
-            console.log(item.uid)
+            hasClipImgsAmount = hasClipImgsAmount - 1
+            if (hasClipImgsAmount === 0) {
+              // 直到需要远程保存的图片成功保存之后才算编辑成功
+              message.success('图片编辑成功!');
+              this.setState({
+                loading: false
+              })
+              this.clipRef.handleHide();
+            }
             onChange && onChange(this.state.fileList.map(item => item.url))
             this.customRequestSuccessCollect[item.uid] && this.customRequestSuccessCollect[item.uid]()
           })
         }).catch(e => {
-          console.log(e)
+          hasClipImgsAmount = hasClipImgsAmount - 1
+          if (hasClipImgsAmount === 0) {
+            this.setState({
+              loading: false
+            })
+          }
           message.error('图片保存失败, 请点击重新保存');
         })
       } else {
@@ -189,7 +211,7 @@ export class UploadPage extends PureComponent {
   }
 
   render() {
-    const { imgList, fileList } = this.state;
+    const { imgList, fileList, loading } = this.state;
     const { maxAmount, maxSize, clipWidth, clipHeigth } = this.props;
 
     return (
@@ -202,6 +224,7 @@ export class UploadPage extends PureComponent {
           maxSize={maxSize}
           clipWidth={clipWidth}
           clipHeigth={clipHeigth}
+          loading={loading}
         />
         <Upload
           accept="image/*"
