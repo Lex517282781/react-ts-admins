@@ -1,11 +1,10 @@
 import React, { PureComponent } from 'react'
-import { Upload, Icon, message } from 'antd';
+import { Upload, Icon, message, Modal } from 'antd';
 import PropTypes from 'prop-types';
 import { isEqual } from 'lodash';
 import Clip from './clip'
 import {
   getUniqueId,
-  uploadImgs,
   getBase64,
   dataURLtoFile,
   isPic
@@ -37,7 +36,9 @@ export class UploadPage extends PureComponent {
      * preFileList 保存上次的props 在 getDerivedStateFromProps 做比较使用
     */
     preFileList: [],
-    loading: false
+    loading: false,
+    previewVisible: false,
+    previewImage: ''
   }
 
   static getDerivedStateFromProps(nextProps, preState) {
@@ -138,13 +139,35 @@ export class UploadPage extends PureComponent {
 
   /** 预览图片 */
   handlePreview = (file) => {
+    const { readonly } = this.props;
+    if (readonly) {
+      this.setState({
+        previewImage: file.url,
+        previewVisible: true
+      })
+      return
+    }
     const index = this.state.imgList.findIndex(item => item.uid === file.uid)
     this.clipRef.handleShow(index);
   }
 
+  /** 预览图片取消 */
+  handlePreviewCancel = () => {
+    this.setState({
+      previewVisible: false
+    })
+  }
+
+  /** 预览图片彻底消失回调 */
+  handlePreviewAfterClose = () => {
+    this.setState({
+      previewImage: ''
+    })
+  }
+
   /** 编辑成功之后的回调 */
   handleSave = (imgs) => {
-    const { onChange } = this.props
+    const { onChange, api } = this.props
 
     // 需要远程保存的图片数量
     let hasClipImgsAmount = imgs.reduce((pre, next) => next.hasClip ? pre + 1 : pre, 0)
@@ -157,7 +180,7 @@ export class UploadPage extends PureComponent {
       if (item.hasClip) {
         // 编辑过的图片需要重新上传
         const file = dataURLtoFile(item.src, item.name) // 把base64图片组转换成file
-        uploadImgs(file).then(res => {
+        api(file).then(res => {
           item.src = res.url
           item.hasClip = false
           this.setState({
@@ -211,8 +234,8 @@ export class UploadPage extends PureComponent {
   }
 
   render() {
-    const { imgList, fileList, loading } = this.state;
-    const { maxAmount, maxSize, clipWidth, clipHeigth } = this.props;
+    const { imgList, fileList, loading, previewVisible, previewImage } = this.state;
+    const { maxAmount, maxSize, clipWidth, clipHeigth, readonly } = this.props;
 
     return (
       <div>
@@ -236,8 +259,18 @@ export class UploadPage extends PureComponent {
           onRemove={this.handleRemove}
           onPreview={this.handlePreview}
         >
-          {fileList.length >= maxAmount ? null : uploadButton}
+          {
+            readonly ? null : (fileList.length >= maxAmount ? null : uploadButton)
+          }
         </Upload>
+        <Modal
+          visible={previewVisible}
+          footer={null}
+          onCancel={this.handlePreviewCancel}
+          afterClose={this.handlePreviewAfterClose}
+        >
+          <img alt="previewImage" style={{ width: '100%' }} src={previewImage} />
+        </Modal>
       </div>
     )
   }
@@ -247,14 +280,26 @@ UploadPage.defaultProps = {
   clipWidth: 750,
   clipHeigth: 750,
   maxAmount: 9,
-  maxSize: .3
+  maxSize: .3,
+  readonly: true
 };
 
 UploadPage.propTypes = {
   clipWidth: PropTypes.number, // 裁剪宽度
   clipHeigth: PropTypes.number, // 裁剪宽度
   maxAmount: PropTypes.number, // 图片数量
-  maxSize: PropTypes.number // 图片大小 maxSize为n n小于1的 (n*1000)kb n大于等于1 (n)mb，1000kb-1024kb区间不支持设置 
+  maxSize: PropTypes.number, // 图片大小 maxSize为n n小于1的 (n*1000)kb n大于等于1 (n)mb，1000kb-1024kb区间不支持设置
+  readonly: PropTypes.bool, //  是否只读 true表示不能裁剪
+  api: PropTypes.func // 图片上传后端的接口 需返回一个promise 参数为file 如
+  // const api = () => {
+  //   return new Promise((r) => {
+  //     setTimeout(() => {
+  //       r({
+  //         url: 'https://assets.hzxituan.com/crm/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8551583809428505.jpg',
+  //       })
+  //     }, 3000);
+  //   })
+  // }
 };
 
 export default UploadPage;

@@ -186,7 +186,7 @@ class Clip extends PureComponent {
   }
 
   /** 模态框消失回调 */
-  handleAfterCloase = () => {
+  handleAfterClose = () => {
     const { isSave } = this.state
     const { onAfterClose } = this.props
     this.setState({
@@ -232,7 +232,7 @@ class Clip extends PureComponent {
         visible={visible}
         className={styles[`clip-wrap`]}
         onCancel={this.handleCancel}
-        afterClose={this.handleAfterCloase}
+        afterClose={this.handleAfterClose}
         footer={null}
       >
         {/* 图片裁剪区 */}
