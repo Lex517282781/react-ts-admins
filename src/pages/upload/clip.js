@@ -228,7 +228,7 @@ class Clip extends PureComponent {
 
     return (
       <Modal
-        width={1000}
+        width={700}
         visible={visible}
         className={styles[`clip-wrap`]}
         onCancel={this.handleCancel}
@@ -236,7 +236,12 @@ class Clip extends PureComponent {
         footer={null}
       >
         {/* 图片裁剪区 */}
-        <div className={styles[`clip-main`]}>
+        <div
+          className={styles[`clip-main`]}
+          style={{
+            zoom: `${652 / 952}`
+          }}
+        >
           <Cropper
             style={{ height: CropperStyleHeight, width: '100%' }}
             guides={false}

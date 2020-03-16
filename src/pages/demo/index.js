@@ -8,7 +8,7 @@ const uploadImgs = () => {
       r({
         url: 'https://assets.hzxituan.com/crm/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8551583809428505.jpg',
       })
-    }, 3000);
+    }, 500);
   })
 }
 
@@ -43,7 +43,15 @@ class Demo extends Component {
               getValueFromEvent: this.normFile,
               initialValue: imgs
             })(
-              <Upload api={uploadImgs} readonly={false} />
+              <Upload name="imgs" api={uploadImgs} readonly={false} />
+            )}
+          </Form.Item>
+          <Form.Item label="上传主图">
+            {getFieldDecorator('imgs2', {
+              valuePropName: 'fileList',
+              getValueFromEvent: this.normFile
+            })(
+              <Upload name="imgs2" api={uploadImgs} readonly={false} />
             )}
           </Form.Item>
           <Form.Item wrapperCol={{ span: 12, offset: 5 }}>

@@ -60,6 +60,10 @@ const getBase64Size = function (base64) {
   return Math.floor(fileLength); // 向下取整
 }
 
+const derivedNameFormUrl =function (url) {
+  return (url || '').replace(/(.+)\/(?=.+$)/, '')
+}
+
 export {
   getUniqueId,
   getBase64,
@@ -67,5 +71,6 @@ export {
   isPic,
   sizeOverflow,
   getSizeTxt,
-  getBase64Size
+  getBase64Size,
+  derivedNameFormUrl
 }
