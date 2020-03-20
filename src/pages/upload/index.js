@@ -42,10 +42,6 @@ export class UploadPage extends PureComponent {
       */
       preFileList: [],
       /** 
-       * 保存所有图片的loading
-      */
-      loading: false,
-      /** 
        * 预览模态框显示状态
       */
       previewVisible: false,
@@ -184,7 +180,7 @@ export class UploadPage extends PureComponent {
   }
 
   /** 编辑成功之后的回调 */
-  handleSave = (fileList) => {
+  handleSave = (fileList, afterSaveCb) => {
     const { onChange, api } = this.props
 
     // 需要远程保存的图片数量
@@ -196,12 +192,7 @@ export class UploadPage extends PureComponent {
       return
     }
 
-    this.setState({
-      loading: true
-    })
-
     for (let i = 0, l = fileList.length; i < l; i++) {
-      console.log(fileList)
       const item = fileList[i]
       if (item.hasClip) {
         // 编辑过的图片需要重新上传
@@ -221,15 +212,12 @@ export class UploadPage extends PureComponent {
             ]
             this.setState({
               fileList,
-              loading: false
             }, () => {
               hasClipImgsAmount = hasClipImgsAmount - 1
               if (hasClipImgsAmount === 0) {
                 // 直到需要远程保存的图片成功保存之后才算编辑成功
                 message.success('图片编辑成功!')
-                this.setState({
-                  loading: false
-                })
+                afterSaveCb();
                 this.clipRef.handleHide()
               }
               onChange && onChange(this.state.fileList.map(item => item.url))
@@ -240,9 +228,7 @@ export class UploadPage extends PureComponent {
           .catch(e => {
             hasClipImgsAmount = hasClipImgsAmount - 1
             if (hasClipImgsAmount === 0) {
-              this.setState({
-                loading: false
-              })
+              afterSaveCb();
             }
             message.error('图片保存失败, 请点击重新保存')
           })
@@ -267,7 +253,7 @@ export class UploadPage extends PureComponent {
   }
 
   render() {
-    const { fileList, loading, previewVisible, previewImage } = this.state
+    const { fileList, previewVisible, previewImage } = this.state
     const { maxAmount, maxSize, clipWidth, clipHeigth, readonly } = this.props
 
     return (
@@ -280,13 +266,17 @@ export class UploadPage extends PureComponent {
           maxSize={maxSize}
           clipWidth={clipWidth}
           clipHeigth={clipHeigth}
-          loading={loading}
         />
         <Upload
           accept="image/*"
           multiple
           listType="picture-card"
-          fileList={fileList}
+          fileList={fileList.map(file => ({
+            uid: file.uid,
+            name: file.name,
+            status: file.status,
+            url: file.url
+          }))}
           beforeUpload={this.handleBeforeUpload}
           customRequest={this.handleCustomRequest}
           onRemove={this.handleRemove}

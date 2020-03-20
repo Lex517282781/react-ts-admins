@@ -60,7 +60,8 @@ class Clip extends PureComponent {
       fileList: [],
       current: 0, // 当前裁剪图片
       preFileList: [],
-      isSave: false
+      isSave: false,
+      loading: false
     }
   }
 
@@ -152,14 +153,20 @@ class Clip extends PureComponent {
   handleSave = () => {
     const { onSave } = this.props;
     const { fileList } = this.state;
-    const isOverflow = fileList.some(this.isOverflow)
-    if (isOverflow) {
-      message.warn('有图片超出大小限制, 请裁剪合格之后再保存图片~')
-      return;
-    }
-    onSave && onSave(fileList);
     this.setState({
+      loading: true,
       isSave: true
+    }, () => {
+      const isOverflow = fileList.some(this.isOverflow)
+      if (isOverflow) {
+        message.warn('有图片超出大小限制, 请裁剪合格之后再保存图片~')
+        return;
+      }
+      onSave && onSave(fileList, () => {
+        this.setState({
+          loading: false
+        })
+      });
     })
   }
 
@@ -212,9 +219,11 @@ class Clip extends PureComponent {
     })
   }
 
+  
+
   render() {
-    const { visible, fileList, current, preFileList } = this.state
-    const { clipWidth, clipHeigth, loading } = this.props
+    const { visible, fileList, current, preFileList, loading } = this.state
+    const { clipWidth, clipHeigth } = this.props
 
     const CropperStyleHeight = clipHeigth + 50
 
@@ -225,6 +234,8 @@ class Clip extends PureComponent {
     if (fileList.length) {
       currentSrc = fileList[current].url || preFileList[current].url
     }
+
+    console.log(loading)
 
     return (
       <Modal
