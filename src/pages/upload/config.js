@@ -79,6 +79,11 @@ const getFileExtName = function(url) {
   return '';
 }
 
+const helpInfos = [
+  '1. 裁剪完毕之后,点击[确认裁剪]',
+  '2. 完成裁剪之后,点击[保存图片]'
+]
+
 export {
   getUniqueId,
   getBase64,
@@ -88,5 +93,6 @@ export {
   getSizeTxt,
   getBase64Size,
   derivedNameFormUrl,
-  getFileExtName
+  getFileExtName,
+  helpInfos
 }

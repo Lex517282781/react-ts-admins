@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react'
-import { Modal, Icon, message, Button, Divider } from 'antd';
+import { Modal, Icon, message, Button, Divider, Tooltip } from 'antd';
 import Cropper from 'react-cropper';
 import 'cropperjs/dist/cropper.css';
 import classNames from 'classnames';
 import {
   getBase64Size,
-  sizeOverflow
+  sizeOverflow,
+  helpInfos
 } from './config'
 import styles from './style.module.styl'
 
@@ -219,8 +220,6 @@ class Clip extends PureComponent {
     })
   }
 
-  
-
   render() {
     const { visible, fileList, current, preFileList, loading } = this.state
     const { clipWidth, clipHeigth } = this.props
@@ -234,8 +233,6 @@ class Clip extends PureComponent {
     if (fileList.length) {
       currentSrc = fileList[current].url || preFileList[current].url
     }
-
-    console.log(loading)
 
     return (
       <Modal
@@ -277,12 +274,23 @@ class Clip extends PureComponent {
             type="right"
           />
         </div>
+        {/* 图片信息区 */}
+        <div className={styles[`clip-info`]}>
+          {current + 1} / {fileList.length}
+          <Tooltip
+            title={helpInfos.map(item => <p>{item}</p>)}
+            placement="bottom"
+          >
+            <Button className={styles[`clip-help`]} type="link">
+              <Icon type="info-circle" />
+            </Button>
+          </Tooltip>
+        </div>
         {/* 图片选择区 */}
         <div
           style={{
             display: 'flex',
-            justifyContent: 'space-around',
-            marginTop: 16
+            justifyContent: 'space-around'
           }}
         >
           {
@@ -310,7 +318,7 @@ class Clip extends PureComponent {
             onClick={this.handleClip}
             type="primary"
           >
-            确认 ({current + 1} / {fileList.length}) 裁剪
+            确认裁剪
           </Button>
           <Button
             loading={loading}
@@ -318,7 +326,7 @@ class Clip extends PureComponent {
             type="primary"
             style={{ marginLeft: 16 }}
           >
-            保存所有图片
+            保存图片
           </Button>
           <Button
             onClick={this.handleCancel}

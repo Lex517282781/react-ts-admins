@@ -181,7 +181,7 @@ export class UploadPage extends PureComponent {
 
   /** 编辑成功之后的回调 */
   handleSave = (fileList, afterSaveCb) => {
-    const { onChange, api } = this.props
+    const { api } = this.props
 
     // 需要远程保存的图片数量
     let hasClipImgsAmount = fileList.reduce((pre, next) => next.hasClip ? pre + 1 : pre, 0)
@@ -220,7 +220,6 @@ export class UploadPage extends PureComponent {
                 afterSaveCb();
                 this.clipRef.handleHide()
               }
-              onChange && onChange(this.state.fileList.map(item => item.url))
               this.customRequestSuccessCollect[item.uid] && this.customRequestSuccessCollect[item.uid]()
             })
           })
@@ -232,19 +231,19 @@ export class UploadPage extends PureComponent {
             }
             message.error('图片保存失败, 请点击重新保存')
           })
-      } else {
-        // 没有编辑过的图片不需要操作处理
-        onChange && onChange(this.state.fileList.map(item => item.url))
       }
     }
   }
 
   /** 编辑消失之后的回调 */
   handleAfterClose = (isSave) => {
-    const { preFileList } = this.state
+    const { preFileList, fileList } = this.state
+    const { onChange } = this.props
     fileLength = 0 // fileLength 静态变量导出的时候都引用的同一个值 需要重置该计数器
     this.clipInitial = false
-    if (!isSave) {
+    if (isSave) {
+      onChange && onChange(fileList.map(item => item.url))
+    } else {
       // 编辑取消保存 重新设置为fileList对应的图片
       this.setState({
         fileList: preFileList
