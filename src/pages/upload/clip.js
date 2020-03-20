@@ -34,7 +34,10 @@ const ImgWrap = ({ index, overflow, item, active, onItemClick, onRefreshClick })
           src={item.url}
         />
         {
-          overflow && <span className={styles[`clip-preview-error`]}>超出大小限制</span>
+          overflow && 
+          <div className={styles[`clip-preview-error`]}>
+            <span className={styles[`clip-preview-error-inner`]}>超出大小</span>
+          </div>
         }
       </div>
       <div onClick={onRefreshClick.bind(null, index)} className={styles[`clip-preview-text`]}>
@@ -122,7 +125,7 @@ class Clip extends PureComponent {
 
   /** 裁切图片 */
   handleClip = () => {
-    if (typeof this.cropper.getCroppedCanvas() === 'undefined') return;
+    if (!this.cropper.getCroppedCanvas()) return;
     const { fileList, current } = this.state;
     this.setState({
       fileList: [
@@ -161,6 +164,9 @@ class Clip extends PureComponent {
       const isOverflow = fileList.some(this.isOverflow)
       if (isOverflow) {
         message.warn('有图片超出大小限制, 请裁剪合格之后再保存图片~')
+        this.setState({
+          loading: false
+        })
         return;
       }
       onSave && onSave(fileList, () => {
@@ -278,7 +284,7 @@ class Clip extends PureComponent {
         <div className={styles[`clip-info`]}>
           {current + 1} / {fileList.length}
           <Tooltip
-            title={helpInfos.map(item => <p>{item}</p>)}
+            title={helpInfos.map((item, i) => <p key={i}>{item}</p>)}
             placement="bottom"
           >
             <Button className={styles[`clip-help`]} type="link">
@@ -287,12 +293,7 @@ class Clip extends PureComponent {
           </Tooltip>
         </div>
         {/* 图片选择区 */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-around'
-          }}
-        >
+        <div className={styles[`clip-options`]}>
           {
             fileList.map((item, i) => (
               <ImgWrap key={i}
