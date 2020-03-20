@@ -30,7 +30,7 @@ const ImgWrap = ({ index, overflow, item, active, onItemClick, onRefreshClick })
         <img
           className={styles[`clip-preview-img`]}
           alt="img"
-          src={item.src}
+          src={item.url}
         />
         {
           overflow && <span className={styles[`clip-preview-error`]}>超出大小限制</span>
@@ -127,7 +127,7 @@ class Clip extends PureComponent {
         ...fileList.slice(0, current),
         {
           ...fileList[current],
-          src: this.cropper.getCroppedCanvas().toDataURL(),
+          url: this.cropper.getCroppedCanvas().toDataURL(),
           hasClip: true // 确认裁剪过
         },
         ...fileList.slice(current + 1)
@@ -140,7 +140,7 @@ class Clip extends PureComponent {
     let overflow = false
     if (item.hasClip) {
       // 对裁剪的图片需要做判断大小
-      const size = getBase64Size(item.src);
+      const size = getBase64Size(item.url);
       if (sizeOverflow(size, this.props.maxSize)) {
         overflow = true
       }
@@ -166,7 +166,7 @@ class Clip extends PureComponent {
   /** 取消保存 */
   handleCancel = () => {
     const { fileList, preFileList } = this.state;
-    if (fileList.some((item, i) => item.src !== preFileList[i].src)) {
+    if (fileList.some((item, i) => item.url !== preFileList[i].url)) {
       return confirm({
         title: '发现你有裁剪图片, 确认不保存吗?',
         okText: '不保存',
@@ -223,7 +223,7 @@ class Clip extends PureComponent {
     let currentSrc;
 
     if (fileList.length) {
-      currentSrc = fileList[current].src || preFileList[current].src
+      currentSrc = fileList[current].url || preFileList[current].url
     }
 
     return (

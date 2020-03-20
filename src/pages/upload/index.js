@@ -17,31 +17,41 @@ const uploadButton = (
     <Icon type="plus" />
     <div className="ant-upload-text">上传</div>
   </div>
-);
+)
 
 let fileLength = 0 //  已经上传的文件数量 这里fileLength导出引入在同一个文件下 只生成一份数据 所以不能做渲染使用 只能在内部使用
 
 export class UploadPage extends PureComponent {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
-      fileList: [], // 保存之后的文件
       /** 
-       * imgList 格式如下: 
+       * fileList 格式如下: 
        * {
-       *   src: item.url,
-       *   name: item.name,
        *   uid: item.uid,
+       *   name: item.name,
+       *   url: item.url,
+       *   type: item.type,
+       *   size: item.size,
        *   hasClip: false // 是否裁剪 假如没有裁剪的话 不需要发送至后端保存图片
        * }
       */
-      imgList: [],
+      fileList: [],
       /** 
        * preFileList 保存上次的props 在 getDerivedStateFromProps 做比较使用
       */
       preFileList: [],
+      /** 
+       * 保存所有图片的loading
+      */
       loading: false,
+      /** 
+       * 预览模态框显示状态
+      */
       previewVisible: false,
+      /** 
+       * 预览模态框图片
+      */
       previewImage: ''
     }
   }
@@ -52,34 +62,30 @@ export class UploadPage extends PureComponent {
 
     if (!isEqual(nextUrls, prelUrls)) { // 从父元素实时传输过来的参数链接集合和之前保存的链接集合比较 如果不一样 就要执行以下过程
       const fileList = nextUrls.map((item, i) => { // 转化成upload表单需要的格式
-        let uid;
+        let uid
 
         // 已有的图片不需要重新生成新的uid, 以避免重新渲染
-        if (preState.imgList[i] && preState.imgList[i].src) {
-          uid = preState.imgList[i].uid
+        if (preState.fileList[i] && preState.fileList[i].url) {
+          uid = preState.fileList[i].uid
         } else {
-          uid = getUniqueId();
+          uid = getUniqueId()
         }
 
         return {
           uid,
           name: derivedNameFormUrl(item),
           url: item,
-          type: `image/${getFileExtName(item)}`
+          type: `image/${getFileExtName(item)}`,
+          size: 0,
+          hasClip: false,
+          status: 'done'
         }
       })
 
-      fileLength = fileList.length; // 设置上传文件的数量
+      fileLength = fileList.length // 设置上传文件的数量
 
       return {
         fileList,
-        imgList: fileList.map(item => ({
-          src: item.url,
-          name: item.name,
-          uid: item.uid,
-          hasClip: false, // 是否裁剪 假如没有裁剪的话 不需要发送至后端保存图片
-          size: 0
-        })),
         preFileList: fileList
       }
     }
@@ -87,11 +93,14 @@ export class UploadPage extends PureComponent {
   }
 
   /** 储存自定义上传的成功回调, 如订阅发布模式, 可在某一刻再来执行 */
-  customRequestSuccessCollect = {};
+  customRequestSuccessCollect = {}
+
+  /** 裁剪初始化 */
+  clipInitial = false
 
   /** 上传限制 */
   handleBeforeUpload = (file) => {
-    const { maxAmount } = this.props;
+    const { maxAmount } = this.props
     if (!isPic(file.type)) { // 图片类型限制
       message.warn(`只能上传图片哦~`)
       return false
@@ -100,30 +109,35 @@ export class UploadPage extends PureComponent {
       message.warn(`只能最多上传${maxAmount}张图片哦~`)
       return false
     }
-    fileLength += 1;
+    fileLength += 1
     return true
   }
 
   /** 自定义上传 */
   handleCustomRequest = (options) => {
-    const { onProgress, onSuccess } = options;
+    const { onProgress, onSuccess } = options
     onProgress()
-    this.clipRef.handleShow();
+    if (!this.clipInitial) {
+      this.clipInitial = true
+      this.clipRef.handleShow()
+    }
     this.customRequestSuccessCollect[options.file.uid] = onSuccess
-    this.handleDealImage(options);
+    this.handleDealImage(options)
   }
 
   /** 处理图片转base64 */
   handleDealImage = ({ file }) => {
-    getBase64(file).then((src) => {
-      const uid = getUniqueId();
+    getBase64(file).then((url) => {
+      const uid = getUniqueId()
       this.setState({
-        imgList: [...this.state.imgList, {
-          src,
-          name: file.name,
+        fileList: [...this.state.fileList, {
           uid,
+          name: file.name,
+          url,
+          type: file.type,
           hasClip: true,
-          size: file.size
+          size: file.size,
+          status: 'uploading'
         }],
       })
     })
@@ -131,12 +145,11 @@ export class UploadPage extends PureComponent {
 
   /** 移除图片 */
   handleRemove = (file) => {
-    const { fileList, imgList } = this.state;
-    const { onChange } = this.props;
+    const { fileList } = this.state
+    const { onChange } = this.props
     fileLength -= 1
     this.setState({
       fileList: fileList.filter(item => item.uid !== file.uid),
-      imgList: imgList.filter(item => item.uid !== file.uid)
     }, () => {
       onChange && onChange(this.state.fileList.map(item => item.url))
     })
@@ -144,7 +157,7 @@ export class UploadPage extends PureComponent {
 
   /** 预览图片 */
   handlePreview = (file) => {
-    const { readonly } = this.props;
+    const { readonly } = this.props
     if (readonly) {
       this.setState({
         previewImage: file.url,
@@ -152,8 +165,8 @@ export class UploadPage extends PureComponent {
       })
       return
     }
-    const index = this.state.imgList.findIndex(item => item.uid === file.uid)
-    this.clipRef.handleShow(index);
+    const index = this.state.fileList.findIndex(item => item.uid === file.uid)
+    this.clipRef.handleShow(index)
   }
 
   /** 预览图片取消 */
@@ -171,11 +184,11 @@ export class UploadPage extends PureComponent {
   }
 
   /** 编辑成功之后的回调 */
-  handleSave = (imgs) => {
+  handleSave = (fileList) => {
     const { onChange, api } = this.props
 
     // 需要远程保存的图片数量
-    let hasClipImgsAmount = imgs.reduce((pre, next) => next.hasClip ? pre + 1 : pre, 0)
+    let hasClipImgsAmount = fileList.reduce((pre, next) => next.hasClip ? pre + 1 : pre, 0)
 
     if (!hasClipImgsAmount) {
       // 所有图片没有修改的情况下 不需要任何操作
@@ -187,32 +200,27 @@ export class UploadPage extends PureComponent {
       loading: true
     })
 
-    for (let i = 0, l = imgs.length; i < l; i++) {
-      const item = imgs[i]
+    for (let i = 0, l = fileList.length; i < l; i++) {
+      console.log(fileList)
+      const item = fileList[i]
       if (item.hasClip) {
         // 编辑过的图片需要重新上传
-        const file = dataURLtoFile(item.src, item.name) // 把base64图片组转换成file
+        const file = dataURLtoFile(item.url, item.name) // 把base64图片组转换成file
 
         api(file)
           // eslint-disable-next-line no-loop-func
           .then(res => {
-            const imgList = [
-              ...this.state.imgList.slice(0, i),
+            const fileList = [
+              ...this.state.fileList.slice(0, i),
               {
-                ...this.state.imgList[i],
-                src: res.url,
+                ...this.state.fileList[i],
+                url: res.url,
                 hasClip: false
               },
-              ...this.state.imgList.slice(i + 1)
+              ...this.state.fileList.slice(i + 1)
             ]
             this.setState({
-              imgList,
-              fileList: imgList.map(img => ({
-                uid: img.uid,
-                name: img.name,
-                url: img.src,
-                type: ''
-              })),
+              fileList,
               loading: false
             }, () => {
               hasClipImgsAmount = hasClipImgsAmount - 1
@@ -247,25 +255,26 @@ export class UploadPage extends PureComponent {
 
   /** 编辑消失之后的回调 */
   handleAfterClose = (isSave) => {
-    const { fileList, imgList } = this.state;
-    fileLength = 0; // fileLength 静态变量导出的时候都引用的同一个值 需要重置该计数器
+    const { preFileList } = this.state
+    fileLength = 0 // fileLength 静态变量导出的时候都引用的同一个值 需要重置该计数器
+    this.clipInitial = false
     if (!isSave) {
       // 编辑取消保存 重新设置为fileList对应的图片
       this.setState({
-        imgList: fileList.map((_, i) => imgList[i])
+        fileList: preFileList
       })
     }
   }
 
   render() {
-    let { imgList, fileList, loading, previewVisible, previewImage } = this.state;
-    const { maxAmount, maxSize, clipWidth, clipHeigth, readonly } = this.props;
+    const { fileList, loading, previewVisible, previewImage } = this.state
+    const { maxAmount, maxSize, clipWidth, clipHeigth, readonly } = this.props
 
     return (
       <div>
         <Clip
           ref={ref => this.clipRef = ref}
-          fileList={imgList}
+          fileList={fileList}
           onSave={this.handleSave}
           onAfterClose={this.handleAfterClose}
           maxSize={maxSize}
@@ -306,7 +315,7 @@ UploadPage.defaultProps = {
   maxAmount: 3,
   maxSize: .3,
   readonly: true
-};
+}
 
 UploadPage.propTypes = {
   clipWidth: PropTypes.number, // 裁剪宽度
@@ -326,4 +335,4 @@ UploadPage.propTypes = {
   // }
 };
 
-export default UploadPage;
+export default UploadPage
