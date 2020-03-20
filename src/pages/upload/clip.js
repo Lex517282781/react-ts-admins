@@ -57,21 +57,21 @@ class Clip extends PureComponent {
     super(props)
     this.state = {
       visible: false,
-      imgs: [],
+      fileList: [],
       current: 0, // 当前裁剪图片
-      preImgs: [],
+      preFileList: [],
       isSave: false
     }
   }
 
   static getDerivedStateFromProps(nextProps, preState) {
-    if (nextProps.imgList !== preState.preImgs) {
+    if (nextProps.fileList !== preState.preFileList) {
       // 获取第一张待编辑的索引
-      const index = nextProps.imgList.findIndex(item => item.hasClip)
+      const index = nextProps.fileList.findIndex(item => item.hasClip)
 
       return {
-        imgs: nextProps.imgList,
-        preImgs: nextProps.imgList,
+        fileList: nextProps.fileList,
+        preFileList: nextProps.fileList,
         current: index >= 0 ? index : 0
       }
     }
@@ -80,7 +80,7 @@ class Clip extends PureComponent {
 
   /** 切换图片 */
   handleSwitch = (action) => {
-    const { current, imgs } = this.state;
+    const { current, fileList } = this.state;
 
     if (action === 'pre') {
       // 上一张
@@ -90,7 +90,7 @@ class Clip extends PureComponent {
       })
     } else if (action === 'next') {
       // 下一张
-      if (current === imgs.length - 1) return message.warn('已经是最后一张了~')
+      if (current === fileList.length - 1) return message.warn('已经是最后一张了~')
       this.setState({
         current: current + 1
       })
@@ -107,12 +107,12 @@ class Clip extends PureComponent {
   /** 重置图片 */
   handleRefresh = (current, e) => {
     e.stopPropagation();
-    const { imgs, preImgs } = this.state;
+    const { fileList, preFileList } = this.state;
     this.setState({
-      imgs: [
-        ...imgs.slice(0, current),
-        preImgs[current],
-        ...imgs.slice(current + 1)
+      fileList: [
+        ...fileList.slice(0, current),
+        preFileList[current],
+        ...fileList.slice(current + 1)
       ]
     })
   }
@@ -121,16 +121,16 @@ class Clip extends PureComponent {
   /** 裁切图片 */
   handleClip = () => {
     if (typeof this.cropper.getCroppedCanvas() === 'undefined') return;
-    const { imgs, current } = this.state;
+    const { fileList, current } = this.state;
     this.setState({
-      imgs: [
-        ...imgs.slice(0, current),
+      fileList: [
+        ...fileList.slice(0, current),
         {
-          ...imgs[current],
+          ...fileList[current],
           src: this.cropper.getCroppedCanvas().toDataURL(),
           hasClip: true // 确认裁剪过
         },
-        ...imgs.slice(current + 1)
+        ...fileList.slice(current + 1)
       ]
     })
   }
@@ -151,13 +151,13 @@ class Clip extends PureComponent {
   /** 保存所有图片 */
   handleSave = () => {
     const { onSave } = this.props;
-    const { imgs } = this.state;
-    const isOverflow = imgs.some(this.isOverflow)
+    const { fileList } = this.state;
+    const isOverflow = fileList.some(this.isOverflow)
     if (isOverflow) {
       message.warn('有图片超出大小限制, 请裁剪合格之后再保存图片~')
       return;
     }
-    onSave && onSave(imgs);
+    onSave && onSave(fileList);
     this.setState({
       isSave: true
     })
@@ -165,8 +165,8 @@ class Clip extends PureComponent {
 
   /** 取消保存 */
   handleCancel = () => {
-    const { imgs, preImgs } = this.state;
-    if (imgs.some((item, i) => item.src !== preImgs[i].src)) {
+    const { fileList, preFileList } = this.state;
+    if (fileList.some((item, i) => item.src !== preFileList[i].src)) {
       return confirm({
         title: '发现你有裁剪图片, 确认不保存吗?',
         okText: '不保存',
@@ -213,17 +213,17 @@ class Clip extends PureComponent {
   }
 
   render() {
-    const { visible, imgs, current, preImgs } = this.state
+    const { visible, fileList, current, preFileList } = this.state
     const { clipWidth, clipHeigth, loading } = this.props
 
     const CropperStyleHeight = clipHeigth + 50
 
-    const placeholder = [...Array(ImgMaxCount - imgs.length).keys()]
+    const placeholder = [...Array(ImgMaxCount - fileList.length).keys()]
 
     let currentSrc;
 
-    if (imgs.length) {
-      currentSrc = imgs[current].src || preImgs[current].src
+    if (fileList.length) {
+      currentSrc = fileList[current].src || preFileList[current].src
     }
 
     return (
@@ -275,11 +275,11 @@ class Clip extends PureComponent {
           }}
         >
           {
-            imgs.map((item, i) => (
+            fileList.map((item, i) => (
               <ImgWrap key={i}
                 index={i}
                 overflow={this.isOverflow(item)}
-                item={item || preImgs[current]}
+                item={item || preFileList[current]}
                 active={current === i}
                 onItemClick={this.handleImg}
                 onRefreshClick={this.handleRefresh}
@@ -299,7 +299,7 @@ class Clip extends PureComponent {
             onClick={this.handleClip}
             type="primary"
           >
-            确认 ({current + 1} / {imgs.length}) 裁剪
+            确认 ({current + 1} / {fileList.length}) 裁剪
           </Button>
           <Button
             loading={loading}

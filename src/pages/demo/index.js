@@ -43,7 +43,7 @@ class Demo extends Component {
               getValueFromEvent: this.normFile,
               initialValue: imgs
             })(
-              <Upload name="imgs" api={uploadImgs} readonly={false} />
+              <Upload api={uploadImgs} readonly={false} />
             )}
           </Form.Item>
           <Form.Item label="上传主图">
@@ -51,7 +51,7 @@ class Demo extends Component {
               valuePropName: 'fileList',
               getValueFromEvent: this.normFile
             })(
-              <Upload name="imgs2" api={uploadImgs} readonly={false} />
+              <Upload api={uploadImgs} readonly={false} />
             )}
           </Form.Item>
           <Form.Item wrapperCol={{ span: 12, offset: 5 }}>

@@ -8,7 +8,8 @@ import {
   getBase64,
   dataURLtoFile,
   isPic,
-  derivedNameFormUrl
+  derivedNameFormUrl,
+  getFileExtName
 } from './config'
 
 const uploadButton = (
@@ -18,8 +19,7 @@ const uploadButton = (
   </div>
 );
 
-// let fileLength = 0; // 已经上传的文件数量 这里fileLength导出引入在同一个文件下 只生成一份数据 所以需要globalData 保存每次引入的数据
-let globalData = {};
+let fileLength = 0 //  已经上传的文件数量 这里fileLength导出引入在同一个文件下 只生成一份数据 所以不能做渲染使用 只能在内部使用
 
 export class UploadPage extends PureComponent {
   constructor(props) {
@@ -44,9 +44,7 @@ export class UploadPage extends PureComponent {
       previewVisible: false,
       previewImage: ''
     }
-    globalData[`${props.name}-fileLength`] = (props.fileList || []).length
   }
-
 
   static getDerivedStateFromProps(nextProps, preState) {
     const nextUrls = nextProps.fileList || [] // 从父元素传过来的fileList 格式如['xxxx', 'yyy']
@@ -67,17 +65,17 @@ export class UploadPage extends PureComponent {
           uid,
           name: derivedNameFormUrl(item),
           url: item,
-          type: ''
+          type: `image/${getFileExtName(item)}`
         }
       })
 
-      globalData[`${nextProps.name}-fileLength`] = fileList.length; // 设置上传文件的数量
+      fileLength = fileList.length; // 设置上传文件的数量
 
       return {
         fileList,
         imgList: fileList.map(item => ({
           src: item.url,
-          name: item.uid,
+          name: item.name,
           uid: item.uid,
           hasClip: false, // 是否裁剪 假如没有裁剪的话 不需要发送至后端保存图片
           size: 0
@@ -93,16 +91,16 @@ export class UploadPage extends PureComponent {
 
   /** 上传限制 */
   handleBeforeUpload = (file) => {
-    const { maxAmount, name } = this.props;
+    const { maxAmount } = this.props;
     if (!isPic(file.type)) { // 图片类型限制
       message.warn(`只能上传图片哦~`)
       return false
     }
-    if ( globalData[`${name}-fileLength`] >= maxAmount) { // 图片数量限制
+    if (fileLength >= maxAmount) { // 图片数量限制
       message.warn(`只能最多上传${maxAmount}张图片哦~`)
       return false
     }
-    globalData[`${name}-fileLength`] += 1; // 上传文件的数量添加
+    fileLength += 1;
     return true
   }
 
@@ -134,8 +132,8 @@ export class UploadPage extends PureComponent {
   /** 移除图片 */
   handleRemove = (file) => {
     const { fileList, imgList } = this.state;
-    const { onChange, name } = this.props;
-    globalData[`${name}-fileLength`]--;
+    const { onChange } = this.props;
+    fileLength -= 1
     this.setState({
       fileList: fileList.filter(item => item.uid !== file.uid),
       imgList: imgList.filter(item => item.uid !== file.uid)
@@ -250,8 +248,7 @@ export class UploadPage extends PureComponent {
   /** 编辑消失之后的回调 */
   handleAfterClose = (isSave) => {
     const { fileList, imgList } = this.state;
-    const { name } = this.props;
-    globalData[`${name}-fileLength`] = fileList.length // 这里需要确认上传的数量
+    fileLength = 0; // fileLength 静态变量导出的时候都引用的同一个值 需要重置该计数器
     if (!isSave) {
       // 编辑取消保存 重新设置为fileList对应的图片
       this.setState({
@@ -261,14 +258,14 @@ export class UploadPage extends PureComponent {
   }
 
   render() {
-    const { imgList, fileList, loading, previewVisible, previewImage } = this.state;
+    let { imgList, fileList, loading, previewVisible, previewImage } = this.state;
     const { maxAmount, maxSize, clipWidth, clipHeigth, readonly } = this.props;
 
     return (
       <div>
         <Clip
           ref={ref => this.clipRef = ref}
-          imgList={imgList}
+          fileList={imgList}
           onSave={this.handleSave}
           onAfterClose={this.handleAfterClose}
           maxSize={maxSize}
@@ -312,7 +309,6 @@ UploadPage.defaultProps = {
 };
 
 UploadPage.propTypes = {
-  name: PropTypes.string.isRequired, // 当前组件的名字 相当于key
   clipWidth: PropTypes.number, // 裁剪宽度
   clipHeigth: PropTypes.number, // 裁剪宽度
   maxAmount: PropTypes.number, // 图片数量
