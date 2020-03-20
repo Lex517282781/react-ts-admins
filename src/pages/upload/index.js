@@ -19,8 +19,6 @@ const uploadButton = (
   </div>
 )
 
-let fileLength = 0 //  已经上传的文件数量 这里fileLength导出引入在同一个文件下 只生成一份数据 所以不能做渲染使用 只能在内部使用
-
 export class UploadPage extends PureComponent {
   constructor(props) {
     super(props)
@@ -78,8 +76,6 @@ export class UploadPage extends PureComponent {
         }
       })
 
-      fileLength = fileList.length // 设置上传文件的数量
-
       return {
         fileList,
         preFileList: fileList
@@ -94,6 +90,8 @@ export class UploadPage extends PureComponent {
   /** 裁剪初始化 */
   clipInitial = false
 
+  fileLength = (this.props.fileList || []).length
+
   /** 上传限制 */
   handleBeforeUpload = (file) => {
     const { maxAmount } = this.props
@@ -101,11 +99,11 @@ export class UploadPage extends PureComponent {
       message.warn(`只能上传图片哦~`)
       return false
     }
-    if (fileLength >= maxAmount) { // 图片数量限制
+    if (this.fileLength >= maxAmount) { // 图片数量限制
       message.warn(`只能最多上传${maxAmount}张图片哦~`)
       return false
     }
-    fileLength += 1
+    this.fileLength += 1
     return true
   }
 
@@ -143,7 +141,7 @@ export class UploadPage extends PureComponent {
   handleRemove = (file) => {
     const { fileList } = this.state
     const { onChange } = this.props
-    fileLength -= 1
+    this.fileLength -= 1
     this.setState({
       fileList: fileList.filter(item => item.uid !== file.uid),
     }, () => {
@@ -239,7 +237,6 @@ export class UploadPage extends PureComponent {
   handleAfterClose = (isSave) => {
     const { preFileList, fileList } = this.state
     const { onChange } = this.props
-    fileLength = 0 // fileLength 静态变量导出的时候都引用的同一个值 需要重置该计数器
     this.clipInitial = false
     if (isSave) {
       onChange && onChange(fileList.map(item => item.url))
