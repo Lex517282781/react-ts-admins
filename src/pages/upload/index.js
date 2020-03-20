@@ -242,6 +242,7 @@ export class UploadPage extends PureComponent {
       onChange && onChange(fileList.map(item => item.url))
     } else {
       // 编辑取消保存 重新设置为fileList对应的图片
+      this.fileLength = preFileList.length
       this.setState({
         fileList: preFileList
       })
