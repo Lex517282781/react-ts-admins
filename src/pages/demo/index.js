@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Form, Button } from 'antd';
-import Upload from '../upload'
+// import Upload from '../upload'
+import Upload from '@/components/clip-upload'
 
 const uploadImgs = () => {
   return new Promise((r) => {
