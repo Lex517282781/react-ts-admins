@@ -2,7 +2,7 @@ import React from 'react';
 // import Count from './pages/count'
 // import CropPage from './pages/crop'
 // import UploadPage from './pages/upload'
-import Demo from './pages/demo'
+import ClipUploadPage from './pages/clip-upload'
 
 class App extends React.Component {
 
@@ -13,7 +13,7 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-        <Demo />
+        <ClipUploadPage />
         {/* <UploadPage/> */}
         {/* <CropPage /> */}
       </div>

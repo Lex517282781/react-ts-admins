@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { Upload, Icon, message, Modal } from 'antd'
+import { Upload, Icon, message, Modal, Empty } from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
 import { isEqual } from 'lodash'
 import Clip from './components/Clip'
@@ -22,7 +22,7 @@ type ClipUploadProps = {
 
 interface ClipUploadState {
   /** 裁剪的文件列表 */
-  fileList: FileList 
+  fileList: FileList
   /** 保存外部传进来的fileList */
   preFileList: FileList
   /** 预览模态框显示状态 */
@@ -34,7 +34,7 @@ interface ClipUploadState {
 export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> {
   private static defaultProps = defaultClipUploadProps
 
-  private static getDerivedStateFromProps (nextProps: ClipUploadProps, preState: ClipUploadState) {
+  private static getDerivedStateFromProps(nextProps: ClipUploadProps, preState: ClipUploadState) {
     const nextUrls: Array<string> = nextProps.value || [] // 从父元素传过来的fileList 格式如['xxxx', 'yyy']
     const prelUrls: Array<string> = preState.preFileList.map((item) => item.url) // 从之前保存的preFileList 映射获取链接集合 结果如格式['xxxx', 'yyy']
     if (isEqual(nextUrls, prelUrls)) {
@@ -250,9 +250,12 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
     this.clipRef = ref
   }
 
-  public render () {
+  public render() {
     const { fileList, previewVisible, previewImage } = this.state
     const { maxAmount, maxSize, clipWidth, clipHeigth, readonly, help } = this.props
+
+    /** readonly 为true 且 fileList 数组为空的话 预览的时候只需要显示为空 */
+    const empty = (!fileList.length) && readonly
 
     return (
       <div>
@@ -266,27 +269,39 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
           onSave={this.handleSave}
           onAfterClose={this.handleAfterClose}
         />
-        <Upload
-          accept='image/*'
-          multiple
-          listType='picture-card'
-          fileList={fileList.map((file: FileItem) => ({
-            uid: file.uid,
-            name: file.name,
-            status: file.status,
-            url: file.url,
-            size: file.size,
-            type: file.type
-          }))}
-          beforeUpload={this.handleBeforeUpload}
-          customRequest={this.handleCustomRequest}
-          onRemove={this.handleRemove}
-          onPreview={this.handlePreview}
-        >
-          {
-            readonly ? null : (fileList.length >= maxAmount! ? null : uploadButton)
-          }
-        </Upload>
+        {
+          empty ?
+            <div style={{ width: 200 }}>
+              <Empty />
+            </div>
+            :
+            <Upload
+              accept='image/*'
+              multiple
+              listType='picture-card'
+              fileList={fileList.map((file: FileItem) => ({
+                uid: file.uid,
+                name: file.name,
+                status: file.status,
+                url: file.url,
+                size: file.size,
+                type: file.type
+              }))}
+              beforeUpload={this.handleBeforeUpload}
+              customRequest={this.handleCustomRequest}
+              onRemove={this.handleRemove}
+              onPreview={this.handlePreview}
+              showUploadList={{
+                showPreviewIcon: true,
+                showRemoveIcon: !readonly
+              }}
+            >
+              {
+                readonly ? null : (fileList.length >= maxAmount! ? null : uploadButton)
+              }
+            </Upload>
+        }
+
         <Modal
           visible={previewVisible}
           footer={null}

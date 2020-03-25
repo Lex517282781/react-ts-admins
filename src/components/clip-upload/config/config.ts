@@ -4,7 +4,7 @@ export const defaultClipUploadProps = {
   clipHeigth: 750,
   maxAmount: 3,
   maxSize: .3,
-  readonly: true,
+  readonly: false,
   help: [
     '1. 裁剪完毕之后,点击[确认裁剪]',
     '2. 完成裁剪之后,点击[保存图片]'
