@@ -1,16 +1,16 @@
 import React, { PureComponent } from 'react'
-import { Upload, Icon, message, Modal } from 'antd';
+import { Upload, Icon, message, Modal } from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
-import { isEqual } from 'lodash';
+import { isEqual } from 'lodash'
 import Clip from './components/Clip'
-import { Result, FileList, FileItem, SuccessCollect } from './config/interface';
+import { Result, FileList, FileItem, SuccessCollect } from './config/interface'
 import { getUniqueId, derivedNameFormUrl, getFileExtName, isPic, getBase64, dataURLtoFile } from './config/util'
 import { defaultClipUploadProps } from './config/config'
 
 const uploadButton = (
   <div>
-    <Icon type="plus" />
-    <div className="ant-upload-text">上传</div>
+    <Icon type='plus' />
+    <div className='ant-upload-text'>上传</div>
   </div>
 )
 
@@ -21,28 +21,25 @@ type ClipUploadProps = {
 } & Partial<typeof defaultClipUploadProps>
 
 interface ClipUploadState {
-  fileList: FileList // 裁剪的文件列表
-  preFileList: FileList // 保存外部传进来的fileList
-  previewVisible: boolean // 预览模态框显示状态
-  previewImage: string // 预览模态框图片
+  /** 裁剪的文件列表 */
+  fileList: FileList 
+  /** 保存外部传进来的fileList */
+  preFileList: FileList
+  /** 预览模态框显示状态 */
+  previewVisible: boolean
+  /** 预览模态框图片 */
+  previewImage: string
 }
 
 export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> {
-  private clipRef: any
+  private static defaultProps = defaultClipUploadProps
 
-  state = {
-    fileList: [],
-    preFileList: [],
-    previewVisible: false,
-    previewImage: ''
-  }
-
-  static defaultProps = defaultClipUploadProps
-
-  static getDerivedStateFromProps(nextProps: ClipUploadProps, preState: ClipUploadState) {
+  private static getDerivedStateFromProps (nextProps: ClipUploadProps, preState: ClipUploadState) {
     const nextUrls: Array<string> = nextProps.value || [] // 从父元素传过来的fileList 格式如['xxxx', 'yyy']
-    const prelUrls: Array<string> = preState.preFileList.map(item => item.url) // 从之前保存的preFileList 映射获取链接集合 结果如格式['xxxx', 'yyy']
-    if (isEqual(nextUrls, prelUrls)) return null
+    const prelUrls: Array<string> = preState.preFileList.map((item) => item.url) // 从之前保存的preFileList 映射获取链接集合 结果如格式['xxxx', 'yyy']
+    if (isEqual(nextUrls, prelUrls)) {
+      return null
+    }
     // 从父元素实时传输过来的参数链接集合和之前保存的链接集合比较 如果不一样 就要执行以下过程
     const fileList: FileList = nextUrls.map((item, i) => {
       let uid: string
@@ -70,17 +67,22 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
     }
   }
 
+  public state: ClipUploadState = {
+    fileList: [],
+    preFileList: [],
+    previewVisible: false,
+    previewImage: ''
+  }
+
+  private clipRef: any
   /** 储存自定义上传的成功回调, 如订阅发布模式, 可在某一刻再来执行 */
-  customRequestSuccessCollect: SuccessCollect = {}
-
+  private customRequestSuccessCollect: SuccessCollect = {}
   /** 裁剪初始化 */
-  clipInitial: boolean = false
-
+  private clipInitial: boolean = false
   /** 文件上传的数量 */
-  fileLength: number = (this.props.fileList || []).length
-
+  private fileLength: number = (this.props.value || []).length
   /** 上传限制 */
-  handleBeforeUpload = (file: File): boolean => {
+  public handleBeforeUpload = (file: File): boolean => {
     const { maxAmount = 0 } = this.props
     if (!isPic(file.type)) { // 图片类型限制
       message.warn(`只能上传图片哦~`)
@@ -95,7 +97,7 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   }
 
   /** 自定义上传 */
-  handleCustomRequest = (options: any) => {
+  public handleCustomRequest = (options: any) => {
     const { onProgress, onSuccess } = options
     onProgress()
     if (!this.clipInitial) {
@@ -107,7 +109,7 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   }
 
   /** 处理图片转base64 */
-  handleDealImage = ({ file }: { file: File }) => {
+  public handleDealImage = ({ file }: { file: File }) => {
     getBase64((file)).then((url: any) => {
       const uid = getUniqueId()
       this.setState({
@@ -119,25 +121,27 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
           hasClip: true,
           size: file.size,
           status: 'uploading'
-        }],
+        }]
       })
     })
   }
 
   /** 移除图片 */
-  handleRemove = (file: UploadFile) => {
+  public handleRemove = (file: UploadFile) => {
     const { fileList } = this.state
     const { onChange } = this.props
     this.fileLength -= 1
     this.setState({
-      fileList: fileList.filter((item: FileItem) => item.uid !== file.uid),
+      fileList: fileList.filter((item: FileItem) => item.uid !== file.uid)
     }, () => {
-      onChange && onChange(this.state.fileList.map((item: FileItem) => item.url))
+      if (onChange) {
+        onChange(this.state.fileList.map((item: FileItem) => item.url))
+      }
     })
   }
 
   /** 预览图片 */
-  handlePreview = (file: UploadFile) => {
+  public handlePreview = (file: UploadFile) => {
     const { readonly } = this.props
     if (readonly) {
       this.setState({
@@ -151,21 +155,21 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   }
 
   /** 预览图片取消 */
-  handlePreviewCancel = () => {
+  public handlePreviewCancel = () => {
     this.setState({
       previewVisible: false
     })
   }
 
   /** 预览图片彻底消失回调 */
-  handlePreviewAfterClose = () => {
+  public handlePreviewAfterClose = () => {
     this.setState({
       previewImage: ''
     })
   }
 
   /** 编辑成功之后的回调 */
-  handleSave = (fileList: FileList, afterSaveCb: () => void) => {
+  public handleSave = (fileList: FileList, afterSaveCb: () => void) => {
     const { api } = this.props
 
     // 需要远程保存的图片数量
@@ -185,8 +189,8 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
 
         api(file)
           // eslint-disable-next-line no-loop-func
-          .then(res => {
-            const fileList = [
+          .then((res) => {
+            const newFileList = [
               ...this.state.fileList.slice(0, i),
               {
                 ...(this.state.fileList[i] as FileItem),
@@ -196,23 +200,25 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
               ...this.state.fileList.slice(i + 1)
             ]
             this.setState({
-              fileList,
+              fileList: newFileList
             }, () => {
               hasClipImgsAmount = hasClipImgsAmount - 1
               if (hasClipImgsAmount === 0) {
                 // 直到需要远程保存的图片成功保存之后才算编辑成功
                 message.success('图片编辑成功!')
-                afterSaveCb();
+                afterSaveCb()
                 this.clipRef.handleHide()
               }
-              this.customRequestSuccessCollect[item.uid] && this.customRequestSuccessCollect[item.uid]()
+              if (this.customRequestSuccessCollect[item.uid]) {
+                this.customRequestSuccessCollect[item.uid]()
+              }
             })
           })
           // eslint-disable-next-line no-loop-func
-          .catch(e => {
+          .catch(() => {
             hasClipImgsAmount = hasClipImgsAmount - 1
             if (hasClipImgsAmount === 0) {
-              afterSaveCb();
+              afterSaveCb()
             }
             message.error('图片保存失败, 请点击重新保存')
           })
@@ -221,12 +227,14 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   }
 
   /** 编辑消失之后的回调 */
-  handleAfterClose = (isSave: boolean) => {
+  public handleAfterClose = (isSave: boolean) => {
     const { preFileList, fileList } = this.state
     const { onChange } = this.props
     this.clipInitial = false
     if (isSave) {
-      onChange && onChange(fileList.map((item: FileItem) => item.url))
+      if (onChange) {
+        onChange(fileList.map((item: FileItem) => item.url))
+      }
     } else {
       // 编辑取消保存 重新设置为fileList对应的图片
       this.fileLength = preFileList.length
@@ -236,13 +244,13 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
     }
   }
 
-  handleClipRef = (ref: any) => {
+  public handleClipRef = (ref: any) => {
     this.clipRef = ref
   }
 
-  render() {
+  public render () {
     const { fileList, previewVisible, previewImage } = this.state
-    const { maxAmount, maxSize, clipWidth, clipHeigth, readonly } = this.props
+    const { maxAmount, maxSize, clipWidth, clipHeigth, readonly, help } = this.props
 
     return (
       <div>
@@ -252,13 +260,14 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
           maxSize={maxSize!}
           clipWidth={clipWidth!}
           clipHeigth={clipHeigth!}
+          help={help!}
           onSave={this.handleSave}
           onAfterClose={this.handleAfterClose}
         />
         <Upload
-          accept="image/*"
+          accept='image/*'
           multiple
-          listType="picture-card"
+          listType='picture-card'
           fileList={fileList.map((file: FileItem) => ({
             uid: file.uid,
             name: file.name,
@@ -282,7 +291,7 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
           onCancel={this.handlePreviewCancel}
           afterClose={this.handlePreviewAfterClose}
         >
-          <img alt="previewImage" style={{ width: '100%' }} src={previewImage} />
+          <img alt='previewImage' style={{ width: '100%' }} src={previewImage} />
         </Modal>
       </div>
     )

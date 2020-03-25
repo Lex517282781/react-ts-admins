@@ -1,7 +1,7 @@
 /** 图片上传 后端返回类型 */
 export interface Result {
+  name: string
   url: string
-  uid: string
 }
 
 /** 文件类型 */

@@ -9,4 +9,3 @@ const ImgWrapTemp = () => {
 }
 
 export default ImgWrapTemp
-
