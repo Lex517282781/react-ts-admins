@@ -80,18 +80,25 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   /** 裁剪初始化 */
   private clipInitial: boolean = false
   /** 文件上传的数量 */
-  private fileLength: number = (this.props.value || []).length
+  private fileLength: number = 0
   /** 上传限制 */
   public handleBeforeUpload = (file: File): boolean => {
+    const preLength = (this.props.value || []).length
     const { maxAmount = 0 } = this.props
     if (!isPic(file.type)) { // 图片类型限制
       message.warn(`只能上传图片哦~`)
       return false
     }
+    if (!this.clipInitial) {
+      this.clipInitial = true
+      this.fileLength = preLength // 这里需要添加外部传进来的值 且只执行一次
+    }
+    console.log(this.fileLength)
     if (this.fileLength >= maxAmount) { // 图片数量限制
       message.warn(`只能最多上传${maxAmount}张图片哦~`)
       return false
     }
+    this.clipRef.handleShow()
     this.fileLength += 1
     return true
   }
@@ -100,10 +107,6 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   public handleCustomRequest = (options: any) => {
     const { onProgress, onSuccess } = options
     onProgress()
-    if (!this.clipInitial) {
-      this.clipInitial = true
-      this.clipRef.handleShow()
-    }
     this.customRequestSuccessCollect[options.file.uid] = onSuccess
     this.handleDealImage(options)
   }
@@ -130,10 +133,10 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   public handleRemove = (file: UploadFile) => {
     const { fileList } = this.state
     const { onChange } = this.props
-    this.fileLength -= 1
     this.setState({
       fileList: fileList.filter((item: FileItem) => item.uid !== file.uid)
     }, () => {
+      this.fileLength -= 1
       if (onChange) {
         onChange(this.state.fileList.map((item: FileItem) => item.url))
       }
@@ -232,8 +235,8 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   public handleAfterClose = (isSave: boolean) => {
     const { preFileList, fileList } = this.state
     const { onChange } = this.props
-    this.clipInitial = false
     if (isSave) {
+      this.fileLength = fileList.length
       if (onChange) {
         onChange(fileList.map((item: FileItem) => item.url))
       }
@@ -301,7 +304,6 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
               }
             </Upload>
         }
-
         <Modal
           visible={previewVisible}
           footer={null}

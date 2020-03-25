@@ -47,7 +47,7 @@ class ClipUploadPage extends Component<FormComponentProps> {
               // getValueFromEvent: this.normFile,
               initialValue: imgs
             })(
-              <Upload api={uploadImgs} readonly={true} help={['1', '2']}/>
+              <Upload api={uploadImgs} readonly={false} help={['1', '2']}/>
             )}
           </Form.Item>
           <Form.Item label="上传主图">
