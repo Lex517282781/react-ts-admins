@@ -1,29 +1,36 @@
 import React, { Component } from 'react'
 import { Form, Button } from 'antd';
 // import Upload from '../upload'
-import Upload from '@/components/clip-upload'
+import Upload from '../../components/clip-upload'
+import { Result } from '../../components/clip-upload/config/interface';
+import { FormComponentProps } from "antd/lib/form/Form";
 
-const uploadImgs = () => {
-  return new Promise((r) => {
+// const file: File = new File(["foo"], "foo.txt", {
+//   type: "text/plain",
+// });
+
+const uploadImgs = (file: File) => {
+  return new Promise<Result>((r) => {
     setTimeout(() => {
       r({
         url: 'https://assets.hzxituan.com/crm/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8551583809428505.jpg',
+        uid: '1111'
       })
     }, 1500);
   })
 }
 
-class Demo extends Component {
-  normFile = (e) => {
+class Demo extends Component<FormComponentProps> {
+  normFile = (e: any) => {
     if (Array.isArray(e)) {
       return e;
     }
     return e && e.fileList;
   }
 
-  handleSubmit = e => {
+  handleSubmit = (e: any) => {
     e.preventDefault();
-    this.props.form.validateFields((err, values) => {
+    this.props.form.validateFields((err: any, values: any) => {
       if (!err) {
         console.log('Received values of form: ', values);
       }
@@ -40,8 +47,8 @@ class Demo extends Component {
         <Form onSubmit={this.handleSubmit}>
           <Form.Item label="上传主图">
             {getFieldDecorator('imgs', {
-              valuePropName: 'fileList',
-              getValueFromEvent: this.normFile,
+              // valuePropName: 'fileList',
+              // getValueFromEvent: this.normFile,
               initialValue: imgs
             })(
               <Upload api={uploadImgs} readonly={false} />
@@ -49,8 +56,8 @@ class Demo extends Component {
           </Form.Item>
           <Form.Item label="上传主图">
             {getFieldDecorator('imgs2', {
-              valuePropName: 'fileList',
-              getValueFromEvent: this.normFile
+              // valuePropName: 'fileList',
+              // getValueFromEvent: this.normFile
             })(
               <Upload api={uploadImgs} readonly={false} />
             )}

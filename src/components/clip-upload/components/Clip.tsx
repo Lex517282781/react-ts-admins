@@ -33,7 +33,7 @@ const ImgMaxCount = 9;
 
 class Clip extends PureComponent<ClipProps, ClipState> {
   private cropperRef: any
-  
+
   state: ClipState = {
     visible: false,
     fileList: [],
@@ -177,6 +177,23 @@ class Clip extends PureComponent<ClipProps, ClipState> {
       current: 0
     }, () => {
       onAfterClose && onAfterClose(isSave)
+    })
+  }
+
+  /** 模态框显示 */
+  handleShow = (index: number) => {
+    const state = {
+      visible: true,
+      current: 0
+    }
+    if (index !== undefined) state.current = index
+    this.setState(state)
+  }
+
+  /** 模态框消失 */
+  handleHide = () => {
+    this.setState({
+      visible: false
     })
   }
 

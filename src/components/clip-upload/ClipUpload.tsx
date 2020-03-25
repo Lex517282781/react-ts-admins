@@ -16,7 +16,8 @@ const uploadButton = (
 
 type ClipUploadProps = {
   api: (f: File) => Promise<Result>
-  onChange: (fileList: string[]) => void
+  onChange?: (fileList: string[]) => void,
+  value?: string[]
 } & Partial<typeof defaultClipUploadProps>
 
 interface ClipUploadState {
@@ -39,7 +40,7 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   static defaultProps = defaultClipUploadProps
 
   static getDerivedStateFromProps(nextProps: ClipUploadProps, preState: ClipUploadState) {
-    const nextUrls: Array<string> = nextProps.fileList || [] // 从父元素传过来的fileList 格式如['xxxx', 'yyy']
+    const nextUrls: Array<string> = nextProps.value || [] // 从父元素传过来的fileList 格式如['xxxx', 'yyy']
     const prelUrls: Array<string> = preState.preFileList.map(item => item.url) // 从之前保存的preFileList 映射获取链接集合 结果如格式['xxxx', 'yyy']
     if (isEqual(nextUrls, prelUrls)) return null
     // 从父元素实时传输过来的参数链接集合和之前保存的链接集合比较 如果不一样 就要执行以下过程
@@ -95,11 +96,14 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
 
   /** 自定义上传 */
   handleCustomRequest = (options: any) => {
-    const { onProgress } = options
+    const { onProgress, onSuccess } = options
     onProgress()
     if (!this.clipInitial) {
       this.clipInitial = true
+      this.clipRef.handleShow()
     }
+    this.customRequestSuccessCollect[options.file.uid] = onSuccess
+    this.handleDealImage(options)
   }
 
   /** 处理图片转base64 */
@@ -254,6 +258,7 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
         <Upload
           accept="image/*"
           multiple
+          listType="picture-card"
           fileList={fileList.map((file: FileItem) => ({
             uid: file.uid,
             name: file.name,
