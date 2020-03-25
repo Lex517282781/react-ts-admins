@@ -1,13 +1,11 @@
 import React, { PureComponent } from 'react'
 
-class Count extends PureComponent {
+export default class index extends PureComponent {
   render() {
     return (
       <div>
-        Count
+        122
       </div>
     )
   }
 }
-
-export default Count

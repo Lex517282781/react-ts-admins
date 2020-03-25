@@ -178,6 +178,7 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
     if (!hasClipImgsAmount) {
       // 所有图片没有修改的情况下 不需要任何操作
       this.clipRef.handleHide()
+      afterSaveCb()
       return
     }
 
@@ -190,12 +191,13 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
         api(file)
           // eslint-disable-next-line no-loop-func
           .then((res) => {
-            const newFileList = [
+            const newFileList: FileList = [
               ...this.state.fileList.slice(0, i),
               {
                 ...(this.state.fileList[i] as FileItem),
                 url: res.url,
-                hasClip: false
+                hasClip: false,
+                status: 'done'
               },
               ...this.state.fileList.slice(i + 1)
             ]

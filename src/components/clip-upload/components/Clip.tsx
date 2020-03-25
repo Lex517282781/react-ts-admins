@@ -4,7 +4,7 @@ import Cropper from 'react-cropper'
 import ImgWrap from './ImgWrap'
 import ImgWrapTemp from './ImgWrapTemp'
 import { FileItem, FileList } from '../config/interface'
-import { getBase64Size, sizeOverflow } from '../config/util'
+import { getBase64Size, sizeOverflow, makeArray } from '../config/util'
 import 'cropperjs/dist/cropper.css'
 import styles from '../style.module.styl'
 
@@ -223,8 +223,7 @@ class Clip extends PureComponent<ClipProps, ClipState> {
 
     const CropperStyleHeight: number = clipHeigth + 50
 
-    // @ts-ignore
-    const placeholder = [...Array(ImgMaxCount - fileList.length).keys()]
+    const placeholder = makeArray(ImgMaxCount - fileList.length)
 
     let currentSrc: string = ''
 

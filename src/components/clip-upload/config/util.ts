@@ -9,6 +9,11 @@ export const getUniqueId = (() => {
   }
 })()
 
+/** 生成自然数数组 */
+export const makeArray = (length: number) => {
+  return Array.from({length}).map((v, k) => k)
+}
+
 /** file转base64 */
 export const getBase64 = (file: File) => {
   return new Promise((resolve, reject) => {

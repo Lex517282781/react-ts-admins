@@ -10,9 +10,3 @@ export const defaultClipUploadProps = {
     '2. 完成裁剪之后,点击[保存图片]'
   ]
 }
-
-/** ClipUpload组件 提示帮助信息 */
-export const helpInfos = [
-  '1. 裁剪完毕之后,点击[确认裁剪]',
-  '2. 完成裁剪之后,点击[保存图片]'
-]
