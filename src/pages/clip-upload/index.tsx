@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { Form, Button } from 'antd'
-// import Upload from '../upload'
+import Panel from '@/components/panel'
 import Upload from '@/components/clip-upload'
 import { Result } from '@/components/clip-upload/config/interface'
 import { FormComponentProps } from "antd/lib/form/Form"
@@ -16,14 +16,7 @@ const uploadImgs = (file: File) => {
   })
 }
 
-class ClipUploadPage extends Component<FormComponentProps> {
-  normFile = (e: any) => {
-    if (Array.isArray(e)) {
-      return e
-    }
-    return e && e.fileList
-  }
-
+class ClipUploadPage extends PureComponent<FormComponentProps> {
   handleSubmit = (e: any) => {
     e.preventDefault()
     this.props.form.validateFields((err: any, values: any) => {
@@ -39,12 +32,10 @@ class ClipUploadPage extends Component<FormComponentProps> {
     const imgs = ["https://assets.hzxituan.com/crm/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8551583809428505.jpg"]
 
     return (
-      <div>
+      <Panel title="裁剪上传组件">
         <Form onSubmit={this.handleSubmit}>
           <Form.Item label="上传主图">
             {getFieldDecorator('imgs', {
-              // valuePropName: 'fileList',
-              // getValueFromEvent: this.normFile,
               initialValue: imgs
             })(
               <Upload api={uploadImgs} readonly={false} help={['1', '2']}/>
@@ -52,19 +43,17 @@ class ClipUploadPage extends Component<FormComponentProps> {
           </Form.Item>
           <Form.Item label="上传主图">
             {getFieldDecorator('imgs2', {
-              // valuePropName: 'fileList',
-              // getValueFromEvent: this.normFile
             })(
               <Upload clipWidth={750} clipHeigth={740} api={uploadImgs} readonly={false} />
             )}
           </Form.Item>
-          <Form.Item wrapperCol={{ span: 12, offset: 5 }}>
+          <Form.Item wrapperCol={{ span: 12 }}>
             <Button type="primary" htmlType="submit">
-              Submit
+              提交
             </Button>
           </Form.Item>
         </Form>
-      </div>
+      </Panel>
     )
   }
 }

@@ -83,7 +83,6 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   private fileLength: number = 0
   /** 上传限制 */
   public handleBeforeUpload = (file: File): boolean => {
-    const preLength = (this.props.value || []).length
     const { maxAmount = 0 } = this.props
     if (!isPic(file.type)) { // 图片类型限制
       message.warn(`只能上传图片哦~`)
@@ -91,7 +90,7 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
     }
     if (!this.clipInitial) {
       this.clipInitial = true
-      this.fileLength = preLength // 这里需要添加外部传进来的值 且只执行一次
+      this.fileLength = (this.props.value || []).length // 这里需要添加外部传进来的值 且只执行一次
     }
     console.log(this.fileLength)
     if (this.fileLength >= maxAmount) { // 图片数量限制
