@@ -21,27 +21,18 @@ const columns = [
     key: 'address'
   },
   {
-    title: 'Tags',
+    title: '全部显示',
     key: 'tags',
     dataIndex: 'tags',
-    render: (tags: string[]) => (
-      <span>
-        {tags.map(tag => {
-          let color = tag.length > 5 ? 'geekblue' : 'green'
-          if (tag === 'loser') {
-            color = 'volcano'
-          }
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          )
-        })}
-      </span>
-    ),
+    render: () => (
+      <ActionView showNum={2}>
+        <a>操作一</a>
+        <a>操作二</a>
+      </ActionView>
+    )
   },
   {
-    title: 'Action',
+    title: 'hover显示',
     key: 'action',
     render: () => (
       <ActionView showNum={1}>
@@ -58,22 +49,19 @@ const data = [
     key: '1',
     name: 'John Brown',
     age: 32,
-    address: 'New York No. 1 Lake Park',
-    tags: ['nice', 'developer']
+    address: 'New York No. 1 Lake Park'
   },
   {
     key: '2',
     name: 'Jim Green',
     age: 42,
-    address: 'London No. 1 Lake Park',
-    tags: ['loser']
+    address: 'London No. 1 Lake Park'
   },
   {
     key: '3',
     name: 'Joe Black',
     age: 32,
-    address: 'Sidney No. 1 Lake Park',
-    tags: ['cool', 'teacher']
+    address: 'Sidney No. 1 Lake Park'
   }
 ]
 

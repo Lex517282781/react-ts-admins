@@ -45,3 +45,8 @@
   }
   ```
 3. 重启IDE才生效
+
+### 格式化工具
+
+1. 安装 prettier-now
+2. setting设置

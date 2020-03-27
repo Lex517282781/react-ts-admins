@@ -34,9 +34,10 @@
     "dotenv-expand": "5.1.0",
     "eslint": "^6.6.0",
     "eslint-config-react-app": "^5.2.0",
+    "eslint-config-standard": "^14.1.1",
     "eslint-loader": "3.0.3",
     "eslint-plugin-flowtype": "4.6.0",
-    "eslint-plugin-import": "2.20.0",
+    "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jsx-a11y": "6.2.3",
     "eslint-plugin-react": "7.18.0",
     "eslint-plugin-react-hooks": "^1.6.1",
@@ -86,6 +87,7 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
+    "lint:fix": "eslint './src/**/*.{ts,tsx}'",
     "tslint": "tslint --fix -c ./tslint.json 'src/**/*{.ts,.tsx}'"
   },
   "eslintConfig": {
@@ -152,5 +154,10 @@
       "jest-watch-typeahead/filename",
       "jest-watch-typeahead/testname"
     ]
+  },
+  "devDependencies": {
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1"
   }
 }
