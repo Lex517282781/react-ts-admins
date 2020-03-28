@@ -1,3 +1,3 @@
-import ClipUpload from './ClipUpload';
+import ClipUpload from './ClipUpload'
 
-export default ClipUpload;
+export default ClipUpload

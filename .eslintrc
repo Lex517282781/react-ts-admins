@@ -4,10 +4,7 @@
     "commonjs": true,
     "es6": true
   },
-  "globals": {
-    "APP": true,
-    "__ENV__": true
-  },
+  "globals": {},
   "extends": ["standard"],
   "parserOptions": {
     "ecmaFeatures": {
@@ -16,8 +13,10 @@
     },
     "sourceType": "module"
   },
+  "parser": "@typescript-eslint/parser",
   "plugins": [
-    "react"
+    "react",
+    "@typescript-eslint"
   ],
   "rules": {
     "no-new": "off",

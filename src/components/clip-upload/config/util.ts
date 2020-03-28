@@ -11,7 +11,7 @@ export const getUniqueId = (() => {
 
 /** 生成自然数数组 */
 export const makeArray = (length: number) => {
-  return Array.from({length}).map((v, k) => k)
+  return Array.from({ length }).map((v, k) => k)
 }
 
 /** file转base64 */
@@ -50,7 +50,7 @@ export const isPic = (type: string): boolean => {
 
 /** size为n n小于1的 (n*1000)kb n大于等于1 (n)mb，1000kb-1024kb区间不支持设置 */
 export const sizeOverflow = (cursize: number, presize: number): boolean => {
-  return (cursize / 1024 / 1024) > (presize < 1 ? presize / 1.024 : presize)
+  return cursize / 1024 / 1024 > (presize < 1 ? presize / 1.024 : presize)
 }
 
 /** 根据图片大小获取大小M和KB值 */
@@ -66,7 +66,7 @@ export const getSizeTxt = (size: number) => {
 export const getBase64Size = (base64: string): number => {
   base64 = base64.split(',')[1].split('=')[0]
   const strLength: number = base64.length
-  const fileLength: number = strLength - (strLength / 8) * 2
+  const fileLength: number = strLength - strLength / 8 * 2
   return Math.floor(fileLength) // 向下取整
 }
 

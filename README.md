@@ -50,3 +50,7 @@
 
 1. 安装 prettier-now
 2. setting设置
+
+### elint 设置没有立即生效
+
+- 在webpack.config.js 里面有个eslint-loader的配置, cache属性设置的是 true, 把它修改为false, 重启, 你修改的eslintrc就可以生效了

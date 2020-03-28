@@ -16,7 +16,7 @@ const uploadButton = (
 
 type ClipUploadProps = {
   api: (f: File) => Promise<Result>
-  onChange?: (fileList: string[]) => void,
+  onChange?: (fileList: string[]) => void
   value?: string[]
 } & Partial<typeof defaultClipUploadProps>
 
@@ -34,7 +34,7 @@ interface ClipUploadState {
 export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> {
   private static defaultProps = defaultClipUploadProps
 
-  private static getDerivedStateFromProps(nextProps: ClipUploadProps, preState: ClipUploadState) {
+  private static getDerivedStateFromProps (nextProps: ClipUploadProps, preState: ClipUploadState) {
     const nextUrls: Array<string> = nextProps.value || [] // 从父元素传过来的fileList 格式如['xxxx', 'yyy']
     const prelUrls: Array<string> = preState.preFileList.map((item) => item.url) // 从之前保存的preFileList 映射获取链接集合 结果如格式['xxxx', 'yyy']
     if (isEqual(nextUrls, prelUrls)) {
@@ -84,7 +84,8 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   /** 上传限制 */
   public handleBeforeUpload = (file: File): boolean => {
     const { maxAmount = 0 } = this.props
-    if (!isPic(file.type)) { // 图片类型限制
+    if (!isPic(file.type)) {
+      // 图片类型限制
       message.warn(`只能上传图片哦~`)
       return false
     }
@@ -93,7 +94,8 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
       this.fileLength = (this.props.value || []).length // 这里需要添加外部传进来的值 且只执行一次
     }
     console.log(this.fileLength)
-    if (this.fileLength >= maxAmount) { // 图片数量限制
+    if (this.fileLength >= maxAmount) {
+      // 图片数量限制
       message.warn(`只能最多上传${maxAmount}张图片哦~`)
       return false
     }
@@ -112,18 +114,21 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
 
   /** 处理图片转base64 */
   public handleDealImage = ({ file }: { file: File }) => {
-    getBase64((file)).then((url: any) => {
+    getBase64(file).then((url: any) => {
       const uid = getUniqueId()
       this.setState({
-        fileList: [...this.state.fileList, {
-          uid,
-          name: file.name,
-          url,
-          type: file.type,
-          hasClip: true,
-          size: file.size,
-          status: 'uploading'
-        }]
+        fileList: [
+          ...this.state.fileList,
+          {
+            uid,
+            name: file.name,
+            url,
+            type: file.type,
+            hasClip: true,
+            size: file.size,
+            status: 'uploading'
+          }
+        ]
       })
     })
   }
@@ -132,14 +137,17 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   public handleRemove = (file: UploadFile) => {
     const { fileList } = this.state
     const { onChange } = this.props
-    this.setState({
-      fileList: fileList.filter((item: FileItem) => item.uid !== file.uid)
-    }, () => {
-      this.fileLength -= 1
-      if (onChange) {
-        onChange(this.state.fileList.map((item: FileItem) => item.url))
+    this.setState(
+      {
+        fileList: fileList.filter((item: FileItem) => item.uid !== file.uid)
+      },
+      () => {
+        this.fileLength -= 1
+        if (onChange) {
+          onChange(this.state.fileList.map((item: FileItem) => item.url))
+        }
       }
-    })
+    )
   }
 
   /** 预览图片 */
@@ -175,7 +183,7 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
     const { api } = this.props
 
     // 需要远程保存的图片数量
-    let hasClipImgsAmount = fileList.reduce((pre, next) => next.hasClip ? pre + 1 : pre, 0)
+    let hasClipImgsAmount = fileList.reduce((pre, next) => (next.hasClip ? pre + 1 : pre), 0)
 
     if (!hasClipImgsAmount) {
       // 所有图片没有修改的情况下 不需要任何操作
@@ -196,27 +204,30 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
             const newFileList: FileList = [
               ...this.state.fileList.slice(0, i),
               {
-                ...(this.state.fileList[i] as FileItem),
+                ...this.state.fileList[i] as FileItem,
                 url: res.url,
                 hasClip: false,
                 status: 'done'
               },
               ...this.state.fileList.slice(i + 1)
             ]
-            this.setState({
-              fileList: newFileList
-            }, () => {
-              hasClipImgsAmount = hasClipImgsAmount - 1
-              if (hasClipImgsAmount === 0) {
-                // 直到需要远程保存的图片成功保存之后才算编辑成功
-                message.success('图片编辑成功!')
-                afterSaveCb()
-                this.clipRef.handleHide()
+            this.setState(
+              {
+                fileList: newFileList
+              },
+              () => {
+                hasClipImgsAmount = hasClipImgsAmount - 1
+                if (hasClipImgsAmount === 0) {
+                  // 直到需要远程保存的图片成功保存之后才算编辑成功
+                  message.success('图片编辑成功!')
+                  afterSaveCb()
+                  this.clipRef.handleHide()
+                }
+                if (this.customRequestSuccessCollect[item.uid]) {
+                  this.customRequestSuccessCollect[item.uid]()
+                }
               }
-              if (this.customRequestSuccessCollect[item.uid]) {
-                this.customRequestSuccessCollect[item.uid]()
-              }
-            })
+            )
           })
           // eslint-disable-next-line no-loop-func
           .catch(() => {
@@ -252,12 +263,12 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
     this.clipRef = ref
   }
 
-  public render() {
+  public render () {
     const { fileList, previewVisible, previewImage } = this.state
     const { maxAmount, maxSize, clipWidth, clipHeigth, readonly, help } = this.props
 
     /** readonly 为true 且 fileList 数组为空的话 预览的时候只需要显示为空 */
-    const empty = (!fileList.length) && readonly
+    const empty = !fileList.length && readonly
 
     return (
       <div>
@@ -271,38 +282,35 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
           onSave={this.handleSave}
           onAfterClose={this.handleAfterClose}
         />
-        {
-          empty ?
-            <div style={{ width: 200 }}>
-              <Empty />
-            </div>
-            :
-            <Upload
-              accept='image/*'
-              multiple
-              listType='picture-card'
-              fileList={fileList.map((file: FileItem) => ({
-                uid: file.uid,
-                name: file.name,
-                status: file.status,
-                url: file.url,
-                size: file.size,
-                type: file.type
-              }))}
-              beforeUpload={this.handleBeforeUpload}
-              customRequest={this.handleCustomRequest}
-              onRemove={this.handleRemove}
-              onPreview={this.handlePreview}
-              showUploadList={{
-                showPreviewIcon: true,
-                showRemoveIcon: !readonly
-              }}
-            >
-              {
-                readonly ? null : (fileList.length >= maxAmount! ? null : uploadButton)
-              }
-            </Upload>
-        }
+        {empty ? (
+          <div style={{ width: 200 }}>
+            <Empty />
+          </div>
+        ) : (
+          <Upload
+            accept='image/*'
+            multiple
+            listType='picture-card'
+            fileList={fileList.map((file: FileItem) => ({
+              uid: file.uid,
+              name: file.name,
+              status: file.status,
+              url: file.url,
+              size: file.size,
+              type: file.type
+            }))}
+            beforeUpload={this.handleBeforeUpload}
+            customRequest={this.handleCustomRequest}
+            onRemove={this.handleRemove}
+            onPreview={this.handlePreview}
+            showUploadList={{
+              showPreviewIcon: true,
+              showRemoveIcon: !readonly
+            }}
+          >
+            {readonly ? null : fileList.length >= maxAmount! ? null : uploadButton}
+          </Upload>
+        )}
         <Modal
           visible={previewVisible}
           footer={null}
