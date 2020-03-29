@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { Form, Button } from 'antd'
+import { Form, Button, Card } from 'antd'
 import Panel from '@/components/panel'
 import Upload from '@/components/clip-upload'
 import { Result } from '@/components/clip-upload/config/interface'
@@ -17,14 +17,22 @@ const uploadImgs = (file: File) => {
   })
 }
 
-class ClipUploadPage extends PureComponent<FormComponentProps> {
+class ClipUploadPage extends PureComponent<
+  FormComponentProps
+> {
   handleSubmit = (e: any) => {
     e.preventDefault()
-    this.props.form.validateFields((err: any, values: any) => {
-      if (!err) {
-        console.log('Received values of form: ', values)
+    this.props.form.validateFields(
+      (err: any, values: any) => {
+        if (!err) {
+          console.log('Received values of form: ', values)
+        }
       }
-    })
+    )
+  }
+
+  handleChange = (fileList: string[]) => {
+    console.log(fileList)
   }
 
   render () {
@@ -36,23 +44,47 @@ class ClipUploadPage extends PureComponent<FormComponentProps> {
 
     return (
       <Panel title='裁剪上传组件'>
-        <Form onSubmit={this.handleSubmit}>
-          <Form.Item label='上传主图'>
-            {getFieldDecorator('imgs', {
-              initialValue: imgs
-            })(<Upload api={uploadImgs} readonly={false} help={['1', '2']} />)}
-          </Form.Item>
-          <Form.Item label='上传主图'>
-            {getFieldDecorator('imgs2', {})(
-              <Upload clipWidth={750} clipHeigth={740} api={uploadImgs} readonly={false} />
-            )}
-          </Form.Item>
-          <Form.Item wrapperCol={{ span: 12 }}>
-            <Button type='primary' htmlType='submit'>
-              提交
-            </Button>
-          </Form.Item>
-        </Form>
+        <Card type='inner' title='普通使用'>
+          <Upload
+            api={uploadImgs}
+            readonly={false}
+            onChange={this.handleChange}
+          />
+        </Card>
+        <Card
+          type='inner'
+          title='在表单中使用'
+          style={{ marginTop: 24 }}
+        >
+          <Form onSubmit={this.handleSubmit}>
+            <Form.Item label='上传主图'>
+              {getFieldDecorator('imgs2')(
+                <Upload
+                  clipWidth={750}
+                  clipHeigth={740}
+                  api={uploadImgs}
+                  readonly={false}
+                />
+              )}
+            </Form.Item>
+            <Form.Item label='上传主图(有默认值)'>
+              {getFieldDecorator('imgs', {
+                initialValue: imgs
+              })(
+                <Upload
+                  api={uploadImgs}
+                  readonly={false}
+                  help={['1. 这是指导一', '2. 这是指导二']}
+                />
+              )}
+            </Form.Item>
+            <Form.Item wrapperCol={{ span: 12 }}>
+              <Button type='primary' htmlType='submit'>
+                提交
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
       </Panel>
     )
   }

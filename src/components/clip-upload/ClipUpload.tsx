@@ -3,8 +3,20 @@ import { Upload, Icon, message, Modal, Empty } from 'antd'
 import { UploadFile } from 'antd/lib/upload/interface'
 import { isEqual } from 'lodash'
 import Clip from './components/Clip'
-import { Result, FileList, FileItem, SuccessCollect } from './config/interface'
-import { getUniqueId, derivedNameFormUrl, getFileExtName, isPic, getBase64, dataURLtoFile } from './config/util'
+import {
+  Result,
+  FileList,
+  FileItem,
+  SuccessCollect
+} from './config/interface'
+import {
+  getUniqueId,
+  derivedNameFormUrl,
+  getFileExtName,
+  isPic,
+  getBase64,
+  dataURLtoFile
+} from './config/util'
 import { defaultClipUploadProps } from './config/config'
 
 const uploadButton = (
@@ -31,12 +43,20 @@ interface ClipUploadState {
   previewImage: string
 }
 
-export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> {
+export class ClipUpload extends PureComponent<
+  ClipUploadProps,
+  ClipUploadState
+> {
   private static defaultProps = defaultClipUploadProps
 
-  private static getDerivedStateFromProps (nextProps: ClipUploadProps, preState: ClipUploadState) {
+  private static getDerivedStateFromProps (
+    nextProps: ClipUploadProps,
+    preState: ClipUploadState
+  ) {
     const nextUrls: Array<string> = nextProps.value || [] // 从父元素传过来的fileList 格式如['xxxx', 'yyy']
-    const prelUrls: Array<string> = preState.preFileList.map((item) => item.url) // 从之前保存的preFileList 映射获取链接集合 结果如格式['xxxx', 'yyy']
+    const prelUrls: Array<
+      string
+    > = preState.preFileList.map((item) => item.url) // 从之前保存的preFileList 映射获取链接集合 结果如格式['xxxx', 'yyy']
     if (isEqual(nextUrls, prelUrls)) {
       return null
     }
@@ -45,7 +65,10 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
       let uid: string
 
       // 已有的图片不需要重新生成新的uid, 以避免重新渲染
-      if (preState.fileList[i] && preState.fileList[i].url) {
+      if (
+        preState.fileList[i] &&
+        preState.fileList[i].url
+      ) {
         uid = preState.fileList[i].uid
       } else {
         uid = getUniqueId()
@@ -93,7 +116,6 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
       this.clipInitial = true
       this.fileLength = (this.props.value || []).length // 这里需要添加外部传进来的值 且只执行一次
     }
-    console.log(this.fileLength)
     if (this.fileLength >= maxAmount) {
       // 图片数量限制
       message.warn(`只能最多上传${maxAmount}张图片哦~`)
@@ -108,7 +130,9 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   public handleCustomRequest = (options: any) => {
     const { onProgress, onSuccess } = options
     onProgress()
-    this.customRequestSuccessCollect[options.file.uid] = onSuccess
+    this.customRequestSuccessCollect[
+      options.file.uid
+    ] = onSuccess
     this.handleDealImage(options)
   }
 
@@ -139,12 +163,18 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
     const { onChange } = this.props
     this.setState(
       {
-        fileList: fileList.filter((item: FileItem) => item.uid !== file.uid)
+        fileList: fileList.filter(
+          (item: FileItem) => item.uid !== file.uid
+        )
       },
       () => {
         this.fileLength -= 1
         if (onChange) {
-          onChange(this.state.fileList.map((item: FileItem) => item.url))
+          onChange(
+            this.state.fileList.map(
+              (item: FileItem) => item.url
+            )
+          )
         }
       }
     )
@@ -160,7 +190,9 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
       })
       return
     }
-    const index = this.state.fileList.findIndex((item: FileItem) => item.uid === file.uid)
+    const index = this.state.fileList.findIndex(
+      (item: FileItem) => item.uid === file.uid
+    )
     this.clipRef.handleShow(index)
   }
 
@@ -179,11 +211,17 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   }
 
   /** 编辑成功之后的回调 */
-  public handleSave = (fileList: FileList, afterSaveCb: () => void) => {
+  public handleSave = (
+    fileList: FileList,
+    afterSaveCb: () => void
+  ) => {
     const { api } = this.props
 
     // 需要远程保存的图片数量
-    let hasClipImgsAmount = fileList.reduce((pre, next) => (next.hasClip ? pre + 1 : pre), 0)
+    let hasClipImgsAmount = fileList.reduce(
+      (pre, next) => (next.hasClip ? pre + 1 : pre),
+      0
+    )
 
     if (!hasClipImgsAmount) {
       // 所有图片没有修改的情况下 不需要任何操作
@@ -223,8 +261,12 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
                   afterSaveCb()
                   this.clipRef.handleHide()
                 }
-                if (this.customRequestSuccessCollect[item.uid]) {
-                  this.customRequestSuccessCollect[item.uid]()
+                if (
+                  this.customRequestSuccessCollect[item.uid]
+                ) {
+                  this.customRequestSuccessCollect[
+                    item.uid
+                  ]()
                 }
               }
             )
@@ -264,11 +306,30 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
   }
 
   public render () {
-    const { fileList, previewVisible, previewImage } = this.state
-    const { maxAmount, maxSize, clipWidth, clipHeigth, readonly, help } = this.props
+    const {
+      fileList,
+      previewVisible,
+      previewImage
+    } = this.state
+    const {
+      maxAmount,
+      maxSize,
+      clipWidth,
+      clipHeigth,
+      readonly,
+      help
+    } = this.props
 
     /** readonly 为true 且 fileList 数组为空的话 预览的时候只需要显示为空 */
     const empty = !fileList.length && readonly
+
+    let uploadButtonEl = null
+
+    if (readonly || (fileList.length >= maxAmount!)) {
+      uploadButtonEl = null
+    } else {
+      uploadButtonEl = uploadButton
+    }
 
     return (
       <div>
@@ -308,7 +369,7 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
               showRemoveIcon: !readonly
             }}
           >
-            {readonly ? null : fileList.length >= maxAmount! ? null : uploadButton}
+            {uploadButtonEl}
           </Upload>
         )}
         <Modal
@@ -317,7 +378,11 @@ export class ClipUpload extends PureComponent<ClipUploadProps, ClipUploadState> 
           onCancel={this.handlePreviewCancel}
           afterClose={this.handlePreviewAfterClose}
         >
-          <img alt='previewImage' style={{ width: '100%' }} src={previewImage} />
+          <img
+            alt='previewImage'
+            style={{ width: '100%' }}
+            src={previewImage}
+          />
         </Modal>
       </div>
     )

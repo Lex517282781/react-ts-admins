@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { Divider, Table, Tag } from 'antd'
+import { Divider, Table } from 'antd'
 import Panel from '@/components/panel'
 import ActionView from '@/components/action-view'
 
@@ -40,7 +40,7 @@ const columns = [
         <a>操作二</a>
         <a>操作三</a>
       </ActionView>
-    ),
+    )
   }
 ]
 
@@ -66,9 +66,9 @@ const data = [
 ]
 
 class ActionViewPage extends PureComponent {
-  render() {
+  render () {
     return (
-      <Panel title="表格操作组件">
+      <Panel title='表格操作组件'>
         <h4>预览</h4>
         <ActionView showNum={1}>
           <a>操作一</a>
