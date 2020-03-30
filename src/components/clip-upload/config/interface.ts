@@ -10,9 +10,15 @@ export interface FileItem {
   name: string
   url: string
   type: string
-  hasClip: boolean,
+  hasClip: boolean
   size: number
-  status: "done" | "error" | "success" | "uploading" | "removed" | undefined
+  status:
+  | 'done'
+  | 'error'
+  | 'success'
+  | 'uploading'
+  | 'removed'
+  | undefined
 }
 
 export type FileList = Array<FileItem>
@@ -28,5 +34,8 @@ export interface ImgWrapProps {
   item: { url: string }
   active: boolean
   onItemClick: (index: number) => void
-  onRefreshClick: (index: number, e: React.MouseEvent) => void
+  onRefreshClick: (
+    index: number,
+    e: React.MouseEvent
+  ) => void
 }

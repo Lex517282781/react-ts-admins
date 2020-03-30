@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react'
 import { Form, Button, Card, Popover } from 'antd'
 import { SketchPicker, ColorResult } from 'react-color'
 import Panel from '@/components/panel'
-import Upload from '@/components/clip-upload'
 import { Result } from '@/components/clip-upload/config/interface'
 import { FormComponentProps } from 'antd/lib/form/Form'
 

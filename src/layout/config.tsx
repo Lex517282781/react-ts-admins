@@ -23,6 +23,16 @@ export const categorys = [
         id: '2-1',
         text: '表格操作',
         url: '/action-view'
+      },
+      {
+        id: '2-2',
+        text: '表格列表',
+        url: '/list-page'
+      },
+      {
+        id: '2-3',
+        text: '轮播预览',
+        url: '/carousel-preview'
       }
     ]
   }
