@@ -36,4 +36,15 @@ export const categorys = [
       }
     ]
   }
+  // {
+  //   id: '3',
+  //   text: '组合',
+  //   list: [
+  //     {
+  //       id: '3-1',
+  //       text: '表单操作',
+  //       url: '/action-view'
+  //     }
+  //   ]
+  // }
 ]

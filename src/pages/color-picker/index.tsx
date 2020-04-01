@@ -1,34 +1,14 @@
 import React, { PureComponent } from 'react'
-import { Form, Button, Card, Popover } from 'antd'
-import { SketchPicker, ColorResult } from 'react-color'
+import { Form, Button, Card } from 'antd'
 import Panel from '@/components/panel'
-import { Result } from '@/components/clip-upload/config/interface'
+import ColorPicker from '@/components/color-picker'
 import { FormComponentProps } from 'antd/lib/form/Form'
 
-const uploadImgs = (file: File) => {
-  return new Promise<Result>((resolve) => {
-    setTimeout(() => {
-      resolve({
-        url:
-          'https://assets.hzxituan.com/crm/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8551583809428505.jpg',
-        name: '1111'
-      })
-    }, 1500)
-  })
-}
-
-interface ColorPickerState {
-  color: ColorResult
-}
+const color = 'rgba(0, 36, 100, 2)'
 
 class ColorPickerPage extends PureComponent<
-  FormComponentProps,
-  ColorPickerState
+  FormComponentProps
 > {
-  public state: ColorPickerState = {
-    color: {} as ColorResult
-  }
-
   handleSubmit = (e: any) => {
     e.preventDefault()
     this.props.form.validateFields(
@@ -40,7 +20,7 @@ class ColorPickerPage extends PureComponent<
     )
   }
 
-  handleChangeComplete = (color: ColorResult) => {
+  handleChange = (color: string) => {
     console.log(color)
   }
 
@@ -49,29 +29,19 @@ class ColorPickerPage extends PureComponent<
 
     return (
       <Panel title='颜色选择组件'>
-        <Card type='inner' title='在表单中使用'>
+        <Card type='inner' title='普通使用'>
+          <ColorPicker onChange={this.handleChange} />
+        </Card>
+        <Card
+          style={{ marginTop: 24 }}
+          type='inner'
+          title='在表单中使用'
+        >
           <Form onSubmit={this.handleSubmit}>
-            <Form.Item label='上传主图'>
-              {getFieldDecorator('imgs3')(
-                <Popover
-                  placement='right'
-                  content={
-                    <SketchPicker
-                      onChangeComplete={
-                        this.handleChangeComplete
-                      }
-                    />
-                  }
-                >
-                  <Button
-                    style={{
-                      width: 60,
-                      height: 60
-                    }}
-                    type='primary'
-                  />
-                </Popover>
-              )}
+            <Form.Item label='选择颜色'>
+              {getFieldDecorator('color', {
+                initialValue: color
+              })(<ColorPicker />)}
             </Form.Item>
             <Form.Item wrapperCol={{ span: 12 }}>
               <Button type='primary' htmlType='submit'>
