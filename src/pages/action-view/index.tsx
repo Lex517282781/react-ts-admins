@@ -72,8 +72,6 @@ class ActionViewPage extends PureComponent {
         <h4>预览</h4>
         <ActionView showNum={2}>
           <a>操作一</a>
-          <a>操作二</a>
-          <a>操作三</a>
         </ActionView>
         <Divider dashed />
         <h4>表格操作</h4>

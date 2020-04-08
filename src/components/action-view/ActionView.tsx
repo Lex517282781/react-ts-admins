@@ -10,7 +10,11 @@ class ActionView extends PureComponent<ActionViewProps> {
   private static defaultProps = defaultActionViewProps
 
   render () {
-    const { showNum, children, emptyTxt } = this.props
+    const { showNum, emptyTxt } = this.props
+    let children = this.props.children
+    children = Array.isArray(children)
+      ? children
+      : [children]
 
     /* 展示数量设置为0 或者 子元素没设置的话 直接返回空值 */
     if (
@@ -23,8 +27,8 @@ class ActionView extends PureComponent<ActionViewProps> {
     /* 过滤控制 null 或者 '' */
     const validChildren = (children as Array<
       React.ReactNode
-    >).filter((item) =>
-      !['', null, undefined].includes(item as any)
+    >).filter(
+      (item) => !['', null, undefined].includes(item as any)
     )
 
     const childrenLength: number = React.Children.count(
