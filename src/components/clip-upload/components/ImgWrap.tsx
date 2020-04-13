@@ -4,12 +4,28 @@ import classNames from 'classnames'
 import styles from '../style.module.styl'
 
 /** 选择图组件 */
-const ImgWrap = ({ index, overflow, item, active, onItemClick, onRefreshClick }: ImgWrapProps) => {
+const ImgWrap = ({
+  index,
+  // overflow,
+  isClip,
+  item,
+  active,
+  onItemClick,
+  onRefreshClick
+}: ImgWrapProps) => {
   const cls = classNames(
     styles[`clip-preview-wrap`],
     styles[`clip-preview-wrap-content`],
     { [styles[`clip-preview-wrap-active`]]: active }
   )
+
+  let hint = ''
+  if (!isClip) {
+    hint = '待裁剪'
+  }
+  // else if (overflow) {
+  //   hint = '超出大小'
+  // }
 
   return (
     <div className={cls}>
@@ -23,16 +39,20 @@ const ImgWrap = ({ index, overflow, item, active, onItemClick, onRefreshClick }:
           alt='img'
           src={item.url}
         />
-        {
-          overflow &&
-          (
-            <div className={styles[`clip-preview-error`]}>
-              <span className={styles[`clip-preview-error-inner`]}>超出大小</span>
-            </div>
-          )
-        }
+        {hint && (
+          <div className={styles[`clip-preview-error`]}>
+            <span
+              className={styles[`clip-preview-error-inner`]}
+            >
+              {hint}
+            </span>
+          </div>
+        )}
       </div>
-      <div onClick={onRefreshClick.bind(null, index)} className={styles[`clip-preview-text`]}>
+      <div
+        onClick={onRefreshClick.bind(null, index)}
+        className={styles[`clip-preview-text`]}
+      >
         恢复原图
       </div>
     </div>

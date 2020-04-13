@@ -80,6 +80,7 @@ export class ClipUpload extends PureComponent<
         url: item,
         type: `image/${getFileExtName(item)}`,
         size: 0,
+        rate: 0,
         hasClip: false,
         status: 'done'
       }
@@ -150,6 +151,7 @@ export class ClipUpload extends PureComponent<
             type: file.type,
             hasClip: true,
             size: file.size,
+            rate: 0,
             status: 'uploading'
           }
         ]
@@ -295,6 +297,7 @@ export class ClipUpload extends PureComponent<
     } else {
       // 编辑取消保存 重新设置为fileList对应的图片
       this.fileLength = preFileList.length
+      console.log(preFileList)
       this.setState({
         fileList: preFileList
       })

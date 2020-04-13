@@ -12,6 +12,7 @@ export interface FileItem {
   type: string
   hasClip: boolean
   size: number
+  rate: number
   status:
   | 'done'
   | 'error'
@@ -30,7 +31,8 @@ export interface SuccessCollect {
 
 export interface ImgWrapProps {
   index: number
-  overflow: boolean
+  overflow?: boolean
+  isClip?: boolean
   item: { url: string }
   active: boolean
   onItemClick: (index: number) => void

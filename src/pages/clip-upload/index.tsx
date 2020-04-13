@@ -61,7 +61,7 @@ class ClipUploadPage extends PureComponent<
               {getFieldDecorator('imgs2')(
                 <Upload
                   clipWidth={750}
-                  clipHeigth={740}
+                  clipHeigth={750}
                   api={uploadImgs}
                   readonly={false}
                 />
