@@ -10,7 +10,8 @@ export interface FileItem {
   name: string
   url: string
   type: string
-  hasClip: boolean
+  needClip: boolean // 是否需要裁切
+  initClip: boolean // 第一次裁切
   size: number
   rate: number
   status:
@@ -31,8 +32,8 @@ export interface SuccessCollect {
 
 export interface ImgWrapProps {
   index: number
-  overflow?: boolean
-  isClip?: boolean
+  overflow: boolean
+  isClip: boolean
   item: { url: string }
   active: boolean
   onItemClick: (index: number) => void

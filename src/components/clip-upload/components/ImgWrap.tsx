@@ -6,7 +6,7 @@ import styles from '../style.module.styl'
 /** 选择图组件 */
 const ImgWrap = ({
   index,
-  // overflow,
+  overflow,
   isClip,
   item,
   active,
@@ -22,10 +22,9 @@ const ImgWrap = ({
   let hint = ''
   if (!isClip) {
     hint = '待裁剪'
+  } else if (overflow) {
+    hint = '超出大小'
   }
-  // else if (overflow) {
-  //   hint = '超出大小'
-  // }
 
   return (
     <div className={cls}>

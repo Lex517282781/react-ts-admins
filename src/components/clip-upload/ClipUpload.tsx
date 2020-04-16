@@ -81,7 +81,8 @@ export class ClipUpload extends PureComponent<
         type: `image/${getFileExtName(item)}`,
         size: 0,
         rate: 0,
-        hasClip: false,
+        needClip: false,
+        initClip: false,
         status: 'done'
       }
     })
@@ -149,7 +150,8 @@ export class ClipUpload extends PureComponent<
             name: file.name,
             url,
             type: file.type,
-            hasClip: true,
+            needClip: true,
+            initClip: false,
             size: file.size,
             rate: 0,
             status: 'uploading'
@@ -220,12 +222,12 @@ export class ClipUpload extends PureComponent<
     const { api } = this.props
 
     // 需要远程保存的图片数量
-    let hasClipImgsAmount = fileList.reduce(
-      (pre, next) => (next.hasClip ? pre + 1 : pre),
+    let needClipImgsAmount = fileList.reduce(
+      (pre, next) => (next.needClip ? pre + 1 : pre),
       0
     )
 
-    if (!hasClipImgsAmount) {
+    if (!needClipImgsAmount) {
       // 所有图片没有修改的情况下 不需要任何操作
       this.clipRef.handleHide()
       afterSaveCb()
@@ -234,7 +236,7 @@ export class ClipUpload extends PureComponent<
 
     for (let i = 0, l = fileList.length; i < l; i++) {
       const item = fileList[i]
-      if (item.hasClip) {
+      if (item.needClip) {
         // 编辑过的图片需要重新上传
         const file = dataURLtoFile(item.url, item.name) // 把base64图片组转换成file
 
@@ -246,7 +248,7 @@ export class ClipUpload extends PureComponent<
               {
                 ...this.state.fileList[i] as FileItem,
                 url: res.url,
-                hasClip: false,
+                needClip: false,
                 status: 'done'
               },
               ...this.state.fileList.slice(i + 1)
@@ -256,8 +258,8 @@ export class ClipUpload extends PureComponent<
                 fileList: newFileList
               },
               () => {
-                hasClipImgsAmount = hasClipImgsAmount - 1
-                if (hasClipImgsAmount === 0) {
+                needClipImgsAmount = needClipImgsAmount - 1
+                if (needClipImgsAmount === 0) {
                   // 直到需要远程保存的图片成功保存之后才算编辑成功
                   message.success('图片编辑成功!')
                   afterSaveCb()
@@ -275,8 +277,8 @@ export class ClipUpload extends PureComponent<
           })
           // eslint-disable-next-line no-loop-func
           .catch(() => {
-            hasClipImgsAmount = hasClipImgsAmount - 1
-            if (hasClipImgsAmount === 0) {
+            needClipImgsAmount = needClipImgsAmount - 1
+            if (needClipImgsAmount === 0) {
               afterSaveCb()
             }
             message.error('图片保存失败, 请点击重新保存')
@@ -333,6 +335,8 @@ export class ClipUpload extends PureComponent<
     } else {
       uploadButtonEl = uploadButton
     }
+
+    console.log(fileList, 'fileList')
 
     return (
       <div>
