@@ -11,7 +11,7 @@ export interface FileItem {
   url: string
   type: string
   needClip: boolean // 是否需要裁切
-  initClip: boolean // 第一次裁切
+  hasClip: boolean // 确认裁切
   size: number
   rate: number
   status:

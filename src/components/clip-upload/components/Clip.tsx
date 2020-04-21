@@ -84,11 +84,13 @@ class Clip extends PureComponent<ClipProps, ClipState> {
     const preUrls = preState.fileList.map(
       (item) => item.url
     )
-    if (
-      curUrls.some(
-        (item, i) => item !== (preUrls && preUrls[i])
-      )
-    ) {
+    /* 判断图片是否发生裁剪 */
+    const isUrlchange = curUrls.some(
+      (item, i) => item !== (preUrls && preUrls[i])
+    )
+    /* 判断模态框是否一开始显示 */
+    const isVisiblechange = this.state.visible && (!preState.visible)
+    if (isUrlchange || isVisiblechange) {
       Promise.all(
         curUrls.map((item) => loadImg(item))
       ).then((res) => {
@@ -164,7 +166,7 @@ class Clip extends PureComponent<ClipProps, ClipState> {
           url: this.cropperRef
             .getCroppedCanvas()
             .toDataURL(),
-          initClip: true // 确认裁剪过
+          hasClip: true // 确认裁剪过
         },
         ...fileList.slice(current + 1)
       ]
@@ -174,7 +176,7 @@ class Clip extends PureComponent<ClipProps, ClipState> {
   /** 判断图片是否超出预定大小 */
   public isOverflow = (item: FileItem) => {
     let overflow = false
-    if (item.needClip && (!item.initClip)) {
+    if (item.needClip && !item.hasClip) {
       // 对需要裁剪的图片 且 未裁剪的图片 需要做判断大小
       const size = getBase64Size(item.url)
       if (sizeOverflow(size, this.props.maxSize)) {
@@ -208,14 +210,14 @@ class Clip extends PureComponent<ClipProps, ClipState> {
       },
       () => {
         const isOverflow = fileList.some(this.isOverflow)
-        const isClip = fileList.every(this.isClip)
-        if (!isClip) {
-          message.warn('有图片未符合尺寸要求, 请裁剪合格之后再保存图片~')
-          this.setState({
-            loading: false
-          })
-          return
-        }
+        // const isClip = fileList.every(this.isClip)
+        // if (!isClip) {
+        //   message.warn('有图片未符合尺寸要求, 请裁剪合格之后再保存图片~')
+        //   this.setState({
+        //     loading: false
+        //   })
+        //   return
+        // }
         if (isOverflow) {
           message.warn('有图片超出大小限制, 请裁剪合格之后再保存图片~')
           this.setState({

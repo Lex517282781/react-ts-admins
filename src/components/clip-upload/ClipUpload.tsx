@@ -33,14 +33,10 @@ type ClipUploadProps = {
 } & Partial<typeof defaultClipUploadProps>
 
 interface ClipUploadState {
-  /** 裁剪的文件列表 */
-  fileList: FileList
-  /** 保存外部传进来的fileList */
-  preFileList: FileList
-  /** 预览模态框显示状态 */
-  previewVisible: boolean
-  /** 预览模态框图片 */
-  previewImage: string
+  fileList: FileList // 裁剪的文件列表
+  preFileList: FileList // 保存外部传进来的fileList
+  previewVisible: boolean // 预览模态框显示状态
+  previewImage: string // 预览模态框图片
 }
 
 export class ClipUpload extends PureComponent<
@@ -82,7 +78,7 @@ export class ClipUpload extends PureComponent<
         size: 0,
         rate: 0,
         needClip: false,
-        initClip: false,
+        hasClip: false,
         status: 'done'
       }
     })
@@ -151,7 +147,7 @@ export class ClipUpload extends PureComponent<
             url,
             type: file.type,
             needClip: true,
-            initClip: false,
+            hasClip: false,
             size: file.size,
             rate: 0,
             status: 'uploading'
@@ -222,12 +218,14 @@ export class ClipUpload extends PureComponent<
     const { api } = this.props
 
     // 需要远程保存的图片数量
-    let needClipImgsAmount = fileList.reduce(
-      (pre, next) => (next.needClip ? pre + 1 : pre),
+    let hasClipImgsAmount = fileList.reduce(
+      (pre, next) => ((next.hasClip || next.needClip) ? pre + 1 : pre),
       0
     )
 
-    if (!needClipImgsAmount) {
+    console.log(hasClipImgsAmount, 'hasClipImgsAmount')
+
+    if (!hasClipImgsAmount) {
       // 所有图片没有修改的情况下 不需要任何操作
       this.clipRef.handleHide()
       afterSaveCb()
@@ -236,7 +234,7 @@ export class ClipUpload extends PureComponent<
 
     for (let i = 0, l = fileList.length; i < l; i++) {
       const item = fileList[i]
-      if (item.needClip) {
+      if (item.hasClip || item.needClip) {
         // 编辑过的图片需要重新上传
         const file = dataURLtoFile(item.url, item.name) // 把base64图片组转换成file
 
@@ -249,6 +247,7 @@ export class ClipUpload extends PureComponent<
                 ...this.state.fileList[i] as FileItem,
                 url: res.url,
                 needClip: false,
+                hasClip: false,
                 status: 'done'
               },
               ...this.state.fileList.slice(i + 1)
@@ -258,8 +257,8 @@ export class ClipUpload extends PureComponent<
                 fileList: newFileList
               },
               () => {
-                needClipImgsAmount = needClipImgsAmount - 1
-                if (needClipImgsAmount === 0) {
+                hasClipImgsAmount = hasClipImgsAmount - 1
+                if (hasClipImgsAmount === 0) {
                   // 直到需要远程保存的图片成功保存之后才算编辑成功
                   message.success('图片编辑成功!')
                   afterSaveCb()
@@ -277,8 +276,8 @@ export class ClipUpload extends PureComponent<
           })
           // eslint-disable-next-line no-loop-func
           .catch(() => {
-            needClipImgsAmount = needClipImgsAmount - 1
-            if (needClipImgsAmount === 0) {
+            hasClipImgsAmount = hasClipImgsAmount - 1
+            if (hasClipImgsAmount === 0) {
               afterSaveCb()
             }
             message.error('图片保存失败, 请点击重新保存')
@@ -291,6 +290,7 @@ export class ClipUpload extends PureComponent<
   public handleAfterClose = (isSave: boolean) => {
     const { preFileList, fileList } = this.state
     const { onChange } = this.props
+    // this.clipInitial = false
     if (isSave) {
       this.fileLength = fileList.length
       if (onChange) {
@@ -299,9 +299,8 @@ export class ClipUpload extends PureComponent<
     } else {
       // 编辑取消保存 重新设置为fileList对应的图片
       this.fileLength = preFileList.length
-      console.log(preFileList)
       this.setState({
-        fileList: preFileList
+        fileList: [...preFileList]
       })
     }
   }
@@ -327,16 +326,6 @@ export class ClipUpload extends PureComponent<
 
     /** readonly 为true 且 fileList 数组为空的话 预览的时候只需要显示为空 */
     const empty = !fileList.length && readonly
-
-    let uploadButtonEl = null
-
-    if (readonly || (fileList.length >= maxAmount!)) {
-      uploadButtonEl = null
-    } else {
-      uploadButtonEl = uploadButton
-    }
-
-    console.log(fileList, 'fileList')
 
     return (
       <div>
@@ -376,7 +365,10 @@ export class ClipUpload extends PureComponent<
               showRemoveIcon: !readonly
             }}
           >
-            {uploadButtonEl}
+            {readonly ? null : fileList.length >=
+            maxAmount! ? null : (
+                uploadButton
+              )}
           </Upload>
         )}
         <Modal

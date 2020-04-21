@@ -85,10 +85,10 @@ export const getFileExtName = (url: string) => {
 }
 
 export const loadImg = (url: string) => {
-  return new Promise(function (resolve) {
+  return new Promise((resolve) => {
     const img = new Image()
     img.src = url
-    img.onload = function () {
+    img.onload = () => {
       resolve(img)
     }
   })
