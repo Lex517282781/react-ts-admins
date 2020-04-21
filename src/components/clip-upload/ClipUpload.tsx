@@ -223,8 +223,6 @@ export class ClipUpload extends PureComponent<
       0
     )
 
-    console.log(hasClipImgsAmount, 'hasClipImgsAmount')
-
     if (!hasClipImgsAmount) {
       // 所有图片没有修改的情况下 不需要任何操作
       this.clipRef.handleHide()
@@ -293,6 +291,9 @@ export class ClipUpload extends PureComponent<
     // this.clipInitial = false
     if (isSave) {
       this.fileLength = fileList.length
+      this.setState({
+        preFileList: [...fileList]
+      })
       if (onChange) {
         onChange(fileList.map((item: FileItem) => item.url))
       }

@@ -20,6 +20,13 @@ const uploadImgs = (file: File) => {
 class ClipUploadPage extends PureComponent<
   FormComponentProps
 > {
+  state = {
+    fileList: [],
+    fileList2: [
+      'https://assets.hzxituan.com/crm/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8551583809428505.jpg'
+    ]
+  }
+
   handleSubmit = (e: any) => {
     e.preventDefault()
     this.props.form.validateFields(
@@ -32,10 +39,19 @@ class ClipUploadPage extends PureComponent<
   }
 
   handleChange = (fileList: string[]) => {
-    console.log(fileList)
+    this.setState({
+      fileList
+    })
+  }
+
+  handleChange2 = (fileList: string[]) => {
+    this.setState({
+      fileList2: fileList
+    })
   }
 
   render () {
+    const { fileList, fileList2 } = this.state
     const { getFieldDecorator } = this.props.form
 
     const imgs = [
@@ -48,7 +64,17 @@ class ClipUploadPage extends PureComponent<
           <Upload
             api={uploadImgs}
             readonly={false}
+            value={fileList}
             onChange={this.handleChange}
+          />
+          <br/>
+          <br/>
+          <p>有默认值</p>
+          <Upload
+            api={uploadImgs}
+            readonly={false}
+            value={fileList2}
+            onChange={this.handleChange2}
           />
         </Card>
         <Card
