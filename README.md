@@ -1,5 +1,16 @@
 # cra-typescript-admin
 
+## components
+
+组件源代码
+
+## 开发过程
+
+1. src/layout/config 添加配置
+2. src/pages 添加组件演示代码
+3. src/Routers.jsx 添加演示代码路由
+4. src/components 添加组件源代码
+
 ## 注意点
 
 ### antd 按需加载

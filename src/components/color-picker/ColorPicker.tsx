@@ -26,10 +26,10 @@ class ColorPicker extends PureComponent<
     nextProps: ColorPickerProps,
     preState: ColorPickerState
   ) {
+    console.log(nextProps, preState)
     if (!nextProps.value) return null
     const matchColor = colorStrReg.exec(nextProps.value)
     if (!matchColor) return null
-    console.log(matchColor)
     return null
   }
 

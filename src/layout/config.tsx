@@ -12,6 +12,16 @@ export const categorys = [
         id: '1-2',
         text: '颜色选择组件',
         url: '/color-picker'
+      },
+      {
+        id: '1-3',
+        text: '表单组件',
+        url: '/form'
+      },
+      {
+        id: '1-4',
+        text: '下拉搜索选择组件',
+        url: '/select-search-fetch'
       }
     ]
   },
@@ -36,15 +46,4 @@ export const categorys = [
       }
     ]
   }
-  // {
-  //   id: '3',
-  //   text: '组合',
-  //   list: [
-  //     {
-  //       id: '3-1',
-  //       text: '表单操作',
-  //       url: '/action-view'
-  //     }
-  //   ]
-  // }
 ]

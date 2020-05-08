@@ -4,7 +4,7 @@ import Panel from '@/components/panel'
 import ColorPicker from '@/components/color-picker'
 import { FormComponentProps } from 'antd/lib/form/Form'
 
-const color = 'rgba(0, 36, 100, 2)'
+const color = 'rgba(255, 113, 24, 1)'
 
 class ColorPickerPage extends PureComponent<
   FormComponentProps
@@ -39,7 +39,10 @@ class ColorPickerPage extends PureComponent<
         >
           <Form onSubmit={this.handleSubmit}>
             <Form.Item label='选择颜色'>
-              {getFieldDecorator('color', {
+              {getFieldDecorator('color')(<ColorPicker />)}
+            </Form.Item>
+            <Form.Item label='选择颜色(有默认值)'>
+              {getFieldDecorator('color2', {
                 initialValue: color
               })(<ColorPicker />)}
             </Form.Item>
