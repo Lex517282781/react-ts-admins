@@ -44,7 +44,15 @@ const fetchAll = () => {
   })
 }
 
-class SelectSearchFetchPage extends PureComponent {
+interface SelectSearchFetchPageState {
+  value: any
+}
+
+class SelectSearchFetchPage extends PureComponent<{}, SelectSearchFetchPageState> {
+  state: SelectSearchFetchPageState = {
+    value: undefined
+  }
+
   render () {
     return (
       <Panel title='下拉搜索组件'>
@@ -52,7 +60,13 @@ class SelectSearchFetchPage extends PureComponent {
           <SelectSearchFetch
             api={fetchData}
             // allApi={fetchAll}
+            value={this.state.value}
             style={{ width: '172px' }}
+            onChange={value => {
+              this.setState({
+                value
+              })
+            }}
           />
         </Card>
       </Panel>

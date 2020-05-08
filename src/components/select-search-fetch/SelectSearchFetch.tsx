@@ -11,7 +11,7 @@ interface SelectSearchFetchProps extends SelectProps {
   /* 下拉异步请求全部数据接口 */
   allApi?: (props?: any) => Promise<any>
   /* 数据变动回调 */
-  onChange?: () => void
+  onChange?: (val: any) => void
   /* 下拉选择值 */
   value?: any
 }
@@ -53,7 +53,18 @@ class SelectSearchFetch extends PureComponent<
       size: 10,
       total: 0,
       keyword: '',
-      fetching: false
+      fetching: false,
+      value: undefined
+    }
+  }
+
+  private static getDerivedStateFromProps (
+    nextProps: SelectSearchFetchProps,
+    preState: SelectSearchFetchState
+  ) {
+    if (nextProps.value === undefined) return null
+    return {
+      value: nextProps.value
     }
   }
 
@@ -114,11 +125,8 @@ class SelectSearchFetch extends PureComponent<
 
   /* 选择数据 */
   handleChange = (value: any) => {
-    this.setState({
-      value,
-      records: [],
-      fetching: false
-    })
+    const { onChange } = this.props
+    onChange && onChange(value)
   }
 
   /* 获取焦点 */
@@ -163,6 +171,8 @@ class SelectSearchFetch extends PureComponent<
     const { placeholder, api, ...rest } = this.props
     const { fetching, records, value = undefined } = this.state
 
+    console.log(value, records)
+
     return (
       <Select
         showSearch
@@ -187,7 +197,7 @@ class SelectSearchFetch extends PureComponent<
         {...rest}
       >
         {records.map(d => (
-          <Option key={d.value}>{d.text}</Option>
+          <Option value={d.value} key={d.value}>{d.text}</Option>
         ))}
       </Select>
     )
