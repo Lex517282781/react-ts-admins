@@ -126,7 +126,11 @@ class SelectSearchFetch extends PureComponent<
   /* 选择数据 */
   handleChange = (value: any) => {
     const { onChange } = this.props
-    onChange && onChange(value)
+    this.setState({
+      value
+    }, () => {
+      onChange && onChange(value)
+    })
   }
 
   /* 获取焦点 */
@@ -168,10 +172,8 @@ class SelectSearchFetch extends PureComponent<
   }
 
   render () {
-    const { placeholder, api, ...rest } = this.props
+    const { placeholder, api, onChange, ...rest } = this.props
     const { fetching, records, value = undefined } = this.state
-
-    console.log(value, records)
 
     return (
       <Select

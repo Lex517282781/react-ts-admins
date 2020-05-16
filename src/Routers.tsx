@@ -14,6 +14,8 @@ import SelectSearchFetch from './pages/select-search-fetch'
 import ActionView from './pages/action-view'
 import ListPage from './pages/list-page'
 import CarouselPreviewPage from './pages/carousel-preview'
+import ColumnWrap from './pages/column-wrap'
+import Demo from './pages/demo'
 
 export default () => (
   <BrowserRouter>
@@ -27,6 +29,8 @@ export default () => (
       <Route path='/action-view' component={ActionView} />
       <Route path='/list-page' component={ListPage} />
       <Route path='/carousel-preview' component={CarouselPreviewPage} />
+      <Route path='/column-wrap' component={ColumnWrap} />
+      <Route path='/demo' component={Demo} />
 
       <Route component={Layout} />
     </Switch>

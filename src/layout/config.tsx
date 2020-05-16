@@ -43,6 +43,22 @@ export const categorys = [
         id: '2-3',
         text: '轮播预览',
         url: '/carousel-preview'
+      },
+      {
+        id: '2-4',
+        text: 'column渲染组件',
+        url: '/column-wrap'
+      }
+    ]
+  },
+  {
+    id: '3',
+    text: 'DEMO',
+    list: [
+      {
+        id: '3-1',
+        text: 'demo',
+        url: '/demo'
       }
     ]
   }

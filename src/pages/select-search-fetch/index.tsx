@@ -14,7 +14,7 @@ const fetchData = (data: {
       const records = [...new Array(10)].map((_, i) => {
         const r = +new Date() + i
         return {
-          text: (data.page * i) + r + '分页',
+          text: r + '分页',
           value: r
         }
       })
@@ -54,9 +54,21 @@ class SelectSearchFetchPage extends PureComponent<{}, SelectSearchFetchPageState
   }
 
   render () {
+    console.log('受控的值', this.state.value)
+
     return (
       <Panel title='下拉搜索组件'>
-        <Card type='inner' title='普通使用'>
+        <Card type='inner' title='非受控使用'>
+          <SelectSearchFetch
+            api={fetchData}
+            // allApi={fetchAll}
+            style={{ width: '172px' }}
+            onChange={value => {
+              console.log('非受控使用的值', value)
+            }}
+          />
+        </Card>
+        <Card style={{ marginTop: 24 }} type='inner' title='受控使用'>
           <SelectSearchFetch
             api={fetchData}
             // allApi={fetchAll}
