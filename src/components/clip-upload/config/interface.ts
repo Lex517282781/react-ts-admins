@@ -11,6 +11,9 @@ export interface CropPos {
   left: number
 }
 
+export interface ImgPos {
+}
+
 /** 文件类型 */
 export interface FileItem {
   uid: string
@@ -30,6 +33,10 @@ export interface FileItem {
   | undefined
   /* 裁剪图片相关位置 */
   cropPos?: CropPos
+  /* 裁剪图片相关属性 */
+  imgPos?: ImgPos
+  width?: number
+  height?: number
 }
 
 export type FileList = Array<FileItem>

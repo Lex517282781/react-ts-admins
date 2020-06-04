@@ -164,7 +164,8 @@ class Clip extends PureComponent<ClipProps, ClipState> {
 
   /** 裁切图片 */
   public handleClip = () => {
-    if (!this.cropperRef.getCroppedCanvas()) {
+    const cropperCanvas = this.cropperRef.getCroppedCanvas()
+    if (!cropperCanvas) {
       return
     }
     const { fileList, current } = this.state
@@ -173,11 +174,12 @@ class Clip extends PureComponent<ClipProps, ClipState> {
         ...fileList.slice(0, current),
         {
           ...fileList[current],
-          url: this.cropperRef
-            .getCroppedCanvas()
-            .toDataURL(),
+          url: cropperCanvas.toDataURL(),
+          width: cropperCanvas.width,
+          height: cropperCanvas.height,
           hasClip: true, // 确认裁剪过
-          cropPos: this.cropperRef.getCropBoxData()
+          cropPos: this.cropperRef.getCropBoxData(),
+          imgPos: this.cropperRef.getImageData()
         },
         ...fileList.slice(current + 1)
       ]
@@ -326,14 +328,23 @@ class Clip extends PureComponent<ClipProps, ClipState> {
       ImgMaxCount - fileList.length
     )
 
+    const minSize = 10
     let currentSrc: string = ''
+    let mini = false
 
     if (fileList.length) {
+      const { url, width, height } = fileList[current]
+      // 当前图片
       currentSrc =
-        fileList[current].url || preFileList[current].url
+        url || preFileList[current].url
+      // 确定是否最小值
+      if (
+        width && width <= minSize &&
+        height && height <= minSize
+      ) {
+        mini = true
+      }
     }
-
-    const minSize = 10
 
     return (
       <Modal
@@ -400,6 +411,15 @@ class Clip extends PureComponent<ClipProps, ClipState> {
             >
               <Icon type='info-circle' />
             </Button>
+            {
+              mini && (
+                <span
+                  className={styles[`clip-sizeErr`]}
+                >
+                  已经缩放到限制的最小值(10px)
+                </span>
+              )
+            }
           </Tooltip>
         </div>
         {/* 图片选择区 */}
