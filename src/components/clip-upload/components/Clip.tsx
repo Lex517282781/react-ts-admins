@@ -221,14 +221,14 @@ class Clip extends PureComponent<ClipProps, ClipState> {
       },
       () => {
         const isOverflow = fileList.some(this.isOverflow)
-        // const isClip = fileList.every(this.isClip)
-        // if (!isClip) {
-        //   message.warn('有图片未符合尺寸要求, 请裁剪合格之后再保存图片~')
-        //   this.setState({
-        //     loading: false
-        //   })
-        //   return
-        // }
+        const isClip = fileList.every(this.isClip)
+        if (!isClip) {
+          message.warn('有图片未符合尺寸要求, 请裁剪合格之后再保存图片~')
+          this.setState({
+            loading: false
+          })
+          return
+        }
         if (isOverflow) {
           message.warn('有图片超出大小限制, 请裁剪合格之后再保存图片~')
           this.setState({
@@ -320,39 +320,20 @@ class Clip extends PureComponent<ClipProps, ClipState> {
       preFileList,
       loading
     } = this.state
-    const { clipWidth, clipHeigth, help } = this.props
-
-    const CropperStyleHeight: number = clipHeigth + 50
+    const { help } = this.props
 
     const placeholder = makeArray(
       ImgMaxCount - fileList.length
     )
 
     let currentSrc: string = ''
-    let cropperData: { data: Data } = { data: {} as Data }
 
     if (fileList.length) {
       currentSrc =
-        // fileList[current].url || preFileList[current].url
-        currentSrc = preFileList[current].url
-      const cropPos = fileList[current].cropPos as CropPos
-      if (cropPos) {
-        cropperData = {
-          data: {
-            x: cropPos.left,
-            y: cropPos.top,
-            width: cropPos.width,
-            height: cropPos.height
-          } as Data
-        }
-      }
+        fileList[current].url || preFileList[current].url
     }
 
     const minSize = 10
-
-    console.log(cropperData, fileList)
-
-    console.log(cropperData.data.x)
 
     return (
       <Modal
@@ -371,29 +352,12 @@ class Clip extends PureComponent<ClipProps, ClipState> {
           }}
         >
           <Cropper
-            // ready={() => {
-            //   this.cropperRef.setCropBoxData({
-            //     width: 20
-            //   })
-            // }}
-            {
-              ...cropperData
-            }
-            data={{
-              x: cropperData.data.x,
-              rotate: 0,
-              scaleX: 0,
-              scaleY: 0
-            } as Data}
             viewMode={1}
             movable={false}
             rotatable={false}
             scalable={false}
             zoomable={false}
             autoCropArea={1}
-            minContainerWidth={10}
-            // minCropBoxWidth={10}
-            // minCropBoxHeight={10}
             crop={event => {
               const width = event.detail.width
               const height = event.detail.height
@@ -404,20 +368,10 @@ class Clip extends PureComponent<ClipProps, ClipState> {
                 })
               }
             }}
-            style={{
-              // height: CropperStyleHeight,
-              // width: '100%'
-            }}
             aspectRatio={1}
             guides={false}
             dragMode='crop'
             src={currentSrc}
-            // minContainerWidth={952}
-            // minContainerHeight={CropperStyleHeight}
-            // minCropBoxWidth={clipWidth}
-            // minCropBoxHeight={clipHeigth}
-            // cropBoxResizable={false}
-            // cropBoxMovable={false}
             ref={this.handleCropperRef}
           />
           <Icon
