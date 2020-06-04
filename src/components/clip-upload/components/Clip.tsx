@@ -10,7 +10,7 @@ import {
 import Cropper from 'react-cropper'
 import ImgWrap from './ImgWrap'
 import ImgWrapTemp from './ImgWrapTemp'
-import { FileItem, FileList } from '../config/interface'
+import { FileItem, FileList, CropPos } from '../config/interface'
 import {
   getBase64Size,
   sizeOverflow,
@@ -21,6 +21,16 @@ import 'cropperjs/dist/cropper.css'
 import styles from '../style.module.styl'
 
 const { confirm } = Modal
+
+interface Data {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotate: number;
+  scaleX: number;
+  scaleY: number;
+}
 
 interface ClipProps {
   fileList: FileList
@@ -166,7 +176,8 @@ class Clip extends PureComponent<ClipProps, ClipState> {
           url: this.cropperRef
             .getCroppedCanvas()
             .toDataURL(),
-          hasClip: true // 确认裁剪过
+          hasClip: true, // 确认裁剪过
+          cropPos: this.cropperRef.getCropBoxData()
         },
         ...fileList.slice(current + 1)
       ]
@@ -318,15 +329,34 @@ class Clip extends PureComponent<ClipProps, ClipState> {
     )
 
     let currentSrc: string = ''
+    let cropperData: { data: Data } = { data: {} as Data }
 
     if (fileList.length) {
       currentSrc =
-        fileList[current].url || preFileList[current].url
+        // fileList[current].url || preFileList[current].url
+        currentSrc = preFileList[current].url
+      const cropPos = fileList[current].cropPos as CropPos
+      if (cropPos) {
+        cropperData = {
+          data: {
+            x: cropPos.left,
+            y: cropPos.top,
+            width: cropPos.width,
+            height: cropPos.height
+          } as Data
+        }
+      }
     }
+
+    const minSize = 10
+
+    console.log(cropperData, fileList)
+
+    console.log(cropperData.data.x)
 
     return (
       <Modal
-        width={700}
+        width={600}
         visible={visible}
         className={styles[`clip-wrap`]}
         onCancel={this.handleCancel}
@@ -337,23 +367,57 @@ class Clip extends PureComponent<ClipProps, ClipState> {
         <div
           className={styles[`clip-main`]}
           style={{
-            zoom: `${652 / 952}`
+            // zoom: `${652 / 952}`
           }}
         >
           <Cropper
-            style={{
-              height: CropperStyleHeight,
-              width: '100%'
+            // ready={() => {
+            //   this.cropperRef.setCropBoxData({
+            //     width: 20
+            //   })
+            // }}
+            {
+              ...cropperData
+            }
+            data={{
+              x: cropperData.data.x,
+              rotate: 0,
+              scaleX: 0,
+              scaleY: 0
+            } as Data}
+            viewMode={1}
+            movable={false}
+            rotatable={false}
+            scalable={false}
+            zoomable={false}
+            autoCropArea={1}
+            minContainerWidth={10}
+            // minCropBoxWidth={10}
+            // minCropBoxHeight={10}
+            crop={event => {
+              const width = event.detail.width
+              const height = event.detail.height
+              if (width < minSize || height < minSize) {
+                this.cropperRef.setData({
+                  width: Math.max(width, minSize),
+                  height: Math.max(height, minSize)
+                })
+              }
             }}
+            style={{
+              // height: CropperStyleHeight,
+              // width: '100%'
+            }}
+            aspectRatio={1}
             guides={false}
-            dragMode='move'
+            dragMode='crop'
             src={currentSrc}
-            minContainerWidth={952}
-            minContainerHeight={CropperStyleHeight}
-            minCropBoxWidth={clipWidth}
-            minCropBoxHeight={clipHeigth}
-            cropBoxResizable={false}
-            cropBoxMovable={false}
+            // minContainerWidth={952}
+            // minContainerHeight={CropperStyleHeight}
+            // minCropBoxWidth={clipWidth}
+            // minCropBoxHeight={clipHeigth}
+            // cropBoxResizable={false}
+            // cropBoxMovable={false}
             ref={this.handleCropperRef}
           />
           <Icon

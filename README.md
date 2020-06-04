@@ -10,6 +10,22 @@
 2. src/pages 添加组件演示代码
 3. src/Routers.jsx 添加演示代码路由
 4. src/components 添加组件源代码
+5. src/pages 引入 src/components中的组件
+6. 查看 src/pages 预览
+7. 完整 src/components 和 src/pages 代码
+
+## src/components 文件规范
+
+  |-- component
+      |-- components        组成组件
+      |   |-- A.tsx         组件组件A
+      |   |-- B.tsx         组件组件B
+      |-- config            组件配置
+      |   |-- config.ts     组件配置数据
+      |   |-- interface.ts  组件配置接口类型
+      |   |-- util.ts       工具函数
+      |-- Component.tsx     组件组成源码
+      |-- index.tsx         组件输出
 
 ## 注意点
 

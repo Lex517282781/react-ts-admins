@@ -10,6 +10,7 @@ import ClipUpload from './pages/clip-upload'
 import ColorPicker from './pages/color-picker'
 import Form from './pages/form'
 import SelectSearchFetch from './pages/select-search-fetch'
+import Print from './pages/print'
 
 import ActionView from './pages/action-view'
 import ListPage from './pages/list-page'
@@ -25,6 +26,7 @@ export default () => (
       <Route path='/color-picker' component={ColorPicker} />
       <Route path='/form' component={Form} />
       <Route path='/select-search-fetch' component={SelectSearchFetch} />
+      <Route path='/print' component={Print} />
 
       <Route path='/action-view' component={ActionView} />
       <Route path='/list-page' component={ListPage} />

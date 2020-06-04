@@ -9,7 +9,9 @@ export default function Demo () {
 
   return (
     <div>
-      <p>{count}</p>
+      <div style={{
+        height: '1cm'
+      }}>{count}</div>
       <button onClick={() => setCount(count + 1)}>点一下</button>
     </div>
   )

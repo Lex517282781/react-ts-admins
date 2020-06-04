@@ -4,6 +4,13 @@ export interface Result {
   url: string
 }
 
+export interface CropPos {
+  height: number
+  width: number
+  top: number
+  left: number
+}
+
 /** 文件类型 */
 export interface FileItem {
   uid: string
@@ -21,6 +28,8 @@ export interface FileItem {
   | 'uploading'
   | 'removed'
   | undefined
+  /* 裁剪图片相关位置 */
+  cropPos?: CropPos
 }
 
 export type FileList = Array<FileItem>
