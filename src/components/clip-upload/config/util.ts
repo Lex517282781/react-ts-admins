@@ -1,3 +1,5 @@
+import FileType from 'file-type/browser'
+
 /** 获取唯一值 */
 export const getUniqueId = (() => {
   let index: number = 0
@@ -37,7 +39,19 @@ export const dataURLtoFile = (dataURL: string, filename: string): File => {
   return new File([u8arr], filename, { type: mime })
 }
 
-// /** 图片类型判断 */
+/** 图片类型是否有效 */
+export const isValidPic = async (file: File) => {
+  const res = await FileType.fromBlob(file)
+  if (res && res.ext) {
+    const exts = ['jpg', 'jpeg', 'png', 'gif']
+    if (exts.includes(res.ext)) {
+      return true
+    }
+  }
+  return false
+}
+
+/** 图片类型判断 */
 export const isPic = (type: string): boolean => {
   const isJPG: boolean = type === 'image/jpeg'
   const isPNG: boolean = type === 'image/png'

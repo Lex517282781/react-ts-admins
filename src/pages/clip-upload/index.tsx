@@ -10,10 +10,10 @@ const uploadImgs = (file: File) => {
     setTimeout(() => {
       resolve({
         url:
-          'https://assets.hzxituan.com/crm/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8551583809428505.jpg',
+          'http://sh-tximg-1300503753.cos.ap-shanghai.myqcloud.com/tximg/supplier/F868E9F43EF9EDFC.webp',
         name: '1111'
       })
-    }, 1500)
+    }, 500)
   })
 }
 

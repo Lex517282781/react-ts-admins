@@ -10,7 +10,7 @@ import {
 import Cropper from 'react-cropper'
 import ImgWrap from './ImgWrap'
 import ImgWrapTemp from './ImgWrapTemp'
-import { FileItem, FileList, CropPos } from '../config/interface'
+import { FileItem, FileList } from '../config/interface'
 import {
   getBase64Size,
   sizeOverflow,
@@ -22,16 +22,6 @@ import styles from '../style.module.styl'
 
 const { confirm } = Modal
 
-interface Data {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  rotate: number;
-  scaleX: number;
-  scaleY: number;
-}
-
 interface ClipProps {
   fileList: FileList
   onSave: (arr: FileList, cb: () => void) => void
@@ -42,6 +32,7 @@ interface ClipProps {
   minWidth: number
   minHeight: number
   help: string[]
+  verifyWh: boolean
 }
 
 interface ClipState {
@@ -109,6 +100,8 @@ class Clip extends PureComponent<ClipProps, ClipState> {
         const fileList = [...this.state.fileList]
         res.forEach((item: any, i) => {
           fileList[i].rate = item.width / item.height
+          fileList[i].width = item.width
+          fileList[i].height = item.height
         })
         this.setState({
           fileList
@@ -216,7 +209,7 @@ class Clip extends PureComponent<ClipProps, ClipState> {
 
   /** 保存所有图片 */
   public handleSave = () => {
-    const { onSave } = this.props
+    const { onSave, verifyWh } = this.props
     const { fileList } = this.state
     this.setState(
       {
@@ -225,13 +218,16 @@ class Clip extends PureComponent<ClipProps, ClipState> {
       },
       () => {
         const isOverflow = fileList.some(this.isOverflow)
-        const isClip = fileList.every(this.isClip)
-        if (!isClip) {
-          message.warn('有图片未符合尺寸要求, 请裁剪合格之后再保存图片~')
-          this.setState({
-            loading: false
-          })
-          return
+        // 校验图片尺寸
+        if (verifyWh) {
+          const isClip = fileList.every(this.isClip)
+          if (!isClip) {
+            message.warn('有图片未符合尺寸要求, 请裁剪合格之后再保存图片~')
+            this.setState({
+              loading: false
+            })
+            return
+          }
         }
         if (isOverflow) {
           message.warn('有图片超出大小限制, 请裁剪合格之后再保存图片~')
@@ -369,6 +365,8 @@ class Clip extends PureComponent<ClipProps, ClipState> {
             rotatable={false}
             scalable={false}
             zoomable={false}
+            minContainerWidth={552}
+            minContainerHeight={552}
             autoCropArea={1}
             crop={event => {
               const width = event.detail.width

@@ -13,7 +13,7 @@ import {
   getUniqueId,
   derivedNameFormUrl,
   getFileExtName,
-  isPic,
+  isValidPic,
   getBase64,
   dataURLtoFile
 } from './config/util'
@@ -103,12 +103,13 @@ export class ClipUpload extends PureComponent<
   /** 文件上传的数量 */
   private fileLength: number = 0
   /** 上传限制 */
-  public handleBeforeUpload = (file: File): boolean => {
+  public handleBeforeUpload = async (file: File) => {
     const { maxAmount = 0 } = this.props
-    if (!isPic(file.type)) {
+    if (await isValidPic(file) !== true) {
       // 图片类型限制
-      message.warn(`只能上传图片哦~`)
-      return false
+      message.warn('只能上传jpg、jpeg、png、gif格式哦~')
+      // eslint-disable-next-line prefer-promise-reject-errors
+      return Promise.reject()
     }
     if (!this.clipInitial) {
       this.clipInitial = true
@@ -117,11 +118,12 @@ export class ClipUpload extends PureComponent<
     if (this.fileLength >= maxAmount) {
       // 图片数量限制
       message.warn(`只能最多上传${maxAmount}张图片哦~`)
-      return false
+      // eslint-disable-next-line prefer-promise-reject-errors
+      return Promise.reject()
     }
     this.clipRef.handleShow()
     this.fileLength += 1
-    return true
+    return Promise.resolve()
   }
 
   /** 自定义上传 */
@@ -324,7 +326,8 @@ export class ClipUpload extends PureComponent<
       readonly,
       help,
       minWidth,
-      minHeight
+      minHeight,
+      verifyWh
     } = this.props
 
     /** readonly 为true 且 fileList 数组为空的话 预览的时候只需要显示为空 */
@@ -340,6 +343,7 @@ export class ClipUpload extends PureComponent<
           clipHeigth={clipHeigth!}
           minWidth={minWidth!}
           minHeight={minHeight!}
+          verifyWh={verifyWh!}
           help={help!}
           onSave={this.handleSave}
           onAfterClose={this.handleAfterClose}
