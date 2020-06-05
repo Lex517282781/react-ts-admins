@@ -322,7 +322,9 @@ export class ClipUpload extends PureComponent<
       clipWidth,
       clipHeigth,
       readonly,
-      help
+      help,
+      minWidth,
+      minHeight
     } = this.props
 
     /** readonly 为true 且 fileList 数组为空的话 预览的时候只需要显示为空 */
@@ -336,6 +338,8 @@ export class ClipUpload extends PureComponent<
           maxSize={maxSize!}
           clipWidth={clipWidth!}
           clipHeigth={clipHeigth!}
+          minWidth={minWidth!}
+          minHeight={minHeight!}
           help={help!}
           onSave={this.handleSave}
           onAfterClose={this.handleAfterClose}

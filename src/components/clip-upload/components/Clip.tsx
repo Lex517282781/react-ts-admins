@@ -39,6 +39,8 @@ interface ClipProps {
   maxSize: number
   clipWidth: number
   clipHeigth: number
+  minWidth: number
+  minHeight: number
   help: string[]
 }
 
@@ -322,13 +324,12 @@ class Clip extends PureComponent<ClipProps, ClipState> {
       preFileList,
       loading
     } = this.state
-    const { help } = this.props
+    const { help, clipWidth, clipHeigth, minWidth, minHeight } = this.props
 
     const placeholder = makeArray(
       ImgMaxCount - fileList.length
     )
 
-    const minSize = 10
     let currentSrc: string = ''
     let mini = false
 
@@ -339,8 +340,8 @@ class Clip extends PureComponent<ClipProps, ClipState> {
         url || preFileList[current].url
       // 确定是否最小值
       if (
-        width && width <= minSize &&
-        height && height <= minSize
+        width && width <= minWidth &&
+        height && height <= minHeight
       ) {
         mini = true
       }
@@ -372,14 +373,14 @@ class Clip extends PureComponent<ClipProps, ClipState> {
             crop={event => {
               const width = event.detail.width
               const height = event.detail.height
-              if (width < minSize || height < minSize) {
+              if (width < minWidth || height < minHeight) {
                 this.cropperRef.setData({
-                  width: Math.max(width, minSize),
-                  height: Math.max(height, minSize)
+                  width: Math.max(width, minWidth),
+                  height: Math.max(height, minHeight)
                 })
               }
             }}
-            aspectRatio={1}
+            aspectRatio={clipWidth / clipHeigth}
             guides={false}
             dragMode='crop'
             src={currentSrc}
@@ -416,7 +417,7 @@ class Clip extends PureComponent<ClipProps, ClipState> {
                 <span
                   className={styles[`clip-sizeErr`]}
                 >
-                  已经缩放到限制的最小值(10px)
+                  已经缩放到限制的最小值({minWidth}px X {minHeight}px)
                 </span>
               )
             }

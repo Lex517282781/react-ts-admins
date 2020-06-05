@@ -50,7 +50,7 @@ export interface ImgWrapProps {
   index: number
   overflow: boolean
   isClip: boolean
-  item: { url: string }
+  item: FileItem
   active: boolean
   onItemClick: (index: number) => void
   onRefreshClick: (
