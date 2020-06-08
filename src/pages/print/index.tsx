@@ -35,16 +35,6 @@ const data = [...new Array(100)].map((_, i) => ({
   e: 'e' + i
 }))
 
-const pageStyle = {
-  '@page:right': {
-    '@top-right': {
-      'border-top': '.25pt solid #666',
-      content: '123'
-    },
-    'margin-left': '4cm'
-  }
-}
-
 class ComponentToPrint extends React.Component {
   render () {
     return (
@@ -92,14 +82,14 @@ class PrintPage extends PureComponent {
   render () {
     return (
       <Panel title='打印'>
-        <ReactToPrint pageStyle={JSON.stringify(pageStyle)} content={() => this.componentRef}>
+        <ReactToPrint pageStyle={'@page { margin: 20cm 2.6cm 3.5cm;'} content={() => this.componentRef}>
           <PrintContextConsumer>
             {({ handlePrint }) => (
               <button onClick={handlePrint}>Print this out!</button>
             )}
           </PrintContextConsumer>
         </ReactToPrint>
-        <div style={{ display: 'none' }}>
+        <div style={{ display: 'block' }}>
           <ComponentToPrint ref={el => (this.componentRef = el)} />
         </div>
         {/* <Print /> */}
