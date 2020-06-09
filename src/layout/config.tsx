@@ -37,6 +37,14 @@ export const categorys = makeCategorys([
       {
         text: '打印',
         url: '/print'
+      },
+      {
+        text: 'React打印',
+        url: '/react-print'
+      },
+      {
+        text: '表格打印',
+        url: '/table-print'
       }
     ]
   },

@@ -11,6 +11,8 @@ import ColorPicker from './pages/color-picker'
 import Form from './pages/form'
 import SelectSearchFetch from './pages/select-search-fetch'
 import Print from './pages/print'
+import ReactPrint from './pages/react-print'
+import TablePrint from './pages/table-print'
 
 import ActionView from './pages/action-view'
 import ListPage from './pages/list-page'
@@ -27,6 +29,8 @@ export default () => (
       <Route path='/form' component={Form} />
       <Route path='/select-search-fetch' component={SelectSearchFetch} />
       <Route path='/print' component={Print} />
+      <Route path='/react-print' component={ReactPrint} />
+      <Route path='/table-print' component={TablePrint} />
 
       <Route path='/action-view' component={ActionView} />
       <Route path='/list-page' component={ListPage} />
