@@ -12,8 +12,6 @@ import styles from './style.module.styl'
 const a4W = getA4W()
 const a4H = getA4H()
 
-console.log(a4H)
-
 interface TablePrintProps {
   /* 内容头部 */
   head?: React.ReactNode
@@ -54,7 +52,7 @@ class TablePrint extends PureComponent<TablePrintProps, TablePrintState> {
   }
 
   componentDidUpdate () {
-    // this.reRender()
+    this.reRender()
   }
 
   /* 获取内容到到a4 */
@@ -76,6 +74,7 @@ class TablePrint extends PureComponent<TablePrintProps, TablePrintState> {
   reRender = () => {
     const { tableData } = this.state
     const length = tableData.length
+    // 每次对最后一个元素重新计算 除了最后一个的其他元素全部回塞进新的数组
     const preData = tableData.slice(0, length - 1)
     const lastData = tableData[length - 1]
     const reachIndex = this.getContentReachA4Index(lastData)
@@ -103,8 +102,6 @@ class TablePrint extends PureComponent<TablePrintProps, TablePrintState> {
     } = this.props
     const { tableData, heights } = this.state
 
-    console.log(tableData, 'tableData')
-
     return (
       <div>
         <ReactToPrint content={() => this.contentRef}>
@@ -131,21 +128,18 @@ class TablePrint extends PureComponent<TablePrintProps, TablePrintState> {
             style={{ width: a4W }}
             className={styles['print-content']}
           >
-            <div style={{ background: 'red', width: a4W, height: a4H }}>
-              <div style={{ height: 41, background: 'yellow' }}></div>
-              <div style={{ height: 874, background: 'green' }}></div>
-              <div style={{ height: 200, background: 'pink' }}></div>
-              <div style={{ pageBreakAfter: 'always', height: 0 }} />
-            </div>
             <div className={styles['print-content-inner']}>
               {
                 tableData.map((item, i) => (
-                  // 这里设置组合key是为了动态设置key 避免key值没变化 组件就不更新的 这里就是强制需要重新渲染
-                  <div title={`第${i + 1}页`} key={`${tableData.length}-${i}`} className={styles['print-content-block']}>
+                  <div
+                    title={`第${i + 1}页`}
+                    // 这里设置组合key是为了动态设置key 避免key值没变化 组件就不更新的 这里就是强制需要重新渲染
+                    key={`${tableData.length}-${i}`}
+                    className={styles['print-content-block']}
+                  >
                     {
                       <ContentHead data={heights}>
                         {head}
-                        <div>{item.reduce((pre: any, next: any) => pre + next.h, 0)}</div>
                       </ContentHead>
                     }
                     <div
