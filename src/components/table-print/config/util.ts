@@ -9,7 +9,7 @@ export const getA4W = () => {
 
 export const getA4H = () => {
   const el = document.createElement('div')
-  el.style.width = '290mm'
+  el.style.width = '297mm'
   document.body.appendChild(el)
   const width = el.clientWidth
   el.remove()

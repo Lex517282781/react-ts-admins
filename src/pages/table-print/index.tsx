@@ -26,10 +26,10 @@ const colums = [
   }
 ]
 
-const data = [...new Array(200)].map((_, i) => {
+const data = [...new Array(120)].map((_, i) => {
   let c = ''
   if (i === 20) {
-    c = [...new Array(200)].map(() => '你好').join('') + i
+    c = [...new Array(2)].map(() => '你好').join('') + i
   } else {
     c = 'c' + i
   }
@@ -64,13 +64,14 @@ class TablePrintPage extends PureComponent<any, TablePrintPageState> {
     return (
       <Panel title='表格打印'>
         <TablePrint
+          debug
           colums={colums}
           data={data}
           head={(
-            <>head</>
+            <div style={{ height: '20px', border: '1px solid red' }}>head</div>
           )}
           foot={(
-            <>foot</>
+            <div style={{ height: '200px', background: 'yellow' }}>foot</div>
           )}
         />
       </Panel>

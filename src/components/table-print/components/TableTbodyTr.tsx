@@ -10,13 +10,13 @@ class TableTbodyTr extends PureComponent<TableTbodyTrProps> {
   trRef: HTMLTableRowElement | null = null
   componentDidMount () {
     const { data } = this.props
-    data.h = this.trRef?.offsetHeight
+    data.h = this.trRef?.offsetHeight || 0
   }
 
   render () {
     const { colums = [], data } = this.props
     return (
-      <tr ref={ ref => { this.trRef = ref } }>
+      <tr style={{ height: data.h || 'auto' }} ref={ ref => { this.trRef = ref } }>
         {
           colums.map((col, j) => (
             <td key={j}>

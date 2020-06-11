@@ -11,7 +11,7 @@ class ContentFoot extends PureComponent<ContentHeadProps> {
   componentDidMount () {
     const { data } = this.props
     if (data) {
-      data.contentFoot = this.contentFootRef?.offsetHeight
+      data.contentFoot = this.contentFootRef?.offsetHeight || 0
     }
   }
 

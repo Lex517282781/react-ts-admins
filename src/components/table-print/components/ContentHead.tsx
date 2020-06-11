@@ -11,8 +11,7 @@ class ContentHead extends PureComponent<ContentHeadProps> {
   componentDidMount () {
     const { data } = this.props
     if (data) {
-      data.contentHead = this.contentHeadRef?.offsetHeight
-      console.log(data)
+      data.contentHead = this.contentHeadRef?.offsetHeight || 0
     }
   }
 
