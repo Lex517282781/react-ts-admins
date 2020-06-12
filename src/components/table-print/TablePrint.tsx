@@ -42,7 +42,7 @@ interface TablePrintState extends PrintOption, TablePrintItem {
   end: boolean
   loading: boolean
   debug?: boolean
-  printArray?: Array<TablePrintItem>
+  printBlocks?: Array<TablePrintItem>
 }
 
 function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
@@ -55,7 +55,8 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       heights: {},
       end: false,
       loading: false,
-      debug: false
+      debug: false,
+      printBlocks: []
     }
 
     componentDidUpdate () {
