@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react'
 import Panel from '@/components/panel'
 import TablePrint from '@/components/table-print'
+import { TablePrintProps } from '@/components/table-print/TablePrint'
 import { chunk } from 'lodash'
 
 const colums = [
@@ -29,7 +30,7 @@ const colums = [
 const data = [...new Array(120)].map((_, i) => {
   let c = ''
   if (i === 20) {
-    c = [...new Array(2)].map(() => '你好').join('') + i
+    c = [...new Array(222)].map(() => '你好').join('') + i
   } else {
     c = 'c' + i
   }
@@ -46,13 +47,15 @@ const data = [...new Array(120)].map((_, i) => {
   }
 })
 
+type TablePrintPageProps = TablePrintProps
+
 interface TablePrintPageState {
   dataSource: any[],
   tableData: any[],
   heights: any
 }
 
-class TablePrintPage extends PureComponent<any, TablePrintPageState> {
+class TablePrintPage extends PureComponent<TablePrintPageProps, TablePrintPageState> {
   contentRef: HTMLDivElement | null = null
   state: TablePrintPageState = {
     dataSource: data,
@@ -60,10 +63,24 @@ class TablePrintPage extends PureComponent<any, TablePrintPageState> {
     heights: {}
   }
 
+  handleClick = () => {
+    this.props.print({
+      // debug: true,
+      colums,
+      data,
+      head: (
+        <div style={{ height: '20px', border: '1px solid red' }}>head</div>
+      ),
+      foot: (
+        <div style={{ height: '200px', background: 'yellow' }}>foot</div>
+      )
+    })
+  }
+
   render () {
     return (
       <Panel title='表格打印'>
-        <TablePrint
+        {/* <TablePrint
           debug
           colums={colums}
           data={data}
@@ -73,10 +90,11 @@ class TablePrintPage extends PureComponent<any, TablePrintPageState> {
           foot={(
             <div style={{ height: '200px', background: 'yellow' }}>foot</div>
           )}
-        />
+        /> */}
+        <button onClick={this.handleClick}>打印</button>
       </Panel>
     )
   }
 }
 
-export default TablePrintPage
+export default TablePrint(TablePrintPage)
