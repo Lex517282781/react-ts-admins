@@ -38,11 +38,12 @@ interface TablePrintItem {
   heights: {[key: string]: number}
 }
 
-interface TablePrintState extends PrintOption, TablePrintItem {
+interface TablePrintState extends PrintOption {
   end: boolean
   loading: boolean
   debug?: boolean
-  printBlocks?: Array<TablePrintItem>
+  count: number
+  printBlocks: Array<TablePrintItem & PrintOption>
 }
 
 function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
@@ -50,49 +51,40 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     contentRef: HTMLDivElement | null = null
     printRef: any
     state: TablePrintState = {
-      dataSource: [],
-      tableData: [],
-      heights: {},
+      printBlocks: [],
       end: false,
       loading: false,
       debug: false,
-      printBlocks: []
+      count: 0
     }
 
     componentDidUpdate () {
       this.reRender()
     }
 
-    print = (option: PrintOption, debug = false) => {
-      if (Array.isArray(option)) {
-        console.log(999)
-      } else {
-        this.setState({
-          dataSource: option.dataSource || [],
-          tableData: option.dataSource ? [[option.dataSource, []]] : [],
-          head: option.head,
-          foot: option.foot,
-          colums: option.colums,
-          debug,
-          tablePaddingLeft: option.tablePaddingLeft,
-          tablePaddingRight: option.tablePaddingRight,
-          tablePaddingBottom: option.tablePaddingBottom,
-          tablePaddingTop: option.tablePaddingTop,
-          end: false,
-          loading: true
-        })
-      }
+    print = (option: PrintOption | Array<PrintOption>, debug = false) => {
+      option = Array.isArray(option) ? option : [option]
+      this.setState({
+        printBlocks: option.map(item => ({
+          ...item,
+          tableData: item.dataSource ? [[item.dataSource, []]] : [],
+          heights: {}
+        })),
+        end: false,
+        loading: true,
+        debug
+      })
     }
 
     /* 获取内容到到a4 */
-    getContentReachA4Index = (data: any = []) => {
-      const { heights, tablePaddingTop = 0, tablePaddingBottom = 0 } = this.state
-      let sum = Object.values(heights).reduce((pre, next) => pre + next, 0)
+    getContentReachA4Index = (data: any = [], info: PrintOption & TablePrintItem) => {
+      const { heights, tablePaddingTop = 0, tablePaddingBottom = 0 } = info
+      let sum = Object.values(heights).reduce((pre: number, next: number) => pre + next, 0)
       sum += tablePaddingTop + tablePaddingBottom
       const content = data[0]
-      data[1][0] = heights.contentHead || 0
-      data[1][2] = heights.contentFoot || 0
-      data[1][1] = tablePaddingTop + tablePaddingBottom + (heights.tableHead || 0)
+      data[1][0] = heights.contentHead || 0 // 顶部数据高度
+      data[1][2] = heights.contentFoot || 0 // 底部数据高度
+      data[1][1] = tablePaddingTop + tablePaddingBottom + (heights.tableHead || 0) // 表格数据高度
       for (let i = 0, l = content.length; i < l; i++) {
         const item = content[i]
         sum += item.h
@@ -108,16 +100,17 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     }
 
     reRender = () => {
-      const { tableData, end, debug, loading } = this.state
-      const length = tableData.length
-      // 每次对最后一个元素重新计算 除了最后一个的其他元素全部回塞进新的数组
-      const preData = tableData.slice(0, length - 1)
-      const lastData = tableData[length - 1]
-      const reachIndex = this.getContentReachA4Index(lastData)
-      if (end) {
+      const { end, debug, loading, count, printBlocks } = this.state
+      if (count === printBlocks.length) {
+        this.setState({
+          end: true
+        })
         // 此处已经渲染计算完毕 可以打印
         if (debug) {
-          console.log(this.state.tableData)
+          this.setState({
+            loading: false
+          })
+          console.log(this.state.printBlocks)
           return
         }
         if (loading) {
@@ -125,41 +118,52 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         }
         return
       }
+      const curentBlock = printBlocks[count]
+      const tableData = curentBlock.tableData
+      const length = tableData.length
+      // 每次对最后一个元素重新计算 除了最后一个的其他元素全部回塞进新的数组
+      const preData = tableData.slice(0, length - 1)
+      const lastData = tableData[length - 1]
+      const reachIndex = this.getContentReachA4Index(lastData, curentBlock)
       if (reachIndex > 0) {
         this.setState({
-          tableData: [
-            ...preData,
-            [lastData[0].slice(0, reachIndex), lastData[1]],
-            [lastData[0].slice(reachIndex), []]
+          printBlocks: [
+            ...printBlocks.slice(0, count),
+            {
+              ...printBlocks[count],
+              tableData: [
+                ...preData,
+                [lastData[0].slice(0, reachIndex), lastData[1]],
+                [lastData[0].slice(reachIndex), []]
+              ]
+            },
+            ...printBlocks.slice(count + 1)
           ]
         })
       } else {
         this.setState({
-          tableData: [
-            ...preData,
-            [...lastData]
+          printBlocks: [
+            ...printBlocks.slice(0, count),
+            {
+              ...printBlocks[count],
+              tableData: [
+                ...preData,
+                [...lastData]
+              ]
+            },
+            ...printBlocks.slice(count + 1)
           ],
-          end: true
+          count: count + 1
         })
       }
     }
 
     render () {
       const {
-        head,
-        foot,
-        colums = [],
         debug = false,
-        tablePaddingTop = 0,
-        tablePaddingBottom = 0,
-        tablePaddingLeft = 0,
-        tablePaddingRight = 0,
-        // loading,
-        tableData,
-        heights
+        loading,
+        printBlocks
       } = this.state
-
-      const loading = false
 
       return (
         <div>
@@ -196,17 +200,13 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
                 style={{ width: a4W }}
                 className={styles['print-content']}
               >
-                <PrintBlock
-                  head={head}
-                  foot={foot}
-                  colums={colums}
-                  tableData={tableData}
-                  tablePaddingLeft={tablePaddingLeft}
-                  tablePaddingRight={tablePaddingRight}
-                  tablePaddingBottom={tablePaddingBottom}
-                  tablePaddingTop={tablePaddingTop}
-                  heights={heights}
-                />
+                {
+                  printBlocks.map((block, i) => {
+                    return (
+                      <PrintBlock key={i} {...block} />
+                    )
+                  })
+                }
               </div>
             </div>
           </Spin>

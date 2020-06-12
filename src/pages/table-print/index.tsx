@@ -64,32 +64,30 @@ class TablePrintPage extends PureComponent<TablePrintPageProps, TablePrintPageSt
   }
 
   handleClick = () => {
-    this.props.print({
+    this.props.print([{
       colums,
       dataSource: data,
       head: (
-        <div style={{ height: '20px', border: '1px solid red' }}>head</div>
+        <div style={{ height: '20px', border: '1px solid red' }}>head1</div>
       ),
       foot: (
-        <div style={{ height: '200px', background: 'yellow' }}>foot</div>
+        <div style={{ height: '200px', background: 'yellow' }}>foot1</div>
       )
-    }, true)
+    }, {
+      colums,
+      dataSource: data,
+      head: (
+        <div style={{ height: '20px', border: '1px solid red' }}>head2</div>
+      ),
+      foot: (
+        <div style={{ height: '200px', background: 'yellow' }}>foot2</div>
+      )
+    }])
   }
 
   render () {
     return (
       <Panel title='表格打印'>
-        {/* <TablePrint
-          debug
-          colums={colums}
-          data={data}
-          head={(
-            <div style={{ height: '20px', border: '1px solid red' }}>head</div>
-          )}
-          foot={(
-            <div style={{ height: '200px', background: 'yellow' }}>foot</div>
-          )}
-        /> */}
         <button onClick={this.handleClick}>打印</button>
       </Panel>
     )
