@@ -1,10 +1,7 @@
 import React, { PureComponent } from 'react'
 import { Spin } from 'antd'
 import ReactToPrint from 'react-to-print'
-import ContentHead from './components/ContentHead'
-import ContentFoot from './components/ContentFoot'
-import TableTHeadTr from './components/TableTHeadTr'
-import TableTbodyTr from './components/TableTbodyTr'
+import PrintBlock from './components/PrintBlock'
 import { getA4W, getA4H } from './config/util'
 import { Colum } from './config/interface'
 import styles from './style.module.styl'
@@ -20,9 +17,7 @@ export interface PrintOption {
   /* 表格表头 */
   colums?: Colum[]
   /* 表格数据 */
-  data?: any[]
-  /* 是否调试 */
-  debug?: boolean
+  dataSource?: any[]
   /* 表格左边留白 */
   tablePaddingLeft?: number
   /* 表格右边留白 */
@@ -34,15 +29,20 @@ export interface PrintOption {
 }
 
 export interface TablePrintProps {
-  print: (option: PrintOption) => () => void
+  print: (option: PrintOption | Array<PrintOption>, debug?: boolean) => () => void
 }
 
-interface TablePrintState extends PrintOption {
-  dataSource: any[]
+interface TablePrintItem {
   tableData: any[]
+  /* 各部分高度储存地方 tableHead contentHead contentFoot */
   heights: {[key: string]: number}
+}
+
+interface TablePrintState extends PrintOption, TablePrintItem {
   end: boolean
   loading: boolean
+  debug?: boolean
+  printArray?: Array<TablePrintItem>
 }
 
 function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
@@ -54,29 +54,33 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       tableData: [],
       heights: {},
       end: false,
-      loading: false
+      loading: false,
+      debug: false
     }
 
     componentDidUpdate () {
       this.reRender()
     }
 
-    print = (option: PrintOption) => {
-      this.setState({
-        dataSource: option.data || [],
-        tableData: option.data ? [[option.data, []]] : [],
-        head: option.head,
-        foot: option.foot,
-        colums: option.colums,
-        data: option.data,
-        debug: option.debug,
-        tablePaddingLeft: option.tablePaddingLeft,
-        tablePaddingRight: option.tablePaddingRight,
-        tablePaddingBottom: option.tablePaddingBottom,
-        tablePaddingTop: option.tablePaddingTop,
-        end: false,
-        loading: true
-      })
+    print = (option: PrintOption, debug = false) => {
+      if (Array.isArray(option)) {
+        console.log(999)
+      } else {
+        this.setState({
+          dataSource: option.dataSource || [],
+          tableData: option.dataSource ? [[option.dataSource, []]] : [],
+          head: option.head,
+          foot: option.foot,
+          colums: option.colums,
+          debug,
+          tablePaddingLeft: option.tablePaddingLeft,
+          tablePaddingRight: option.tablePaddingRight,
+          tablePaddingBottom: option.tablePaddingBottom,
+          tablePaddingTop: option.tablePaddingTop,
+          end: false,
+          loading: true
+        })
+      }
     }
 
     /* 获取内容到到a4 */
@@ -149,10 +153,12 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         tablePaddingBottom = 0,
         tablePaddingLeft = 0,
         tablePaddingRight = 0,
-        loading,
+        // loading,
         tableData,
         heights
       } = this.state
+
+      const loading = false
 
       return (
         <div>
@@ -189,56 +195,17 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
                 style={{ width: a4W }}
                 className={styles['print-content']}
               >
-                <div className={styles['print-content-inner']}>
-                  {
-                    tableData.map(([content, info], i) => {
-                      return (
-                        <div
-                          title={`第${i + 1}页, 页面高度: ${info[3]}`}
-                          // 这里设置组合key是为了动态设置key 避免key值没变化 组件就不更新的 这里就是强制需要重新渲染
-                          key={`${tableData.length}-${i}`}
-                          className={styles['print-content-block']}
-                        >
-                          {
-                            <ContentHead data={heights}>
-                              {head}
-                            </ContentHead>
-                          }
-                          <div
-                            style={{
-                              paddingTop: tablePaddingTop,
-                              paddingBottom: tablePaddingBottom,
-                              paddingLeft: tablePaddingLeft,
-                              paddingRight: tablePaddingRight
-                            }}
-                            className={styles['content-body']}
-                          >
-                            <table>
-                              <thead>
-                                <TableTHeadTr colums={colums} data={heights} />
-                              </thead>
-                              <tbody>
-                                {
-                                  content.map((innerItem: any, j: number) => (
-                                    <TableTbodyTr colums={colums} key={j} data={innerItem} />
-                                  ))
-                                }
-                              </tbody>
-                            </table>
-                          </div>
-                          <ContentFoot data={heights}>
-                            {foot}
-                          </ContentFoot>
-                          {
-                            info[3] !== a4H && (
-                              <div style={{ pageBreakAfter: 'always' }} />
-                            )
-                          }
-                        </div>
-                      )
-                    })
-                  }
-                </div>
+                <PrintBlock
+                  head={head}
+                  foot={foot}
+                  colums={colums}
+                  tableData={tableData}
+                  tablePaddingLeft={tablePaddingLeft}
+                  tablePaddingRight={tablePaddingRight}
+                  tablePaddingBottom={tablePaddingBottom}
+                  tablePaddingTop={tablePaddingTop}
+                  heights={heights}
+                />
               </div>
             </div>
           </Spin>

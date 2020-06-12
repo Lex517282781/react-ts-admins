@@ -65,16 +65,15 @@ class TablePrintPage extends PureComponent<TablePrintPageProps, TablePrintPageSt
 
   handleClick = () => {
     this.props.print({
-      // debug: true,
       colums,
-      data,
+      dataSource: data,
       head: (
         <div style={{ height: '20px', border: '1px solid red' }}>head</div>
       ),
       foot: (
         <div style={{ height: '200px', background: 'yellow' }}>foot</div>
       )
-    })
+    }, true)
   }
 
   render () {
