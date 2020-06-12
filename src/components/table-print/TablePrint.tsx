@@ -52,10 +52,10 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     printRef: any
     state: TablePrintState = {
       printBlocks: [],
+      count: 0,
       end: false,
       loading: false,
-      debug: false,
-      count: 0
+      debug: false
     }
 
     componentDidUpdate () {
@@ -70,6 +70,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
           tableData: item.dataSource ? [[item.dataSource, []]] : [],
           heights: {}
         })),
+        count: 0,
         end: false,
         loading: true,
         debug
