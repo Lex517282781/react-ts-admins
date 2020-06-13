@@ -70,8 +70,8 @@ class TablePrintPage extends PureComponent<TablePrintPageProps, TablePrintPageSt
       head: (
         <div style={{ height: '20px', border: '1px solid red' }}>head1</div>
       ),
-      foot: (
-        <div style={{ height: '200px', background: 'yellow' }}>foot1</div>
+      foot: (content, tableData, i, t) => (
+        <div style={{ height: '200px', background: 'yellow' }}>{i}-{t}</div>
       )
     }, {
       colums,

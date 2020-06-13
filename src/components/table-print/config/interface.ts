@@ -7,9 +7,31 @@ export interface Colum {
 /* 单个打印对象参数 */
 export interface PrintItem {
   /* 打印头部 */
-  head?: React.ReactNode
+  head?: (
+    (
+      /* 当前页面列表内容 */
+      content: any,
+      /* 当前打印模块内容 */
+      tableData: any[],
+      /* 当前打印模块页码 */
+      page: number,
+      /* 当前打印模块总页码 */
+      totalPage: number
+    ) => React.ReactNode
+  ) | React.ReactNode
   /* 打印底部 */
-  foot?: React.ReactNode
+  foot?: (
+    (
+      /* 当前页面列表内容 */
+      content: any,
+      /* 当前打印模块内容 */
+      tableData: any[],
+      /* 当前打印模块页码 */
+      page: number,
+      /* 当前打印模块总页码 */
+      totalPage: number
+    ) => React.ReactNode
+  ) | React.ReactNode
   /* 打印表格表头 */
   colums?: Colum[]
   /* 打印表格数据 */
@@ -26,6 +48,11 @@ export interface PrintItem {
 
 /* 打印参数 */
 export type PrintOption = PrintItem | PrintItem[]
+
+export interface PrintConfig {
+  direction?: 'auto' | 'landscape' | 'portrait',
+  debug?: boolean
+}
 
 /* 单个打印对象参数 组件内部使用 */
 export interface PrintBlockItem extends PrintItem {

@@ -3,7 +3,8 @@ import { Spin } from 'antd'
 import ReactToPrint from 'react-to-print'
 import PrintBlock from './components/PrintBlock'
 import { getA4W, getA4H } from './config/util'
-import { PrintItem, PrintOption, PrintBlockItem } from './config/interface'
+import { debug as defaultDebug, direction as defaultDirection } from './config/config'
+import { PrintItem, PrintOption, PrintBlockItem, PrintConfig } from './config/interface'
 import styles from './style.module.styl'
 
 const a4W = getA4W()
@@ -25,11 +26,15 @@ interface TablePrintState extends PrintItem {
   loading: boolean
   /* debug为true展示当前页面打印预览的排版 */
   debug?: boolean
+  /* 打印方向 */
+  direction?: string
 }
 
 function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
   return class TablePrint extends PureComponent<T, TablePrintState> {
     contentRef: HTMLDivElement | null = null
+    pageW = a4W
+    pageH = a4H
     printRef: any
     state: TablePrintState = {
       printBlocks: [],
@@ -44,8 +49,16 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     }
 
     /* 打印 */
-    print = (option: PrintOption, debug = false) => {
+    print = (option: PrintOption, config?: PrintConfig | boolean) => {
       option = Array.isArray(option) ? option : [option]
+      config = typeof config === 'boolean' ? { debug: config } : config
+      if (config?.direction === 'portrait') {
+        this.pageW = a4W
+        this.pageH = a4H
+      } else if (config?.direction === 'landscape') {
+        this.pageW = a4H
+        this.pageH = a4W
+      }
       this.setState({
         printBlocks: option.map(item => ({
           ...item,
@@ -55,7 +68,8 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         count: 0,
         end: false,
         loading: true,
-        debug
+        debug: config?.debug || defaultDebug,
+        direction: config?.direction || defaultDirection
       })
     }
 
@@ -72,7 +86,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         const item = content[i]
         sum += item.h
         data[1][1] += item.h
-        if (sum > a4H) {
+        if (sum > this.pageH) {
           data[1][1] -= item.h // 因为是截止到当前个数的时候 该个数不在当前的数组范围内 所以需要减去当前的高度
           data[1][3] = data[1][0] + data[1][1] + data[1][2] // 赋值当前页面数据高度
           return i
@@ -89,11 +103,11 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         return
       }
       if (count === printBlocks.length) {
+        this.setState({
+          loading: false
+        })
         // 此处已经渲染计算完毕 可以打印
         if (debug) {
-          this.setState({
-            loading: false
-          })
           console.log(this.state.printBlocks)
           return
         }
@@ -135,7 +149,8 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       const {
         debug = false,
         loading,
-        printBlocks
+        printBlocks,
+        direction
       } = this.state
 
       return (
@@ -143,6 +158,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
           <Spin spinning={loading}>
             <Wrapper print={this.print} {...this.props} />
             <ReactToPrint
+              pageStyle={`@page { size: ${direction}; margin: 0mm; } @media print { body { -webkit-print-color-adjust: exact; } }`}
               ref={ref => { this.printRef = ref }}
               content={() => this.contentRef}
               onBeforePrint={() => {
@@ -172,13 +188,13 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
             >
               <div
                 ref={ref => { this.contentRef = ref }}
-                style={{ width: a4W }}
+                style={{ width: this.pageW }}
                 className={styles['print-content']}
               >
                 {
                   printBlocks.map((block, i) => {
                     return (
-                      <PrintBlock key={i} {...block} />
+                      <PrintBlock key={i} {...block} pageW={this.pageW} pageH={this.pageH} />
                     )
                   })
                 }
