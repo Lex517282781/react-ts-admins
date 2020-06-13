@@ -3,47 +3,28 @@ import { Spin } from 'antd'
 import ReactToPrint from 'react-to-print'
 import PrintBlock from './components/PrintBlock'
 import { getA4W, getA4H } from './config/util'
-import { Colum } from './config/interface'
+import { PrintItem, PrintOption, PrintBlockItem } from './config/interface'
 import styles from './style.module.styl'
 
 const a4W = getA4W()
 const a4H = getA4H()
 
-export interface PrintOption {
-  /* 内容头部 */
-  head?: React.ReactNode
-  /* 内容底部 */
-  foot?: React.ReactNode
-  /* 表格表头 */
-  colums?: Colum[]
-  /* 表格数据 */
-  dataSource?: any[]
-  /* 表格左边留白 */
-  tablePaddingLeft?: number
-  /* 表格右边留白 */
-  tablePaddingRight?: number
-  /* 表格底部留白 */
-  tablePaddingBottom?: number
-  /* 表格顶部留白 */
-  tablePaddingTop?: number
-}
-
 export interface TablePrintProps {
-  print: (option: PrintOption | Array<PrintOption>, debug?: boolean) => () => void
+  /* 打印方法 */
+  print: (option: PrintOption, debug?: boolean) => () => void
 }
 
-interface TablePrintItem {
-  tableData: any[]
-  /* 各部分高度储存地方 tableHead contentHead contentFoot */
-  heights: {[key: string]: number}
-}
-
-interface TablePrintState extends PrintOption {
-  end: boolean
-  loading: boolean
-  debug?: boolean
+interface TablePrintState extends PrintItem {
+  /* 打印数据参数 */
+  printBlocks: PrintBlockItem[]
+  /* 打印计数 */
   count: number
-  printBlocks: Array<TablePrintItem & PrintOption>
+  /* 是否打印完成 */
+  end: boolean
+  /* 计算和打印loading */
+  loading: boolean
+  /* debug为true展示当前页面打印预览的排版 */
+  debug?: boolean
 }
 
 function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
@@ -62,7 +43,8 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       this.reRender()
     }
 
-    print = (option: PrintOption | Array<PrintOption>, debug = false) => {
+    /* 打印 */
+    print = (option: PrintOption, debug = false) => {
       option = Array.isArray(option) ? option : [option]
       this.setState({
         printBlocks: option.map(item => ({
@@ -77,8 +59,8 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       })
     }
 
-    /* 获取内容到到a4 */
-    getContentReachA4Index = (data: any = [], info: PrintOption & TablePrintItem) => {
+    /* 获取内容到到a4 计算获得该内容的内部索引 */
+    getContentReachA4Index = (data: any = [], info: PrintBlockItem) => {
       const { heights, tablePaddingTop = 0, tablePaddingBottom = 0 } = info
       let sum = Object.values(heights).reduce((pre: number, next: number) => pre + next, 0)
       sum += tablePaddingTop + tablePaddingBottom
@@ -101,11 +83,12 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     }
 
     reRender = () => {
-      const { end, debug, loading, count, printBlocks } = this.state
+      const { debug, count, printBlocks, end } = this.state
+      if (end) {
+        // 打印完成
+        return
+      }
       if (count === printBlocks.length) {
-        this.setState({
-          end: true
-        })
         // 此处已经渲染计算完毕 可以打印
         if (debug) {
           this.setState({
@@ -114,9 +97,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
           console.log(this.state.printBlocks)
           return
         }
-        if (loading) {
-          this.printRef.handlePrint()
-        }
+        this.printRef.handlePrint()
         return
       }
       const curentBlock = printBlocks[count]
@@ -180,7 +161,9 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
               }}
               onAfterPrint={() => {
                 this.setState({
-                  loading: false
+                  loading: false,
+                  count: 0,
+                  end: true
                 })
               }}
             />

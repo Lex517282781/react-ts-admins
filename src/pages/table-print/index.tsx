@@ -82,7 +82,7 @@ class TablePrintPage extends PureComponent<TablePrintPageProps, TablePrintPageSt
       foot: (
         <div style={{ height: '200px', background: 'yellow' }}>foot2</div>
       )
-    }])
+    }], true)
   }
 
   render () {
