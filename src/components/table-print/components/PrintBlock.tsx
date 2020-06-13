@@ -50,19 +50,19 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
             let headEl = null
             let footEl = null
             if (typeof head === 'function') {
-              headEl = head(content, tableData, i, tableData.length, blockSize)
+              headEl = head(content, tableData, i, tableDataSize, index, blockSize, sizes[0], pageSize)
             } else {
               headEl = head
             }
             if (typeof foot === 'function') {
-              footEl = foot(content, tableData, i, tableData.length, blockSize)
+              footEl = foot(content, tableData, i, tableDataSize, index, blockSize, sizes[0], pageSize)
             } else {
               footEl = foot
             }
             return (
               <div
                 title={
-                  `第${index + 1}模块, 共${blockSize}模块; 第${i + 1}页, 共${tableDataSize}页; 总第${sizes[0] + 1}页, 总共第${pageSize}页 页面高度: ${info[3]}`
+                  `第${index + 1}模块, 共${blockSize}模块; 模块第${i + 1}页, 模块共${tableDataSize}页; 全局第${sizes[0] + 1}页, 全局共${pageSize}页; 页面高度: ${info[3]}`
                 }
                 // 这里设置组合key是为了动态设置key 避免key值没变化 组件就不更新的 这里就是强制需要重新渲染
                 key={`${tableData.length}-${i}`}

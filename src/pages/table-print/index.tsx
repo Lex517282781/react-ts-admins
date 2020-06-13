@@ -19,8 +19,8 @@ class TablePrintPage extends PureComponent<TablePrintPageProps> {
       head: (
         <TabelHead1 />
       ),
-      foot: (content, tableData, i, t) => (
-        <div style={{ height: '200px', background: 'yellow' }}>{i}-{t}</div>
+      foot: (_, __, i, t, a, b, c, d) => (
+        <div style={{ height: '200px', background: 'yellow' }}>{i}-{t}-{a}-{b}-{c}-{d}</div>
       )
     }, {
       colums: colums1,
@@ -31,7 +31,7 @@ class TablePrintPage extends PureComponent<TablePrintPageProps> {
       foot: (
         <div style={{ height: '200px', background: 'yellow' }}>foot2</div>
       )
-    }], true)
+    }], false)
   }
 
   render () {

@@ -17,8 +17,14 @@ export interface PrintItem {
       page: number,
       /* 当前打印模块总页码 */
       totalPage: number,
+       /* 当前模板 */
+       blockIndex: number,
       /* 模块长度 */
-      blockSize: number
+      blockSize: number,
+      /* 当前整体页码 */
+      globalIndex: number,
+     /* 当前整体页码数 */
+     globalSize: number
     ) => React.ReactNode
   ) | React.ReactNode
   /* 打印底部 */
@@ -32,8 +38,14 @@ export interface PrintItem {
       page: number,
       /* 当前打印模块总页码 */
       totalPage: number,
+       /* 当前模板 */
+       blockIndex: number,
       /* 模块长度 */
-      blockSize: number
+      blockSize: number,
+      /* 当前整体页码 */
+      globalIndex: number,
+     /* 当前整体页码数 */
+     globalSize: number
     ) => React.ReactNode
   ) | React.ReactNode
   /* 打印表格表头 */
