@@ -74,11 +74,11 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         data[1][1] += item.h
         if (sum > a4H) {
           data[1][1] -= item.h // 因为是截止到当前个数的时候 该个数不在当前的数组范围内 所以需要减去当前的高度
-          data[1][3] = data[1][0] + data[1][1] + data[1][2]
+          data[1][3] = data[1][0] + data[1][1] + data[1][2] // 赋值当前页面数据高度
           return i
         }
       }
-      data[1][3] = data[1][0] + data[1][1] + data[1][2]
+      data[1][3] = data[1][0] + data[1][1] + data[1][2] // 赋值当前页面数据高度
       return -1
     }
 
@@ -115,26 +115,17 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
               ...printBlocks[count],
               tableData: [
                 ...preData,
-                [lastData[0].slice(0, reachIndex), lastData[1]],
-                [lastData[0].slice(reachIndex), []]
+                [lastData[0].slice(0, reachIndex), lastData[1]], // 塞入reachIndex之前计算的数据
+                [lastData[0].slice(reachIndex), []] // 继续把分割的数据塞入后面, 下一次reRender会计算
               ]
             },
             ...printBlocks.slice(count + 1)
           ]
         })
       } else {
+        // 计算完成了 只需要重新塞入数据即可 只需要重新渲染
         this.setState({
-          printBlocks: [
-            ...printBlocks.slice(0, count),
-            {
-              ...printBlocks[count],
-              tableData: [
-                ...preData,
-                [...lastData]
-              ]
-            },
-            ...printBlocks.slice(count + 1)
-          ],
+          printBlocks: [...printBlocks],
           count: count + 1
         })
       }
