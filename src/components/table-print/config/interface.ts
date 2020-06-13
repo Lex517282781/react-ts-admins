@@ -16,7 +16,9 @@ export interface PrintItem {
       /* 当前打印模块页码 */
       page: number,
       /* 当前打印模块总页码 */
-      totalPage: number
+      totalPage: number,
+      /* 模块长度 */
+      blockSize: number
     ) => React.ReactNode
   ) | React.ReactNode
   /* 打印底部 */
@@ -29,7 +31,9 @@ export interface PrintItem {
       /* 当前打印模块页码 */
       page: number,
       /* 当前打印模块总页码 */
-      totalPage: number
+      totalPage: number,
+      /* 模块长度 */
+      blockSize: number
     ) => React.ReactNode
   ) | React.ReactNode
   /* 打印表格表头 */
@@ -56,7 +60,7 @@ export interface PrintConfig {
 
 /* 单个打印对象参数 组件内部使用 */
 export interface PrintBlockItem extends PrintItem {
-  /* 外部dataSource入参转化之后的值 在实际渲染上使用 */
+  /* 外部dataSource入参转化之后的值 在实际渲染上使用 形式如[[表格数据], [头部高度, 表格高度, 底部高度, 页面高度], [当前页面]] */
   tableData: any[]
   /* 各部分高度储存地方 tableHead contentHead contentFoot */
   heights: { [key: string]: number }

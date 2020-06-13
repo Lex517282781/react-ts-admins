@@ -18,8 +18,10 @@ export interface TablePrintProps {
 interface TablePrintState extends PrintItem {
   /* 打印数据参数 */
   printBlocks: PrintBlockItem[]
-  /* 打印计数 */
-  count: number
+  /* 模块计数 */
+  blockCount: number
+  /* 页面计数 */
+  pageCount: number
   /* 是否打印完成 */
   end: boolean
   /* 计算和打印loading */
@@ -38,7 +40,8 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     printRef: any
     state: TablePrintState = {
       printBlocks: [],
-      count: 0,
+      blockCount: 0,
+      pageCount: 0,
       end: false,
       loading: false,
       debug: false
@@ -62,10 +65,11 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       this.setState({
         printBlocks: option.map(item => ({
           ...item,
-          tableData: item.dataSource ? [[item.dataSource, []]] : [],
+          tableData: item.dataSource ? [[item.dataSource, [], []]] : [],
           heights: {}
         })),
-        count: 0,
+        blockCount: 0,
+        pageCount: 0,
         end: false,
         loading: true,
         debug: config?.debug || defaultDebug,
@@ -74,7 +78,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     }
 
     /* 获取内容到到a4 计算获得该内容的内部索引 */
-    getContentReachA4Index = (data: any = [], info: PrintBlockItem) => {
+    getContentReachA4Index = (data: any = [], info: PrintBlockItem, pageCount: number) => {
       const { heights, tablePaddingTop = 0, tablePaddingBottom = 0 } = info
       let sum = Object.values(heights).reduce((pre: number, next: number) => pre + next, 0)
       sum += tablePaddingTop + tablePaddingBottom
@@ -82,6 +86,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       data[1][0] = heights.contentHead || 0 // 顶部数据高度
       data[1][2] = heights.contentFoot || 0 // 底部数据高度
       data[1][1] = tablePaddingTop + tablePaddingBottom + (heights.tableHead || 0) // 表格数据高度
+      data[2][0] = pageCount
       for (let i = 0, l = content.length; i < l; i++) {
         const item = content[i]
         sum += item.h
@@ -97,50 +102,63 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     }
 
     reRender = () => {
-      const { debug, count, printBlocks, end } = this.state
+      const { debug, blockCount, pageCount, printBlocks, end } = this.state
       if (end) {
         // 打印完成
         return
       }
-      if (count === printBlocks.length) {
-        this.setState({
-          loading: false
-        })
+      if (blockCount === printBlocks.length) {
         // 此处已经渲染计算完毕 可以打印
         if (debug) {
+          this.setState({
+            loading: false
+          })
           console.log(this.state.printBlocks)
           return
         }
         this.printRef.handlePrint()
         return
       }
-      const curentBlock = printBlocks[count]
+      const curentBlock = printBlocks[blockCount]
       const tableData = curentBlock.tableData
       const length = tableData.length
       // 每次对最后一个元素重新计算 除了最后一个的其他元素全部回塞进新的数组
       const preData = tableData.slice(0, length - 1)
       const lastData = tableData[length - 1]
-      const reachIndex = this.getContentReachA4Index(lastData, curentBlock)
+      const reachIndex = this.getContentReachA4Index(lastData, curentBlock, pageCount)
+      this.setState({
+        pageCount: pageCount + 1
+      })
       if (reachIndex > 0) {
         this.setState({
           printBlocks: [
-            ...printBlocks.slice(0, count),
+            ...printBlocks.slice(0, blockCount),
             {
-              ...printBlocks[count],
+              ...printBlocks[blockCount],
               tableData: [
                 ...preData,
-                [lastData[0].slice(0, reachIndex), lastData[1]], // 塞入reachIndex之前计算的数据
-                [lastData[0].slice(reachIndex), []] // 继续把分割的数据塞入后面, 下一次reRender会计算
+                [lastData[0].slice(0, reachIndex), lastData[1], lastData[2]], // 塞入reachIndex之前计算的数据
+                [lastData[0].slice(reachIndex), [], []] // 继续把分割的数据塞入后面, 下一次reRender会计算
               ]
             },
-            ...printBlocks.slice(count + 1)
+            ...printBlocks.slice(blockCount + 1)
           ]
         })
       } else {
         // 计算完成了 只需要重新塞入数据即可 只需要重新渲染
         this.setState({
-          printBlocks: [...printBlocks],
-          count: count + 1
+          printBlocks: [
+            ...printBlocks.slice(0, blockCount),
+            {
+              ...printBlocks[blockCount],
+              tableData: [
+                ...preData,
+                [...lastData]
+              ]
+            },
+            ...printBlocks.slice(blockCount + 1)
+          ],
+          blockCount: blockCount + 1
         })
       }
     }
@@ -150,8 +168,11 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         debug = false,
         loading,
         printBlocks,
-        direction
+        direction,
+        pageCount
       } = this.state
+
+      const blockSize = printBlocks.length
 
       return (
         <div>
@@ -169,7 +190,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
               onAfterPrint={() => {
                 this.setState({
                   loading: false,
-                  count: 0,
+                  blockCount: 0,
                   end: true
                 })
               }}
@@ -194,7 +215,15 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
                 {
                   printBlocks.map((block, i) => {
                     return (
-                      <PrintBlock key={i} {...block} pageW={this.pageW} pageH={this.pageH} />
+                      <PrintBlock
+                        {...block}
+                        key={i}
+                        index={i}
+                        blockSize={blockSize}
+                        pageSize={pageCount}
+                        pageW={this.pageW}
+                        pageH={this.pageH}
+                      />
                     )
                   })
                 }
