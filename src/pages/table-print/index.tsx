@@ -42,7 +42,7 @@ class TablePrintPage extends PureComponent<TablePrintPageProps> {
         <TabelHead1 />
       ),
       foot: (_, __, modulePage, moduleTotalPage, blockIndex, blockSize, globalPage, globalTotalPage) => (
-        <div>
+        <div style={{ background: 'red' }}>
           当前模块页码{modulePage}<br />
           当前模块总页码{moduleTotalPage}<br />
           模块{blockIndex}<br />

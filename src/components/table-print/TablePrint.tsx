@@ -10,6 +10,8 @@ import styles from './style.module.styl'
 const a4W = getA4W()
 const a4H = getA4H()
 
+console.log(a4H, a4W)
+
 export interface TablePrintProps {
   /* 打印方法 */
   print: (option: PrintOption, config?: PrintConfig | boolean) => () => void

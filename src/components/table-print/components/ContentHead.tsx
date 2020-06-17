@@ -4,6 +4,8 @@ import styles from '../style.module.styl'
 interface ContentHeadProps {
   data?: any
   children?: React.ReactNode
+  /* 样式 */
+  style?: React.CSSProperties
 }
 
 class ContentHead extends PureComponent<ContentHeadProps> {
@@ -16,9 +18,9 @@ class ContentHead extends PureComponent<ContentHeadProps> {
   }
 
   render () {
-    const { children } = this.props
+    const { children, style = {} } = this.props
     return (
-      <div ref={ ref => { this.contentHeadRef = ref } } className={styles['content-head']}>
+      <div style={style} ref={ ref => { this.contentHeadRef = ref } } className={styles['content-head']}>
         {children}
       </div>
     )

@@ -5,6 +5,8 @@ interface ContentHeadProps {
   data?: any
   children?: React.ReactNode
   fixed?: boolean
+  /* 样式 */
+  style?: React.CSSProperties
 }
 
 class ContentFoot extends PureComponent<ContentHeadProps> {
@@ -17,11 +19,12 @@ class ContentFoot extends PureComponent<ContentHeadProps> {
   }
 
   render () {
-    const { children, fixed } = this.props
+    const { children, fixed, style = {} } = this.props
 
-    let style = {}
+    let newStyle = { ...style }
     if (fixed) {
-      style = {
+      newStyle = {
+        ...style,
         position: 'absolute',
         width: '100%',
         bottom: 0,
@@ -32,7 +35,7 @@ class ContentFoot extends PureComponent<ContentHeadProps> {
       <div
         ref={ ref => { this.contentFootRef = ref } }
         className={styles['content-foot']}
-        style={style}
+        style={newStyle}
       >
         {children}
       </div>

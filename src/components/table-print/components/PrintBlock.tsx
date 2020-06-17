@@ -91,12 +91,13 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
                 style={style}
               >
                 {
-                  <ContentHead data={heights}>
+                  <ContentHead data={heights} style={{ height: info[0] }}>
                     {headEl}
                   </ContentHead>
                 }
                 <div
                   style={{
+                    height: info[1],
                     paddingTop: tablePaddingTop,
                     paddingBottom: tablePaddingBottom,
                     paddingLeft: tablePaddingLeft,
@@ -104,7 +105,7 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
                   }}
                   className={styles['content-body']}
                 >
-                  <table>
+                  <table style={{ width: '100%' }}>
                     <thead>
                       <TableTHeadTr colums={colums} data={heights} />
                     </thead>
@@ -117,7 +118,7 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
                     </tbody>
                   </table>
                 </div>
-                <ContentFoot fixed={fixed} data={heights}>
+                <ContentFoot fixed={fixed} data={heights} style={{ height: info[2] }}>
                   {footEl}
                 </ContentFoot>
                 {
