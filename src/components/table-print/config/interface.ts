@@ -14,17 +14,17 @@ export interface PrintItem {
       /* 当前打印模块内容 */
       tableData: any[],
       /* 当前打印模块页码 */
-      page: number,
+      modulePage: number,
       /* 当前打印模块总页码 */
-      totalPage: number,
-       /* 当前模板 */
-       blockIndex: number,
-      /* 模块长度 */
-      blockSize: number,
+      moduleTotalPage: number,
+      /* 模板个数索引 */
+      blockIndex: number,
+      /* 模块总个数 */
+      blockTotalCount: number,
       /* 当前整体页码 */
-      globalIndex: number,
-     /* 当前整体页码数 */
-     globalSize: number
+      globalPage: number,
+     /* 整体总页码 */
+     globalTotalPage: number
     ) => React.ReactNode
   ) | React.ReactNode
   /* 打印底部 */
@@ -35,17 +35,17 @@ export interface PrintItem {
       /* 当前打印模块内容 */
       tableData: any[],
       /* 当前打印模块页码 */
-      page: number,
+      modulePage: number,
       /* 当前打印模块总页码 */
-      totalPage: number,
-       /* 当前模板 */
-       blockIndex: number,
-      /* 模块长度 */
-      blockSize: number,
+      moduleTotalPage: number,
+      /* 模板个数索引 */
+      blockIndex: number,
+      /* 模块总个数 */
+      blockTotalCount: number,
       /* 当前整体页码 */
-      globalIndex: number,
-     /* 当前整体页码数 */
-     globalSize: number
+      globalPage: number,
+     /* 整体总页码 */
+     globalTotalPage: number
     ) => React.ReactNode
   ) | React.ReactNode
   /* 打印表格表头 */

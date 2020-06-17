@@ -24,7 +24,7 @@ export const colums1 = [
 export const data1 = [...new Array(100)].map((_, i) => {
   let c = ''
   if (i === 20) {
-    c = [...new Array(40)].map(() => '你好').join('') + i
+    c = [...new Array(20)].map(() => '你好').join('') + i
   } else {
     c = 'c' + i
   }

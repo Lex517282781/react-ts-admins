@@ -19,16 +19,50 @@ class TablePrintPage extends PureComponent<TablePrintPageProps> {
       head: (
         <TabelHead1 />
       ),
-      foot: (_, __, i, t, a, b, c, d) => (
-        <div style={{ height: '200px', background: 'yellow' }}>{i}-{t}-{a}-{b}-{c}-{d}</div>
+      foot: (_, __, modulePage, moduleTotalPage, blockIndex, blockSize, globalPage, globalTotalPage) => (
+        <div>
+          当前模块页码{modulePage}<br />
+          当前模块总页码{moduleTotalPage}<br />
+          模块{blockIndex}<br />
+          模块总个数{blockSize}<br />
+          当前整体页码{globalPage}<br />
+          整体总页码{globalTotalPage}
+        </div>
       )
     }], true)
+  }
+
+  handleClickFIxed = () => {
+    this.props.print([{
+      colums: colums1,
+      dataSource: data1,
+      tablePaddingLeft: 10,
+      tablePaddingRight: 10,
+      head: (
+        <TabelHead1 />
+      ),
+      foot: (_, __, modulePage, moduleTotalPage, blockIndex, blockSize, globalPage, globalTotalPage) => (
+        <div>
+          当前模块页码{modulePage}<br />
+          当前模块总页码{moduleTotalPage}<br />
+          模块{blockIndex}<br />
+          模块总个数{blockSize}<br />
+          当前整体页码{globalPage}<br />
+          整体总页码{globalTotalPage}
+        </div>
+      )
+    }], {
+      debug: false,
+      fixed: true
+    })
   }
 
   render () {
     return (
       <Panel title='表格打印'>
-        <button onClick={this.handleClick}>打印</button>
+        <button onClick={this.handleClick}>流式打印</button>
+        <br /><br />
+        <button onClick={this.handleClickFIxed}>底部固定打印</button>
       </Panel>
     )
   }

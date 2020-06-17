@@ -71,12 +71,12 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
             if (typeof head === 'function') {
               // content: 当前页面列表内容, tableData: 当前打印模块内容 i: 当前打印模块总页码, tableDataSize: 当前打印模块总页码
               // index: 当前模板, blockSize: 模块长度, globalIndex: 当前整体页码, globalSize: 当前整体页码数
-              headEl = head(content, tableData, i, tableDataSize, index, blockSize, sizes[0], pageSize)
+              headEl = head(content, tableData, i + 1, tableDataSize, index + 1, blockSize, sizes[0] + 1, pageSize)
             } else {
               headEl = head
             }
             if (typeof foot === 'function') {
-              footEl = foot(content, tableData, i, tableDataSize, index, blockSize, sizes[0], pageSize)
+              footEl = foot(content, tableData, i + 1, tableDataSize, index + 1, blockSize, sizes[0] + 1, pageSize)
             } else {
               footEl = foot
             }
