@@ -35,11 +35,30 @@ interface PrintBlockProps {
   pageW?: number
   /* 页面纸张高 */
   pageH?: number
+  /* 样式 */
+  style?: React.CSSProperties
+  fixed?: boolean
 }
 
 class PrintBlock extends PureComponent<PrintBlockProps> {
   render () {
-    const { head, foot, tableData = [], heights = {}, tablePaddingTop, tablePaddingBottom, tablePaddingLeft, tablePaddingRight, colums = [], pageH, index, blockSize, pageSize } = this.props
+    const {
+      head,
+      foot,
+      tableData = [],
+      heights = {},
+      tablePaddingTop,
+      tablePaddingBottom,
+      tablePaddingLeft,
+      tablePaddingRight,
+      colums = [],
+      pageH,
+      index,
+      blockSize,
+      pageSize,
+      style = {},
+      fixed
+    } = this.props
 
     const tableDataSize = tableData.length
 
@@ -50,6 +69,8 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
             let headEl = null
             let footEl = null
             if (typeof head === 'function') {
+              // content: 当前页面列表内容, tableData: 当前打印模块内容 i: 当前打印模块总页码, tableDataSize: 当前打印模块总页码
+              // index: 当前模板, blockSize: 模块长度, globalIndex: 当前整体页码, globalSize: 当前整体页码数
               headEl = head(content, tableData, i, tableDataSize, index, blockSize, sizes[0], pageSize)
             } else {
               headEl = head
@@ -67,6 +88,7 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
                 // 这里设置组合key是为了动态设置key 避免key值没变化 组件就不更新的 这里就是强制需要重新渲染
                 key={`${tableData.length}-${i}`}
                 className={styles['print-content-inner']}
+                style={style}
               >
                 {
                   <ContentHead data={heights}>
@@ -95,7 +117,7 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
                     </tbody>
                   </table>
                 </div>
-                <ContentFoot data={heights}>
+                <ContentFoot fixed={fixed} data={heights}>
                   {footEl}
                 </ContentFoot>
                 {

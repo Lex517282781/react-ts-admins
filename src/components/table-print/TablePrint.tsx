@@ -12,7 +12,7 @@ const a4H = getA4H()
 
 export interface TablePrintProps {
   /* 打印方法 */
-  print: (option: PrintOption, debug?: boolean) => () => void
+  print: (option: PrintOption, config?: PrintConfig | boolean) => () => void
 }
 
 interface TablePrintState extends PrintItem {
@@ -29,7 +29,9 @@ interface TablePrintState extends PrintItem {
   /* debug为true展示当前页面打印预览的排版 */
   debug?: boolean
   /* 打印方向 */
-  direction?: string
+  direction?: string,
+  /* 固定页面 即页面在最底部显示 */
+  fixed?: boolean
 }
 
 function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
@@ -44,7 +46,8 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       pageCount: 0,
       end: false,
       loading: false,
-      debug: false
+      debug: false,
+      fixed: true
     }
 
     componentDidUpdate () {
@@ -73,7 +76,8 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         end: false,
         loading: true,
         debug: config?.debug || defaultDebug,
-        direction: config?.direction || defaultDirection
+        direction: config?.direction || defaultDirection,
+        fixed: config?.fixed
       })
     }
 
@@ -165,7 +169,8 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
 
     render () {
       const {
-        debug = false,
+        debug,
+        fixed,
         loading,
         printBlocks,
         direction,
@@ -217,12 +222,16 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
                     return (
                       <PrintBlock
                         {...block}
+                        fixed={fixed}
                         key={i}
                         index={i}
                         blockSize={blockSize}
                         pageSize={pageCount}
                         pageW={this.pageW}
                         pageH={this.pageH}
+                        style={{
+                          height: fixed ? this.pageH : 'auto'
+                        }}
                       />
                     )
                   })

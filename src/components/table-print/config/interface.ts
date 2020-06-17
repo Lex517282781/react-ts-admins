@@ -67,7 +67,9 @@ export type PrintOption = PrintItem | PrintItem[]
 
 export interface PrintConfig {
   direction?: 'auto' | 'landscape' | 'portrait',
-  debug?: boolean
+  debug?: boolean,
+  /* 固定页面 即页面在最底部显示 */
+  fixed?: boolean
 }
 
 /* 单个打印对象参数 组件内部使用 */

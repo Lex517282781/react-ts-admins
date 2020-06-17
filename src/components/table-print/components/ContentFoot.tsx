@@ -4,6 +4,7 @@ import styles from '../style.module.styl'
 interface ContentHeadProps {
   data?: any
   children?: React.ReactNode
+  fixed?: boolean
 }
 
 class ContentFoot extends PureComponent<ContentHeadProps> {
@@ -16,9 +17,23 @@ class ContentFoot extends PureComponent<ContentHeadProps> {
   }
 
   render () {
-    const { children } = this.props
+    const { children, fixed } = this.props
+
+    let style = {}
+    if (fixed) {
+      style = {
+        position: 'absolute',
+        width: '100%',
+        bottom: 0,
+        left: 0
+      }
+    }
     return (
-      <div ref={ ref => { this.contentFootRef = ref } } className={styles['content-foot']}>
+      <div
+        ref={ ref => { this.contentFootRef = ref } }
+        className={styles['content-foot']}
+        style={style}
+      >
         {children}
       </div>
     )
