@@ -34,13 +34,15 @@ interface TablePrintState extends PrintItem {
   direction?: string,
   /* 固定页面 即页面在最底部显示 */
   fixed?: boolean
+  /* 页面宽度 */
+  pageW: number
+  /* 页面高度 */
+  pageH: number
 }
 
 function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
   return class TablePrint extends PureComponent<T, TablePrintState> {
     contentRef: HTMLDivElement | null = null
-    pageW = a4W
-    pageH = a4H
     printRef: any
     state: TablePrintState = {
       printBlocks: [],
@@ -49,7 +51,9 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       end: false,
       loading: false,
       debug: false,
-      fixed: true
+      fixed: true,
+      pageW: a4W,
+      pageH: a4H
     }
 
     componentDidUpdate () {
@@ -60,14 +64,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     print = (option: PrintOption, config?: PrintConfig | boolean) => {
       option = Array.isArray(option) ? option : [option]
       config = typeof config === 'boolean' ? { debug: config } : config
-      if (config?.direction === 'portrait') {
-        this.pageW = a4W
-        this.pageH = a4H
-      } else if (config?.direction === 'landscape') {
-        this.pageW = a4H
-        this.pageH = a4W
-      }
-      this.setState({
+      const state = {
         printBlocks: option.map(item => ({
           ...item,
           tableData: item.dataSource ? [[item.dataSource, [], []]] : [],
@@ -80,7 +77,17 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         debug: config?.debug || defaultDebug,
         direction: config?.direction || defaultDirection,
         fixed: config?.fixed
-      })
+      } as TablePrintState
+
+      if (config?.direction === 'portrait') {
+        state.pageW = a4W
+        state.pageH = a4H
+      } else if (config?.direction === 'landscape') {
+        state.pageW = a4H
+        state.pageH = a4W
+      }
+
+      this.setState(state)
     }
 
     /* 获取内容到到a4 计算获得该内容的内部索引 */
@@ -97,7 +104,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         const item = content[i]
         sum += item.h
         data[1][1] += item.h
-        if (sum > this.pageH) {
+        if (sum > this.state.pageH) {
           data[1][1] -= item.h // 因为是截止到当前个数的时候 该个数不在当前的数组范围内 所以需要减去当前的高度
           data[1][3] = data[1][0] + data[1][1] + data[1][2] // 赋值当前页面数据高度
           return i
@@ -176,7 +183,9 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         loading,
         printBlocks,
         direction,
-        pageCount
+        pageCount,
+        pageW,
+        pageH
       } = this.state
 
       const blockSize = printBlocks.length
@@ -216,7 +225,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
             >
               <div
                 ref={ref => { this.contentRef = ref }}
-                style={{ width: this.pageW }}
+                style={{ width: pageW }}
                 className={styles['print-content']}
               >
                 {
@@ -229,10 +238,10 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
                         index={i}
                         blockSize={blockSize}
                         pageSize={pageCount}
-                        pageW={this.pageW}
-                        pageH={this.pageH}
+                        pageW={pageW}
+                        pageH={pageH}
                         style={{
-                          height: fixed ? this.pageH : 'auto'
+                          height: fixed ? pageH : 'auto'
                         }}
                       />
                     )

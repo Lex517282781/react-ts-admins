@@ -52,8 +52,9 @@ class TablePrintPage extends PureComponent<TablePrintPageProps> {
         </div>
       )
     }], {
-      debug: false,
-      fixed: true
+      debug: true,
+      fixed: true,
+      direction: 'landscape'
     })
   }
 
