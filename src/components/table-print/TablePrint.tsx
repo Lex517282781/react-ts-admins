@@ -38,11 +38,20 @@ interface TablePrintState extends PrintItem {
   pageW: number
   /* 页面高度 */
   pageH: number
+  /* 打印后回调 */
+  onAfterPrint?: () => void
+  /* 打印功能初始化 */
+  init: boolean
+  /* 打印开始时间 */
+  startTime?: number
+  /* 打印结束时间 */
+  endTime?: number
 }
 
 function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
   return class TablePrint extends PureComponent<T, TablePrintState> {
     contentRef: HTMLDivElement | null = null
+    timer:any = null
     printRef: any
     state: TablePrintState = {
       printBlocks: [],
@@ -53,11 +62,27 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       debug: false,
       fixed: true,
       pageW: a4W,
-      pageH: a4H
+      pageH: a4H,
+      init: false
     }
 
-    componentDidUpdate () {
-      this.reRender()
+    componentDidUpdate (preProps: T, preState: TablePrintState) {
+      const { pageCount, printBlocks } = this.state
+      const { pageCount: prePageCount } = preState
+      if (pageCount && (prePageCount === pageCount)) {
+        return
+      }
+      console.log(pageCount, printBlocks)
+      if (pageCount && (pageCount % 50 === 0)) {
+        clearTimeout(this.timer)
+        this.timer = setTimeout(() => {
+          // 这里需要注意在setTimeout里面调用setState因为state不再自动合并, 尽量手动合并, 使用一次
+          // 注意：https://segmentfault.com/q/1010000015805834
+          this.reRender()
+        }, 30)
+      } else {
+        this.reRender()
+      }
     }
 
     /* 打印 */
@@ -76,7 +101,9 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         loading: true,
         debug: config?.debug || defaultDebug,
         direction: config?.direction || defaultDirection,
-        fixed: config?.fixed
+        fixed: config?.fixed,
+        init: true,
+        startTime: +new Date()
       } as TablePrintState
 
       if (config?.direction === 'portrait') {
@@ -87,14 +114,18 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         state.pageH = a4W
       }
 
+      if (config?.onAfterPrint) {
+        state.onAfterPrint = config.onAfterPrint
+      }
+
       this.setState(state)
     }
 
     /* 获取内容到到a4 计算获得该内容的内部索引 */
     getContentReachA4Index = (data: any = [], info: PrintBlockItem, pageCount: number) => {
-      const { heights, tablePaddingTop = 0, tablePaddingBottom = 0 } = info
+      const { heights, tablePaddingTop = 0, tablePaddingBottom = 0, padding = 0 } = info
       let sum = Object.values(heights).reduce((pre: number, next: number) => pre + next, 0)
-      sum += tablePaddingTop + tablePaddingBottom
+      sum += tablePaddingTop + tablePaddingBottom + padding * 2
       const content = data[0]
       data[1][0] = heights.contentHead || 0 // 顶部数据高度
       data[1][2] = heights.contentFoot || 0 // 底部数据高度
@@ -107,6 +138,9 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         if (sum > this.state.pageH) {
           data[1][1] -= item.h // 因为是截止到当前个数的时候 该个数不在当前的数组范围内 所以需要减去当前的高度
           data[1][3] = data[1][0] + data[1][1] + data[1][2] // 赋值当前页面数据高度
+          if (pageCount === 10) {
+            console.log(i, 1010101010)
+          }
           return i
         }
       }
@@ -115,7 +149,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     }
 
     reRender = () => {
-      const { debug, blockCount, pageCount, printBlocks, end } = this.state
+      const { debug, blockCount, pageCount, printBlocks, end, startTime = 0 } = this.state
       if (end) {
         // 打印完成
         return
@@ -126,7 +160,8 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
           this.setState({
             loading: false
           })
-          console.log(this.state.printBlocks)
+          const endTime = +new Date()
+          console.log(this.state.printBlocks, startTime, endTime, endTime - startTime)
           return
         }
         this.printRef.handlePrint()
@@ -139,41 +174,39 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       const preData = tableData.slice(0, length - 1)
       const lastData = tableData[length - 1]
       const reachIndex = this.getContentReachA4Index(lastData, curentBlock, pageCount)
-      this.setState({
+      console.log(reachIndex, 'reachIndex')
+      const newState: any = {
         pageCount: pageCount + 1
-      })
+      }
       if (reachIndex > 0) {
-        this.setState({
-          printBlocks: [
-            ...printBlocks.slice(0, blockCount),
-            {
-              ...printBlocks[blockCount],
-              tableData: [
-                ...preData,
-                [lastData[0].slice(0, reachIndex), lastData[1], lastData[2]], // 塞入reachIndex之前计算的数据
-                [lastData[0].slice(reachIndex), [], []] // 继续把分割的数据塞入后面, 下一次reRender会计算
-              ]
-            },
-            ...printBlocks.slice(blockCount + 1)
-          ]
-        })
+        newState.printBlocks = [
+          ...printBlocks.slice(0, blockCount),
+          {
+            ...printBlocks[blockCount],
+            tableData: [
+              ...preData,
+              [lastData[0].slice(0, reachIndex), lastData[1], lastData[2]], // 塞入reachIndex之前计算的数据
+              [lastData[0].slice(reachIndex), [], []] // 继续把分割的数据塞入后面, 下一次reRender会计算
+            ]
+          },
+          ...printBlocks.slice(blockCount + 1)
+        ]
       } else {
         // 计算完成了 只需要重新塞入数据即可 只需要重新渲染
-        this.setState({
-          printBlocks: [
-            ...printBlocks.slice(0, blockCount),
-            {
-              ...printBlocks[blockCount],
-              tableData: [
-                ...preData,
-                [...lastData]
-              ]
-            },
-            ...printBlocks.slice(blockCount + 1)
-          ],
-          blockCount: blockCount + 1
-        })
+        newState.printBlocks = [
+          ...printBlocks.slice(0, blockCount),
+          {
+            ...printBlocks[blockCount],
+            tableData: [
+              ...preData,
+              [...lastData]
+            ]
+          },
+          ...printBlocks.slice(blockCount + 1)
+        ]
+        newState.blockCount = blockCount + 1
       }
+      this.setState(newState)
     }
 
     render () {
@@ -185,70 +218,87 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         direction,
         pageCount,
         pageW,
-        pageH
+        pageH,
+        onAfterPrint,
+        init
       } = this.state
 
       const blockSize = printBlocks.length
 
+      console.log(loading, 'loading', printBlocks, 'printBlocks')
+
       return (
         <div>
           <Spin spinning={loading}>
+            {loading && '加载数据中...'}
             <Wrapper print={this.print} {...this.props} />
-            <ReactToPrint
-              pageStyle={`@page { size: ${direction}; margin: 0mm; } @media print { body { -webkit-print-color-adjust: exact; } }`}
-              ref={ref => { this.printRef = ref }}
-              content={() => this.contentRef}
-              onBeforePrint={() => {
-                this.setState({
-                  loading: true
-                })
-              }}
-              onAfterPrint={() => {
-                this.setState({
-                  loading: false,
-                  blockCount: 0,
-                  end: true
-                })
-              }}
-            />
-            <div
-              style={
-                debug
-                  ? {} : {
-                    position: 'absolute',
-                    left: '-999999px',
-                    top: '-999999px',
-                    visibility: 'hidden',
-                    zIndex: -999999
-                  }
-              }
-            >
-              <div
-                ref={ref => { this.contentRef = ref }}
-                style={{ width: pageW }}
-                className={styles['print-content']}
-              >
-                {
-                  printBlocks.map((block, i) => {
-                    return (
-                      <PrintBlock
-                        {...block}
-                        fixed={fixed}
-                        key={i}
-                        index={i}
-                        blockSize={blockSize}
-                        pageSize={pageCount}
-                        pageW={pageW}
-                        pageH={pageH}
-                        style={{
-                          height: fixed ? pageH : 'auto'
-                        }}
-                      />
-                    )
-                  })
-                }
-              </div>
-            </div>
+            {
+              init && (
+                <>
+                  <ReactToPrint
+                    pageStyle={`@page { size: ${direction}; margin: 0mm; } @media print { body { -webkit-print-color-adjust: exact; } }`}
+                    ref={ref => { this.printRef = ref }}
+                    content={() => this.contentRef}
+                    onBeforePrint={() => {
+                      this.setState({
+                        loading: true
+                      })
+                    }}
+                    onAfterPrint={() => {
+                      this.setState({
+                        loading: false,
+                        blockCount: 0,
+                        end: true,
+                        init: false
+                      }, () => {
+                        if (onAfterPrint) {
+                          onAfterPrint()
+                        }
+                      })
+                    }}
+                  />
+                  <div
+                    style={
+                      debug
+                        ? {} : {
+                          position: 'absolute',
+                          left: '-999999px',
+                          top: '-999999px',
+                          visibility: 'hidden',
+                          zIndex: -999999
+                        }
+                    }
+                  >
+                    <div
+                      ref={ref => { this.contentRef = ref }}
+                      style={{ width: pageW }}
+                      className={styles['print-content']}
+                    >
+                      {
+                        printBlocks.map(({ padding, ...block }, i) => {
+                          return (
+                            <PrintBlock
+                              {...block}
+                              fixed={fixed}
+                              key={i}
+                              index={i}
+                              blockSize={blockSize}
+                              pageSize={pageCount}
+                              pageW={pageW}
+                              pageH={pageH}
+                              style={{
+                                height: fixed ? pageH : 'auto',
+                                padding
+                              }}
+                            />
+                          )
+                        })
+                      }
+                    </div>
+                  </div>
+                </>
+              )
+            }
           </Spin>
         </div>
       )

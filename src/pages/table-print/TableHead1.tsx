@@ -11,7 +11,7 @@ class TabelHead1 extends PureComponent {
           出库汇总信息 OS1234567891515
           <Barcode
             className={styles.barcode}
-            height={50}
+            height={44}
             width={1.5}
             margin={2}
             label='OS1234567891515'

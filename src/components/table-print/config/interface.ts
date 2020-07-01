@@ -60,6 +60,8 @@ export interface PrintItem {
   tablePaddingBottom?: number
   /* 表格顶部留白 */
   tablePaddingTop?: number
+  /* 打印纸张外边距 */
+  padding?: number
 }
 
 /* 打印参数 */
@@ -70,6 +72,8 @@ export interface PrintConfig {
   debug?: boolean,
   /* 固定页面 即页面在最底部显示 */
   fixed?: boolean
+  /* 打印后回调 */
+  onAfterPrint?: () => void
 }
 
 /* 单个打印对象参数 组件内部使用 */
