@@ -2,6 +2,8 @@
 export interface Colum {
   key: string | number
   title: React.ReactNode
+  width?: string
+  align?: 'left' | 'center' | 'right'
 }
 
 /* 单个打印对象参数 */
@@ -68,6 +70,8 @@ export interface PrintItem {
 export type PrintOption = PrintItem | PrintItem[]
 
 export interface PrintConfig {
+  /* 初始化 */
+  init?: boolean,
   direction?: 'auto' | 'landscape' | 'portrait',
   debug?: boolean,
   /* 固定页面 即页面在最底部显示 */

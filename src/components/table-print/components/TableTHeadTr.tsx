@@ -18,7 +18,14 @@ class TableTHeadTr extends PureComponent<TableTHeadTrProps> {
     return (
       <tr style={{ height: data.tableHead || 'auto' }} ref={ ref => { this.trRef = ref } }>
         {
-          colums.map((item: Colum) => <th key={item.key}>{item.title}</th>)
+          colums.map((item: Colum) => (
+            <th
+              key={item.key}
+              style={{ width: item.width || 'auto' }}
+            >
+              {item.title}
+            </th>
+          ))
         }
       </tr>
     )

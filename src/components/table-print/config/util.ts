@@ -24,3 +24,28 @@ export const getA4W = () => {
 export const getA4H = () => {
   return mm2px(297)
 }
+
+/* 获取表格高度 */
+export const getTrItemH = (() => {
+  const cacheData: {[k: number]: number} = {}
+  return (line: number) => {
+    if (cacheData[line]) {
+      return cacheData[line]
+    }
+
+    const el = document.createElement('table')
+    el.innerHTML = `
+      <tbody>
+        <tr>
+          <td style="font-size: 14px; border: 1px solid red; padding: 0">
+            ${[...new Array(line)].map(() => `<div>0</div>`).join('')}
+          </td>
+        </tr>
+      </tbody>
+    `
+    document.body.appendChild(el)
+    cacheData[line] = el.getElementsByTagName('tr')[0].offsetHeight
+    el.remove()
+    return cacheData[line]
+  }
+})()

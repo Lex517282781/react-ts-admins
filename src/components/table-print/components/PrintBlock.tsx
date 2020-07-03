@@ -38,6 +38,7 @@ interface PrintBlockProps {
   /* 样式 */
   style?: React.CSSProperties
   fixed?: boolean
+  isCalculate?: boolean
 }
 
 class PrintBlock extends PureComponent<PrintBlockProps> {
@@ -57,7 +58,8 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
       blockSize,
       pageSize,
       style = {},
-      fixed
+      fixed,
+      isCalculate
     } = this.props
 
     const tableDataSize = tableData.length
@@ -69,16 +71,52 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
             let headEl = null
             let footEl = null
             if (typeof head === 'function') {
-              // content: 当前页面列表内容, tableData: 当前打印模块内容 i: 当前打印模块总页码, tableDataSize: 当前打印模块总页码
-              // index: 当前模板, blockSize: 模块长度, globalIndex: 当前整体页码, globalSize: 当前整体页码数
-              headEl = head(content, tableData, i + 1, tableDataSize, index + 1, blockSize, (sizes[0] || 0) + 1, pageSize)
+              headEl = head(
+                content, // 当前页面列表内容
+                tableData, // 当前打印模块内容
+                i + 1, // 当前打印模块总页码
+                tableDataSize, // 当前打印模块总页码
+                index + 1, // 当前模板
+                blockSize, // 模块长度
+                sizes[0], // 当前整体页码
+                pageSize // 当前整体页码数
+              )
             } else {
               headEl = head
             }
+
             if (typeof foot === 'function') {
-              footEl = foot(content, tableData, i + 1, tableDataSize, index + 1, blockSize, (sizes[0] || 0) + 1, pageSize)
+              footEl = foot(
+                content,
+                tableData,
+                i + 1,
+                tableDataSize,
+                index + 1,
+                blockSize,
+                sizes[0],
+                pageSize
+              )
             } else {
               footEl = foot
+            }
+
+            let needRenderHead = (headEl !== undefined) &&
+            (headEl !== null)
+            let needRenderFoot = (footEl !== undefined) &&
+            (footEl !== null)
+            let needRenderTableHead = true
+
+            if (heights.contentHead && isCalculate) {
+              // 该模块已经有高度值 且 打印在计算过程中 那么head不需要为了获取高度在重写渲染 只需要在计算完毕之后再来渲染即可
+              needRenderHead = false
+            }
+
+            if (heights.contentFoot && isCalculate) {
+              needRenderFoot = false
+            }
+
+            if (heights.tableHead && isCalculate) {
+              needRenderTableHead = false
             }
             return (
               <div
@@ -97,13 +135,18 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
                 style={style}
               >
                 {
-                  <ContentHead data={heights}>
-                    {headEl}
-                  </ContentHead>
+                  needRenderHead && (
+                    <ContentHead
+                      data={heights}
+                      style={{ height: info[0] ? info[0] : 'auto' }}
+                    >
+                      {headEl}
+                    </ContentHead>
+                  )
                 }
                 <div
                   style={{
-                    height: info[1],
+                    height: info[1] ? info[1] : 'auto',
                     paddingTop: tablePaddingTop,
                     paddingBottom: tablePaddingBottom,
                     paddingLeft: tablePaddingLeft,
@@ -113,7 +156,11 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
                 >
                   <table style={{ width: '100%' }}>
                     <thead>
-                      <TableTHeadTr colums={colums} data={heights} />
+                      {
+                        needRenderTableHead && (
+                          <TableTHeadTr colums={colums} data={heights} />
+                        )
+                      }
                     </thead>
                     <tbody>
                       {
@@ -124,9 +171,17 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
                     </tbody>
                   </table>
                 </div>
-                <ContentFoot fixed={fixed} data={heights} style={{ height: info[2] }}>
-                  {footEl}
-                </ContentFoot>
+                {
+                  needRenderFoot && (
+                    <ContentFoot
+                      fixed={fixed}
+                      data={heights}
+                      style={{ height: info[2] ? info[2] : 'auto' }}
+                    >
+                      {footEl}
+                    </ContentFoot>
+                  )
+                }
                 {
                   info[3] !== pageH && (
                     <div style={{ pageBreakAfter: 'always' }} />
