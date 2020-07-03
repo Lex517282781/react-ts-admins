@@ -2,15 +2,18 @@ import React, { PureComponent } from 'react'
 import { Spin } from 'antd'
 import ReactToPrint from 'react-to-print'
 import PrintBlock from './components/PrintBlock'
-import { getA4W, getA4H, getTrItemH } from './config/util'
+import { mm2px, getA4W, getA4H, getTrItemH } from './config/util'
 import * as defaultConfig from './config/config'
 import { PrintItem, PrintOption, PrintBlockItem, PrintConfig, Colum } from './config/interface'
 import styles from './style.module.styl'
+import './style.styl'
 
 const a4W = getA4W()
 const a4H = getA4H()
+const topH = mm2px(8)
+const bottomH = mm2px(4)
 
-console.log(a4W, a4H, getTrItemH(5))
+console.log(a4W, a4H, a4H - topH - bottomH, getTrItemH(5))
 
 export interface TablePrintProps {
   /* 打印方法 */
@@ -66,7 +69,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       debug: false,
       fixed: true,
       pageW: a4W,
-      pageH: a4H,
+      pageH: a4H - topH - bottomH,
       init: false
     }
 
@@ -83,7 +86,9 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       if (printBlocks.length === blockCount) {
         return
       }
-      if (blockCount && (blockCount % 50 === 0)) {
+      if (
+        (blockCount && (blockCount % 50 === 0))
+      ) {
         clearTimeout(this.timer)
         this.timer = setTimeout(() => {
           // 这里需要注意在setTimeout里面调用setState因为state不再自动合并, 尽量手动合并, 使用一次
@@ -98,15 +103,18 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     /* 打印 */
     print = (option: PrintOption, config?: PrintConfig | boolean) => {
       option = Array.isArray(option) ? option : [option]
-      config = typeof config === 'boolean' ? { ...defaultConfig, debug: config } : (config || defaultConfig)
+      config = typeof config === 'boolean'
+        ? { ...defaultConfig, debug: config }
+        : { ...defaultConfig, ...(config || {}) }
+      console.log(config)
       let pageW = a4W
-      let pageH = a4H
+      let pageH = a4H - topH - bottomH
       if (config.direction === 'portrait') {
         pageW = a4W
-        pageH = a4H
+        pageH = a4H - topH - bottomH
       } else if (config.direction === 'landscape') {
         pageW = a4H
-        pageH = a4W
+        pageH = a4W - topH - bottomH
       }
       const s = +new Date()
       console.log(s, 's')
@@ -150,17 +158,11 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         loading: config.init
       } as TablePrintState
 
-      if (config.direction === 'portrait') {
-        state.pageW = a4W
-        state.pageH = a4H
-      } else if (config.direction === 'landscape') {
-        state.pageW = a4H
-        state.pageH = a4W
-      }
-
       if (config?.onAfterPrint) {
         state.onAfterPrint = config.onAfterPrint
       }
+
+      console.log(state, 'state')
 
       this.setState(state)
     }
@@ -224,7 +226,13 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         const e = +new Date()
         console.log(e, 'e split')
         console.log(e - s, 'delay split')
-        this.split(newPrintBlocks, pageCount + 1)
+        if (pageCount % 100 === 0) {
+          setTimeout(() => {
+            this.split(newPrintBlocks, pageCount + 1)
+          }, 0)
+        } else {
+          this.split(newPrintBlocks, pageCount + 1)
+        }
       } else {
         // 计算完成了 只需要重新塞入数据即可 只需要重新渲染
         newPrintBlocks = [
@@ -251,15 +259,15 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
           }
           if (debug) {
             const endTime = +new Date()
-            console.log(this.state.printBlocks, startTime, endTime, endTime - startTime)
-            return
+            console.log(this.state.printBlocks, startTime, endTime, endTime - startTime, 'end')
+            // return
           }
           if (this.printRef) {
             this.printRef.handlePrint()
           }
         })
         const endTime = +new Date()
-        console.log(startTime, endTime, endTime - startTime, 'no render')
+        console.log(startTime, endTime, endTime - startTime, isCalculate, 'no render')
       }
     }
 
@@ -302,8 +310,9 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
                       this.setState({
                         loading: false,
                         blockCount: 0,
-                        end: true,
-                        init: false
+                        end: true
+                        // ,
+                        // init: false
                       }, () => {
                         if (onAfterPrint) {
                           onAfterPrint()

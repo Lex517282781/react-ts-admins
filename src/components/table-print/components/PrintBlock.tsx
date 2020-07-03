@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react'
+import React, { PureComponent, Fragment } from 'react'
 import ContentHead from './ContentHead'
 import ContentFoot from './ContentFoot'
 import TableTHeadTr from './TableTHeadTr'
@@ -105,6 +105,7 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
             let needRenderFoot = (footEl !== undefined) &&
             (footEl !== null)
             let needRenderTableHead = true
+            let needDivision = true
 
             if (heights.contentHead && isCalculate) {
               // 该模块已经有高度值 且 打印在计算过程中 那么head不需要为了获取高度在重写渲染 只需要在计算完毕之后再来渲染即可
@@ -118,76 +119,83 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
             if (heights.tableHead && isCalculate) {
               needRenderTableHead = false
             }
+
+            if (fixed) {
+              needDivision = false
+            } else if (info[3] === pageH) {
+              needDivision = false
+            }
             return (
-              <div
-                title={
-                  `
+              <Fragment key={`${i}`}>
+                <div
+                  title={
+                    `
                     第${index + 1}模块, 共${blockSize}模块; 
                     模块第${i + 1}页, 模块共${tableDataSize}页; 
                     全局第${(sizes[0] || 0) + 1}页, 全局共${pageSize}页; 
                     页面高度: ${info[3]}
                   `
-                }
-                // 这里设置组合key是为了动态设置key 避免key值没变化 组件就不更新的 这里就是强制需要重新渲染
-                key={`${i}`}
-                // key={`${tableData.length}-${i}`}
-                className={styles['print-content-inner']}
-                style={style}
-              >
-                {
-                  needRenderHead && (
-                    <ContentHead
-                      data={heights}
-                      style={{ height: info[0] ? info[0] : 'auto' }}
-                    >
-                      {headEl}
-                    </ContentHead>
-                  )
-                }
-                <div
-                  style={{
-                    height: info[1] ? info[1] : 'auto',
-                    paddingTop: tablePaddingTop,
-                    paddingBottom: tablePaddingBottom,
-                    paddingLeft: tablePaddingLeft,
-                    paddingRight: tablePaddingRight
-                  }}
-                  className={styles['content-body']}
+                  }
+                  // 这里设置组合key是为了动态设置key 避免key值没变化 组件就不更新的 这里就是强制需要重新渲染
+                  // key={`${tableData.length}-${i}`}
+                  className={styles['print-content-inner']}
+                  style={style}
                 >
-                  <table style={{ width: '100%' }}>
-                    <thead>
-                      {
-                        needRenderTableHead && (
-                          <TableTHeadTr colums={colums} data={heights} />
-                        )
-                      }
-                    </thead>
-                    <tbody>
-                      {
-                        content.map((innerItem: any, j: number) => (
-                          <TableTbodyTr colums={colums} key={j} data={innerItem} />
-                        ))
-                      }
-                    </tbody>
-                  </table>
+                  {
+                    needRenderHead && (
+                      <ContentHead
+                        data={heights}
+                        style={{ height: info[0] ? info[0] : 'auto' }}
+                      >
+                        {headEl}
+                      </ContentHead>
+                    )
+                  }
+                  <div
+                    style={{
+                      height: info[1] ? info[1] : 'auto',
+                      paddingTop: tablePaddingTop,
+                      paddingBottom: tablePaddingBottom,
+                      paddingLeft: tablePaddingLeft,
+                      paddingRight: tablePaddingRight
+                    }}
+                    className={styles['content-body']}
+                  >
+                    <table style={{ width: '100%' }}>
+                      <thead>
+                        {
+                          needRenderTableHead && (
+                            <TableTHeadTr colums={colums} data={heights} />
+                          )
+                        }
+                      </thead>
+                      <tbody>
+                        {
+                          content.map((innerItem: any, j: number) => (
+                            <TableTbodyTr colums={colums} key={j} data={innerItem} />
+                          ))
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                  {
+                    needRenderFoot && (
+                      <ContentFoot
+                        fixed={fixed}
+                        data={heights}
+                        style={{ height: info[2] ? info[2] : 'auto' }}
+                      >
+                        {footEl}
+                      </ContentFoot>
+                    )
+                  }
                 </div>
                 {
-                  needRenderFoot && (
-                    <ContentFoot
-                      fixed={fixed}
-                      data={heights}
-                      style={{ height: info[2] ? info[2] : 'auto' }}
-                    >
-                      {footEl}
-                    </ContentFoot>
-                  )
-                }
-                {
-                  info[3] !== pageH && (
+                  needDivision && (
                     <div style={{ pageBreakAfter: 'always' }} />
                   )
                 }
-              </div>
+              </Fragment>
             )
           })
         }

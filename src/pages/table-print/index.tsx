@@ -27,8 +27,11 @@ class TablePrintPage extends PureComponent<TablePrintPageProps> {
       foot: (_, __, modulePage, moduleTotalPage, blockIndex, blockSize, globalPage, globalTotalPage) => (
         <TableFoot1 { ...({ modulePage, moduleTotalPage, blockIndex, blockSize, globalPage, globalTotalPage }) } />
       ),
-      padding: 10
-    }], true)
+      padding: 0
+    }], {
+      debug: true,
+      fixed: true
+    })
   }
 
   handleMultiClick = () => {
