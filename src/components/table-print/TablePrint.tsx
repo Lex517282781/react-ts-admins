@@ -122,6 +122,17 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         const { dataSource = [], colums = [], padding = 0, tablePaddingLeft = 0, tablePaddingRight = 0 } = item
         const tableW = pageW - padding * 2 - tablePaddingLeft - tablePaddingRight
         dataSource.forEach((dataItem: any) => {
+          const noWidthColums = colums.filter((colItem: Colum) => !colItem.width).length
+          const widthColumsTotal = colums.filter((colItem: Colum) => !!colItem.width).reduce((pre: number, next: Colum) => {
+            if (next.width) {
+              if ((/%/).test(next.width)) {
+                return pre + Number(next.width.replace('%', '')) / 100 * tableW
+              } else {
+                return pre + Number(next.width.replace('px', ''))
+              }
+            }
+            return pre
+          }, 0)
           dataItem.lines = colums.map((colItem: Colum) => {
             let colItemW = 0
             if (colItem.width) {
@@ -130,6 +141,9 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
               } else {
                 colItemW = Math.floor(Number(colItem.width.replace('px', '')) / 100 * tableW)
               }
+            } else {
+              colItem.width = (tableW - widthColumsTotal) / noWidthColums + 'px'
+              colItemW = Math.floor(Number(colItem.width.replace('px', '')) / 100 * tableW)
             }
             const colItemNum = Math.floor(colItemW / 14)
             const line = Math.ceil((dataItem[colItem.key].length || 0) / colItemNum)
@@ -183,6 +197,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         const maxLine = Math.max.apply(null, item.lines)
         sum += getTrItemH(maxLine)
         data[1][1] += getTrItemH(maxLine)
+        console.log(sum, this.state.pageH, getTrItemH(maxLine), maxLine)
         if (sum > this.state.pageH) {
           data[1][1] -= getTrItemH(maxLine) // 因为是截止到当前个数的时候 该个数不在当前的数组范围内 所以需要减去当前的高度
           data[1][3] = data[1][0] + data[1][1] + data[1][2] // 赋值当前页面数据高度
@@ -210,6 +225,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       const lastData = tableData[length - 1]
       const reachIndex = this.getContentReachA4Index(lastData, curentBlock, pageCount)
       let newPrintBlocks: any = []
+      console.log(reachIndex, 'reachIndex')
       if (reachIndex > 0) {
         newPrintBlocks = [
           ...printBlocks.slice(0, blockCount),
@@ -260,7 +276,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
           if (debug) {
             const endTime = +new Date()
             console.log(this.state.printBlocks, startTime, endTime, endTime - startTime, 'end')
-            // return
+            return
           }
           if (this.printRef) {
             this.printRef.handlePrint()
@@ -310,9 +326,9 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
                       this.setState({
                         loading: false,
                         blockCount: 0,
-                        end: true
-                        // ,
-                        // init: false
+                        pageCount: 0,
+                        end: true,
+                        init: false
                       }, () => {
                         if (onAfterPrint) {
                           onAfterPrint()

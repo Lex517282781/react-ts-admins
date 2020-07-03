@@ -21,9 +21,15 @@ class TableTbodyTr extends PureComponent<TableTbodyTrProps> {
           colums.map((col, j) => (
             <td key={j}>
               {
-                (data[col.key].split('') || []).map((colItem: any, i: number) => (
-                  <span key={i}>{colItem}</span>
-                ))
+                (
+                  String(
+                    (data[col.key] !== undefined && data[col.key] !== null) ? data[col.key] : '-'
+                  )
+                    .trim()
+                    .split('') || [])
+                  .map((colItem: any, i: number) => (
+                    <span key={i}>{colItem}</span>
+                  ))
               }
             </td>
           ))

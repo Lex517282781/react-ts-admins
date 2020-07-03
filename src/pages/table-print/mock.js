@@ -16,13 +16,11 @@ export const colums1 = [
   },
   {
     key: 'd',
-    title: '表头4',
-    width: '20%'
+    title: '表头4'
   },
   {
     key: 'e',
-    title: '表头5',
-    width: '10%'
+    title: '表头5'
   }
 ]
 
