@@ -19,6 +19,10 @@ class TablePrintPage extends PureComponent<TablePrintPageProps> {
     this.props.print([{
       colums: colums1,
       dataSource: data1,
+      remainFixed: true,
+      headH: 169,
+      footH: 134,
+      tableHeadH: 24,
       // tablePaddingLeft: 10,
       // tablePaddingRight: 10,
       head: (
@@ -38,6 +42,10 @@ class TablePrintPage extends PureComponent<TablePrintPageProps> {
     this.props.print([{
       colums: colums1,
       dataSource: data1,
+      remainFixed: true,
+      headH: 169,
+      footH: 134,
+      tableHeadH: 24,
       head: (
         <TabelHead1 />
       ),
@@ -48,6 +56,10 @@ class TablePrintPage extends PureComponent<TablePrintPageProps> {
     }, {
       colums: colums1,
       dataSource: data1,
+      remainFixed: true,
+      headH: 169,
+      footH: 134,
+      tableHeadH: 24,
       head: (
         <TabelHead1 />
       ),

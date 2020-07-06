@@ -3,6 +3,7 @@ import styles from '../style.module.styl'
 
 interface ContentHeadProps {
   data?: any
+  remainFixed?: boolean
   children?: React.ReactNode
   fixed?: boolean
   /* 样式 */
@@ -12,8 +13,8 @@ interface ContentHeadProps {
 class ContentFoot extends PureComponent<ContentHeadProps> {
   contentFootRef: HTMLDivElement | null = null
   componentDidMount () {
-    const { data } = this.props
-    if (data) {
+    const { data, remainFixed } = this.props
+    if (data && (!remainFixed)) {
       data.contentFoot = this.contentFootRef?.offsetHeight || 0
     }
   }

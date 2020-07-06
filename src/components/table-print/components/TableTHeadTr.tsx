@@ -3,14 +3,17 @@ import { Colum } from '../config/interface'
 
 interface TableTHeadTrProps {
   data: any
+  remainFixed?: boolean
   colums: Colum[]
 }
 
 class TableTHeadTr extends PureComponent<TableTHeadTrProps> {
   trRef: HTMLTableRowElement | null = null
   componentDidMount () {
-    const { data } = this.props
-    data.tableHead = this.trRef?.offsetHeight
+    const { data, remainFixed } = this.props
+    if (!remainFixed) {
+      data.tableHead = this.trRef?.offsetHeight
+    }
   }
 
   render () {

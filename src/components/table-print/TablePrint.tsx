@@ -13,7 +13,10 @@ const a4H = getA4H()
 const topH = mm2px(8)
 const bottomH = mm2px(4)
 
-console.log(a4W, a4H, a4H - topH - bottomH, getTrItemH(5))
+const ZH_W = 14
+const EH_W = 10
+
+console.log(a4W, a4H, a4H - topH - bottomH, getTrItemH(1))
 
 export interface TablePrintProps {
   /* 打印方法 */
@@ -86,6 +89,11 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       if (printBlocks.length === blockCount) {
         return
       }
+      const curentBlock = printBlocks[blockCount]
+      console.log(curentBlock.remainFixed)
+      if (curentBlock.remainFixed) {
+        return
+      }
       if (
         (blockCount && (blockCount % 50 === 0))
       ) {
@@ -106,7 +114,6 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       config = typeof config === 'boolean'
         ? { ...defaultConfig, debug: config }
         : { ...defaultConfig, ...(config || {}) }
-      console.log(config)
       let pageW = a4W
       let pageH = a4H - topH - bottomH
       if (config.direction === 'portrait') {
@@ -116,8 +123,6 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         pageW = a4H
         pageH = a4W - topH - bottomH
       }
-      const s = +new Date()
-      console.log(s, 's')
       const printBlocks = option.map((item: any) => {
         const { dataSource = [], colums = [], padding = 0, tablePaddingLeft = 0, tablePaddingRight = 0 } = item
         const tableW = pageW - padding * 2 - tablePaddingLeft - tablePaddingRight
@@ -145,22 +150,27 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
               colItem.width = (tableW - widthColumsTotal) / noWidthColums + 'px'
               colItemW = Math.floor(Number(colItem.width.replace('px', '')) / 100 * tableW)
             }
-            const colItemNum = Math.floor(colItemW / 14)
-            const line = Math.ceil((dataItem[colItem.key].length || 0) / colItemNum)
+            const colItemStr = String(dataItem[colItem.key] || '-')
+            const strWidth = /[\u4e00-\u9fa5]+/.test(colItemStr) ? ZH_W : EH_W
+            const colItemNum = Math.floor((colItemW - 8) / strWidth)
+            const line = Math.ceil((colItemStr.length || 0) / colItemNum)
             return line
           })
         })
         return {
           ...item,
           tableData: [[item.dataSource, [], [], []]],
-          heights: {}
+          tempTableData: [[[item.dataSource[0] || []], [], [], []]],
+          heights: {
+            contentHead: item.headH || 0,
+            contentFoot: item.footH || 0,
+            tableHead: item.tableHeadH || 0
+          }
         }
       })
       const e = +new Date()
-      console.log(e, 'e')
-      console.log(e - s, 'delay')
+      const firstRemainFixed = printBlocks[0]?.remainFixed
       const state = {
-        printBlocks,
         blockCount: 0,
         pageCount: 1,
         end: false,
@@ -172,13 +182,19 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         loading: config.init
       } as TablePrintState
 
-      if (config?.onAfterPrint) {
+      if (!firstRemainFixed) {
+        state.printBlocks = printBlocks
+      }
+
+      if (config.onAfterPrint) {
         state.onAfterPrint = config.onAfterPrint
       }
 
-      console.log(state, 'state')
-
-      this.setState(state)
+      this.setState(state, () => {
+        if (firstRemainFixed) {
+          this.split(printBlocks, this.state.pageCount)
+        }
+      })
     }
 
     /* 获取内容到到a4 计算获得该内容的内部索引 */
@@ -197,7 +213,6 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         const maxLine = Math.max.apply(null, item.lines)
         sum += getTrItemH(maxLine)
         data[1][1] += getTrItemH(maxLine)
-        console.log(sum, this.state.pageH, getTrItemH(maxLine), maxLine)
         if (sum > this.state.pageH) {
           data[1][1] -= getTrItemH(maxLine) // 因为是截止到当前个数的时候 该个数不在当前的数组范围内 所以需要减去当前的高度
           data[1][3] = data[1][0] + data[1][1] + data[1][2] // 赋值当前页面数据高度
@@ -208,16 +223,22 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       return -1
     }
 
-    split = (printBlocks: any, pageCount: number = 0) => {
-      const { debug, end, startTime = 0, blockCount = 0 } = this.state
-      const s = +new Date()
-      console.log(s, 'split s')
+    split = (printBlocks: any, pageCount: number = 0, blockCount?: number) => {
+      const { debug = false, end, startTime = 0, blockCount: blockCountState = 0 } = this.state
       if (end) {
         // 打印完成
         return
       }
-      console.log(blockCount, 'blockCount', pageCount, 'pageCount')
-      const curentBlock = printBlocks[blockCount]
+      const blockIndex = blockCount === undefined ? blockCountState : blockCount
+
+      console.log(printBlocks, blockIndex, pageCount)
+      if (blockIndex === printBlocks.length) {
+        // 只有remainFixed为true的时候才会进入此运行
+        this.setData(pageCount, blockIndex, printBlocks, false, debug, startTime)
+        return
+      }
+
+      const curentBlock = printBlocks[blockIndex]
       const tableData = curentBlock.tableData
       const length = tableData.length
       // 每次对最后一个元素重新计算 除了最后一个的其他元素全部回塞进新的数组
@@ -225,66 +246,79 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       const lastData = tableData[length - 1]
       const reachIndex = this.getContentReachA4Index(lastData, curentBlock, pageCount)
       let newPrintBlocks: any = []
-      console.log(reachIndex, 'reachIndex')
       if (reachIndex > 0) {
         newPrintBlocks = [
-          ...printBlocks.slice(0, blockCount),
+          ...printBlocks.slice(0, blockIndex),
           {
-            ...printBlocks[blockCount],
+            ...printBlocks[blockIndex],
             tableData: [
               ...preData,
               [lastData[0].slice(0, reachIndex), lastData[1], lastData[2]], // 塞入reachIndex之前计算的数据
               [lastData[0].slice(reachIndex), [], []] // 继续把分割的数据塞入后面, 下一次reRender会计算
             ]
           },
-          ...printBlocks.slice(blockCount + 1)
+          ...printBlocks.slice(blockIndex + 1)
         ]
-        const e = +new Date()
-        console.log(e, 'e split')
-        console.log(e - s, 'delay split')
-        if (pageCount % 100 === 0) {
+        if (pageCount && (pageCount % 1000 === 0)) {
           setTimeout(() => {
-            this.split(newPrintBlocks, pageCount + 1)
+            this.split(newPrintBlocks, pageCount + 1, blockIndex)
           }, 0)
         } else {
-          this.split(newPrintBlocks, pageCount + 1)
+          this.split(newPrintBlocks, pageCount + 1, blockIndex)
         }
       } else {
         // 计算完成了 只需要重新塞入数据即可 只需要重新渲染
         newPrintBlocks = [
-          ...printBlocks.slice(0, blockCount),
+          ...printBlocks.slice(0, blockIndex),
           {
-            ...printBlocks[blockCount],
+            ...printBlocks[blockIndex],
             tableData: [
               ...preData,
               [...lastData]
             ]
           },
-          ...printBlocks.slice(blockCount + 1)
+          ...printBlocks.slice(blockIndex + 1)
         ]
-        const isCalculate = blockCount + 1 !== newPrintBlocks.length
-        this.setState({
-          pageCount,
-          blockCount: blockCount + 1,
-          printBlocks: newPrintBlocks,
-          loading: isCalculate,
-          isCalculate
-        }, () => {
-          if (this.state.isCalculate) {
-            return
-          }
-          if (debug) {
-            const endTime = +new Date()
-            console.log(this.state.printBlocks, startTime, endTime, endTime - startTime, 'end')
-            return
-          }
-          if (this.printRef) {
-            this.printRef.handlePrint()
-          }
-        })
-        const endTime = +new Date()
-        console.log(startTime, endTime, endTime - startTime, isCalculate, 'no render')
+
+        // 是否还需要计算
+        const isCalculate = blockIndex + 1 !== newPrintBlocks.length
+
+        if (curentBlock.remainFixed) {
+          // 假如没有计算完成 且 固定顶高度 底高 表头高 不需要为了计算高度值重新setState
+          this.split(newPrintBlocks, pageCount, blockIndex + 1)
+          return
+        }
+
+        // 计算完成之后 需要重新setState
+        this.setData(pageCount, blockIndex + 1, newPrintBlocks, isCalculate, debug, startTime)
       }
+    }
+
+    setData = (pageCount: number, blockCount: number, printBlocks: any, isCalculate: boolean, debug: boolean, startTime: number) => {
+      if (!isCalculate) {
+        const endTime = +new Date()
+        console.log(this.state.printBlocks, startTime, endTime, endTime - startTime, 'end')
+      }
+      this.setState({
+        pageCount,
+        blockCount,
+        printBlocks,
+        loading: isCalculate,
+        isCalculate
+      }, () => {
+        if (this.state.isCalculate) {
+          // 还在计算的话 就不需要运行下面的方法
+          return
+        }
+        if (debug) {
+          const endTime = +new Date()
+          console.log(this.state.printBlocks, startTime, endTime, endTime - startTime, 'end')
+          return
+        }
+        if (this.printRef) {
+          this.printRef.handlePrint()
+        }
+      })
     }
 
     render () {

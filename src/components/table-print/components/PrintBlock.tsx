@@ -21,6 +21,8 @@ interface PrintBlockProps {
   colums?: Colum[]
   /* 表格数据 */
   tableData?: any[]
+  /* 临时表格数据 */
+  tempTableData?: any[]
   /* 表格左边留白 */
   tablePaddingLeft?: number
   /* 表格右边留白 */
@@ -39,6 +41,7 @@ interface PrintBlockProps {
   style?: React.CSSProperties
   fixed?: boolean
   isCalculate?: boolean
+  remainFixed?: boolean
 }
 
 class PrintBlock extends PureComponent<PrintBlockProps> {
@@ -47,6 +50,7 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
       head,
       foot,
       tableData = [],
+      tempTableData = [],
       heights = {},
       tablePaddingTop,
       tablePaddingBottom,
@@ -59,15 +63,22 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
       pageSize,
       style = {},
       fixed,
-      isCalculate
+      isCalculate,
+      remainFixed
     } = this.props
 
     const tableDataSize = tableData.length
 
+    let curTableData = tableData
+
+    if (isCalculate) {
+      curTableData = tempTableData
+    }
+
     return (
       <div className={styles['print-content-block']}>
         {
-          tableData.map(([content, info, sizes], i) => {
+          curTableData.map(([content, info, sizes], i) => {
             let headEl = null
             let footEl = null
             if (typeof head === 'function') {
@@ -145,6 +156,7 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
                     needRenderHead && (
                       <ContentHead
                         data={heights}
+                        remainFixed={remainFixed}
                         style={{ height: info[0] ? info[0] : 'auto' }}
                       >
                         {headEl}
@@ -165,7 +177,7 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
                       <thead>
                         {
                           needRenderTableHead && (
-                            <TableTHeadTr colums={colums} data={heights} />
+                            <TableTHeadTr colums={colums} data={heights} remainFixed={remainFixed} />
                           )
                         }
                       </thead>
@@ -183,6 +195,7 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
                       <ContentFoot
                         fixed={fixed}
                         data={heights}
+                        remainFixed={remainFixed}
                         style={{ height: info[2] ? info[2] : 'auto' }}
                       >
                         {footEl}

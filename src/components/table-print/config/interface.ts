@@ -64,6 +64,14 @@ export interface PrintItem {
   tablePaddingTop?: number
   /* 打印纸张外边距 */
   padding?: number
+  // 顶部高度 底部高度 表头高度是否固定 true的话不需要计算 但是必选传headH footH tableHeadH 否则会出错
+  remainFixed?: boolean
+  /* 顶部高度 */
+  headH?: number
+  /* 底部高度 */
+  footH?: number
+  /* 表头高度 */
+  tableHeadH?: number
 }
 
 /* 打印参数 */
@@ -84,6 +92,8 @@ export interface PrintConfig {
 export interface PrintBlockItem extends PrintItem {
   /* 外部dataSource入参转化之后的值 在实际渲染上使用 形式如[[表格数据], [头部高度, 表格高度, 底部高度, 页面高度], [当前页面]] */
   tableData: any[]
+  /* 临时表格数据 */
+  tempTableData?: any[]
   /* 各部分高度储存地方 tableHead contentHead contentFoot */
   heights: { [key: string]: number }
 }
