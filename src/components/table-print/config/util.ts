@@ -37,8 +37,8 @@ export const getTrItemH = (() => {
     el.innerHTML = `
       <tbody>
         <tr>
-          <td style="font-size: 14px; border: 1px solid red; padding: 0">
-            ${[...new Array(line)].map(() => `<div>0</div>`).join('')}
+          <td style="font-size: 12px; border: 1px solid red; padding: 0">
+            ${[...new Array(line)].map(() => '<div>0</div>').join('')}
           </td>
         </tr>
       </tbody>

@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react'
 import { Colum } from '../config/interface'
 
-const ZH_W = 14
-const EH_W = 10
+const ZH_W = 12
+const EH_W = 8
 
 interface TableTbodyTrProps {
   data: any
@@ -25,7 +25,7 @@ class TableTbodyTr extends PureComponent<TableTbodyTrProps> {
             const colStr = String(
               (data[col.key] !== undefined && data[col.key] !== null) ? data[col.key] : '-'
             )
-            const width = /[\u4e00-\u9fa5]+/.test(colStr) ? ZH_W : EH_W
+            const width = (/[\u4e00-\u9fa5]+/).test(colStr) ? ZH_W : EH_W
 
             return (
               <td key={j}>

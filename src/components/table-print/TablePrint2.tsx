@@ -241,6 +241,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
                   <ReactToPrint
                     pageStyle={`@page { size: ${direction}; margin: 0mm; } @media print { body { -webkit-print-color-adjust: exact; } }`}
                     ref={ref => { this.printRef = ref }}
+                    trigger={() => <div />}
                     content={() => this.contentRef}
                     onBeforePrint={() => {
                       this.setState({

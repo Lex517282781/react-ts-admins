@@ -8,3 +8,5 @@ export const debug = false
 export const fixed = false
 /* 是否打印初始化 */
 export const init = true
+/* 是否固定高度 */
+export const remainFixed = false

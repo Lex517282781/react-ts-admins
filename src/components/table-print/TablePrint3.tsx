@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
 import { Spin } from 'antd'
-import ReactToPrint from 'react-to-print'
 import { groupBy } from 'lodash'
+import ReactToPrint from 'react-to-print'
 import PrintBlock from './components/PrintBlock'
 import { mm2px, getA4W, getA4H, getTrItemH } from './config/util'
 import * as defaultConfig from './config/config'
@@ -18,8 +18,8 @@ const newA4W = a4W - gutterW * 2
 // const newA4W = a4W
 const newA4H = a4H - topH - bottomH
 
-const ZH_W = 12
-const EH_W = 8
+const ZH_W = 14
+const EH_W = 10
 console.log(a4W, 'a4W', a4H, 'a4H', newA4W, 'newA4W', newA4H, 'newA4H', getTrItemH(1), getTrItemH(3))
 
 export interface TablePrintProps {
@@ -67,6 +67,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     contentRef: HTMLDivElement | null = null
     timer:any = null
     printRef: any
+    canasRef: any
     state: TablePrintState = {
       printBlocks: [],
       blockCount: 0,
@@ -256,7 +257,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       // 每次对最后一个元素重新计算 除了最后一个的其他元素全部回塞进新的数组
       const preData = tableData.slice(0, length - 1)
       const lastData = tableData[length - 1]
-      const reachIndex = this.getContentReachA4Index(lastData, curentBlock, pageCount, blockSplit)
+      const reachIndex = this.getContentReachA4Index(lastData, curentBlock, pageCount)
       let newPrintBlocks: any = []
       if (reachIndex > 0) {
         newPrintBlocks = [
@@ -390,6 +391,9 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
         <div>
           <Spin spinning={loading}>
             <Wrapper print={this.print} {...this.props} />
+            <canvas ref={ ref => { this.canasRef = ref } } width="780" height="1800">
+              您的浏览器不支持canvas，请更换浏览器.
+            </canvas>
             {
               init && (
                 <>

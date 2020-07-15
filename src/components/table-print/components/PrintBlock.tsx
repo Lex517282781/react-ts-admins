@@ -78,7 +78,7 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
     return (
       <div className={styles['print-content-block']}>
         {
-          curTableData.map(([content, info, sizes], i) => {
+          curTableData.map(([content, info, sizes, wrap], i) => {
             let headEl = null
             let footEl = null
             if (typeof head === 'function') {
@@ -90,7 +90,9 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
                 index + 1, // 当前模板
                 blockSize, // 模块长度
                 sizes[0], // 当前整体页码
-                pageSize // 当前整体页码数
+                pageSize, // 当前整体页码数
+                wrap ? wrap[0] : 0,
+                wrap ? wrap[1] : 0
               )
             } else {
               headEl = head
@@ -105,7 +107,9 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
                 index + 1,
                 blockSize,
                 sizes[0],
-                pageSize
+                pageSize,
+                wrap ? wrap[0] : 0,
+                wrap ? wrap[1] : 0
               )
             } else {
               footEl = foot

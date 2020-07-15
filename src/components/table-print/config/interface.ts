@@ -2,7 +2,10 @@
 export interface Colum {
   key: string | number
   title: React.ReactNode
+  /* 宽度 百分比 或者 px 如: 20% 20px */
   width?: string
+  /* 计算宽度 百分比 或者 px 如: 20% 20px */
+  calcWidth?: string
   align?: 'left' | 'center' | 'right'
 }
 
@@ -72,6 +75,10 @@ export interface PrintItem {
   footH?: number
   /* 表头高度 */
   tableHeadH?: number
+  /* 局部包装索引 */
+  wrapIndex?: number
+  /* 就顶部显示 */
+  onlyTopShow?: boolean
 }
 
 /* 打印参数 */

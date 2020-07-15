@@ -43,3 +43,23 @@ export const data1 = [...new Array(50)].map((_, i) => {
     page: false
   }
 })
+
+export const data2 = [...new Array(20)].map((_, i) => {
+  let c = ''
+  if (i === 20) {
+    c = [...new Array(20)].map(() => '好').join('') + i
+  } else {
+    c = 'c' + i
+  }
+
+  return {
+    i,
+    a: [...new Array(20)].map(() => 'a').join('') + i,
+    b: 'b' + i,
+    c,
+    d: 'd' + i,
+    e: 'e' + i,
+    h: 0,
+    page: false
+  }
+})

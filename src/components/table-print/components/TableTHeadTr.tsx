@@ -24,7 +24,7 @@ class TableTHeadTr extends PureComponent<TableTHeadTrProps> {
           colums.map((item: Colum) => (
             <th
               key={item.key}
-              style={{ width: item.width || 'auto' }}
+              style={{ width: item.width || item.calcWidth || 'auto' }}
             >
               {item.title}
             </th>
