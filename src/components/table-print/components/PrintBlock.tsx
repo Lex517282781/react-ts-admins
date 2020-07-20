@@ -73,6 +73,7 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
 
     if (isCalculate) {
       curTableData = tempTableData
+      // curTableData = tableData
     }
 
     return (

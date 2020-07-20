@@ -69,7 +69,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     }
 
     componentDidUpdate (preProps: T, preState: TablePrintState) {
-      const { pageCount, blockCount } = this.state
+      const { pageCount } = this.state
       const { pageCount: prePageCount } = preState
       if (pageCount && (prePageCount === pageCount)) {
         return
@@ -89,7 +89,9 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     /* 打印 */
     print = (option: PrintOption, config?: PrintConfig | boolean) => {
       option = Array.isArray(option) ? option : [option]
-      config = typeof config === 'boolean' ? { ...defaultConfig, debug: config } : (config || defaultConfig)
+      config = typeof config === 'boolean'
+        ? { ...defaultConfig, debug: config }
+        : { ...defaultConfig, ...(config || {}) }
       const printBlocks = option.map(item => ({
         ...item,
         tableData: item.dataSource ? [[item.dataSource, [], [], []]] : [],
@@ -228,7 +230,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
 
       const blockSize = printBlocks.length
 
-      console.log(printBlocks, 'render')
+      console.log(printBlocks, init, 'render')
 
       return (
         <div>

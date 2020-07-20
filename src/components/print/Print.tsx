@@ -3,6 +3,7 @@ import {
   Colums
 } from './config/interface'
 import styles from './style.module.styl'
+import './style.styl'
 
 interface Props {
   /* 表格表头字段 */

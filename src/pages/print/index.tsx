@@ -3,6 +3,7 @@ import ReactToPrint, { PrintContextConsumer } from 'react-to-print'
 import Panel from '@/components/panel'
 import Print from '@/components/print'
 import styles from './style.module.styl'
+import './style.styl'
 
 const colums = [
   {

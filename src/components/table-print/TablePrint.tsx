@@ -243,7 +243,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
       }
       const blockIndex = blockCount === undefined ? blockCountState : blockCount
 
-      console.log(printBlocks, blockIndex, pageCount)
+      // console.log(printBlocks, blockIndex, pageCount)
       if (blockIndex === printBlocks.length) {
         // 只有remainFixed为true的时候才会进入此运行
         this.setData(pageCount, blockIndex, printBlocks, false, debug, startTime)
