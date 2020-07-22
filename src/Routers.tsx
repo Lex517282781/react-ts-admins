@@ -13,6 +13,7 @@ import SelectSearchFetch from './pages/select-search-fetch'
 import Print from './pages/print'
 import ReactPrint from './pages/react-print'
 import TablePrint from './pages/table-print'
+import RelationCheckbox from './pages/relation-checkbox'
 
 import ActionView from './pages/action-view'
 import ListPage from './pages/list-page'
@@ -31,6 +32,7 @@ export default () => (
       <Route path='/print' component={Print} />
       <Route path='/react-print' component={ReactPrint} />
       <Route path='/table-print' component={TablePrint} />
+      <Route path='/relation-checkbox' component={RelationCheckbox} />
 
       <Route path='/action-view' component={ActionView} />
       <Route path='/list-page' component={ListPage} />

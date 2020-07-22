@@ -33,7 +33,8 @@ class TablePrintPage extends PureComponent<TablePrintPageProps> {
       ),
       padding: 0
     }], {
-      debug: true
+      debug: false,
+      fixed: true
     })
   }
 

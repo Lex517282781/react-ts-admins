@@ -45,6 +45,10 @@ export const categorys = makeCategorys([
       {
         text: '表格打印',
         url: '/table-print'
+      },
+      {
+        text: '关联复选',
+        url: '/relation-checkbox'
       }
     ]
   },

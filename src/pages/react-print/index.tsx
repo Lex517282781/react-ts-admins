@@ -82,6 +82,7 @@ class ReactPrintPage extends PureComponent {
   }
 
   componentDidMount () {
+    console.log(99)
     this.compareSize()
   }
 
