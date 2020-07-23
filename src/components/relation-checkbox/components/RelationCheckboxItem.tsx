@@ -1,63 +1,123 @@
 import React, { PureComponent } from 'react'
 import { Checkbox, Row, Col } from 'antd'
-import { Option } from '../config/interface'
+import { isEqual, difference } from 'lodash'
+import { ValueProp, ValuesProp, Option } from '../config/interface'
 
 const CheckboxGroup = Checkbox.Group
 
 interface RelationCheckboxItemProps {
-  option: Option
-  label?: React.ReactNode | ((text: React.ReactNode) => React.ReactNode)
+  label: React.ReactNode
+  value: ValueProp
+  /* 全部显示文案 */
+  labelProcess?: (value: ValuesProp) => React.ReactNode
+  /* 可选择项列表 */
+  options: Option[]
   labelShow?: boolean
   /* 二级label宽度 */
   lableSpan?: number
   /* 二级value宽度 */
   valueSpan?: number
-  onChange?: (values: Array<string | number>) => void
+  onChange?: (
+    checkedItem: ValuesProp,
+    checkedList: ValuesProp,
+    excludeItem: ValuesProp,
+    excludeValues: ValuesProp,
+    key: ValueProp
+  ) => void
+  /* 全部选择项 */
+  values: ValuesProp
 }
 
-class RelationCheckboxItem extends PureComponent<RelationCheckboxItemProps> {
+interface RelationCheckboxItemState {
+  /* 当前选择项 */
+  checkedList: ValuesProp
+  indeterminate: boolean
+  checkAll: boolean
+  /* 全部选择项 */
+  values: ValuesProp
+}
+
+class RelationCheckboxItem extends PureComponent<RelationCheckboxItemProps, RelationCheckboxItemState> {
   state = {
     checkedList: [],
     indeterminate: false,
-    checkAll: false
+    checkAll: false,
+    values: []
   }
 
-  onChange = (checkedList: any[]) => {
-    const { option: { children = [] }, onChange } = this.props
+  static getDerivedStateFromProps (nextProps: RelationCheckboxItemProps, preState: RelationCheckboxItemState) {
+    if (isEqual(nextProps.values, preState.values)) {
+      return null
+    }
+
+    const { options } = nextProps
+    // 获取可选择项的所有数据
+    const curValues = options.map(item => item.value)
+    // 所有已选项中过滤当前可选项的即为当前可选择项中的已选项
+    const checkedList = nextProps.values.filter(item => curValues.includes(item))
+    return {
+      checkedList,
+      indeterminate: !!checkedList.length && checkedList.length < options.length,
+      checkAll: checkedList.length === options.length,
+      values: nextProps.values
+    }
+  }
+
+  handleItemChange = (checkedList: any[]) => {
+    const { options, onChange, value } = this.props
+    const curValues = options.map(item => item.value)
+    const checkAll = checkedList.length === options.length
     this.setState({
       checkedList,
-      indeterminate: !!checkedList.length && checkedList.length < children.length,
-      checkAll: checkedList.length === children.length
+      indeterminate: !!checkedList.length && checkedList.length < options.length,
+      checkAll
     }, () => {
       if (typeof onChange === 'function') {
-        onChange(checkedList)
+        // 获取可选择项目中没有选择的数据
+        const excludeValues = difference(curValues, checkedList)
+        // 获取没有选择项的数据：判断是否添加parent的value, 未选择项有的话, 需要添加parent的value 否则还是excludeValues
+        const excludeItem = excludeValues.length ? [value, ...excludeValues] : excludeValues
+        // 获取已经选择项的数据：判断是否全部选择, 是的话, 则添加parent的value, 否则还是checkedList
+        const checkedItem = checkAll ? [value, ...checkedList] : checkedList
+        onChange(checkedItem, checkedList, excludeItem, excludeValues, value)
       }
     })
   }
 
-  onCheckAllChange = (e: any) => {
-    const { option: { children = [] } } = this.props
+  handleItemAllChange = (e: any) => {
+    const { options, onChange, value } = this.props
+    const curValues = options.map(item => item.value)
+    const checkedList = e.target.checked ? options.map(item => item.value) : []
+    const checkAll = e.target.checked
     this.setState({
-      checkedList: e.target.checked ? children.map(item => item.value) : [],
+      checkedList,
       indeterminate: false,
-      checkAll: e.target.checked
+      checkAll
+    }, () => {
+      if (typeof onChange === 'function') {
+        const excludeValues = difference(curValues, checkedList)
+        const excludeItem = excludeValues.length ? [value, ...excludeValues] : excludeValues
+        const checkedItem = checkAll ? [value, ...checkedList] : checkedList
+        onChange(checkedItem, checkedList, excludeItem, excludeValues, value)
+      }
     })
   }
 
   render () {
     const {
-      option: { label, children = [] },
-      label: externalLabel,
+      options,
+      label,
+      labelProcess,
       labelShow = true,
       lableSpan = 2,
       valueSpan = 22
     } = this.props
-    let labelEL: any = label
 
-    if (typeof externalLabel === 'function') {
-      labelEL = externalLabel(label) || labelEL
-    } else {
-      labelEL = externalLabel || labelEL
+    const { checkedList, checkAll, indeterminate } = this.state
+
+    let labelStr: React.ReactNode = label
+    if (labelProcess) {
+      labelStr = labelProcess(checkedList)
     }
 
     return (
@@ -67,20 +127,20 @@ class RelationCheckboxItem extends PureComponent<RelationCheckboxItemProps> {
             labelShow && (
               <Col span={lableSpan}>
                 <Checkbox
-                  indeterminate={this.state.indeterminate}
-                  onChange={this.onCheckAllChange}
-                  checked={this.state.checkAll}
+                  indeterminate={indeterminate}
+                  onChange={this.handleItemAllChange}
+                  checked={checkAll}
                 >
-                  {labelEL}
+                  {label}
                 </Checkbox>
               </Col>
             )
           }
           <Col span={labelShow ? valueSpan : 24}>
             <CheckboxGroup
-              options={children}
-              value={this.state.checkedList}
-              onChange={this.onChange}
+              options={options}
+              value={checkedList}
+              onChange={this.handleItemChange}
             />
           </Col>
         </Row>
