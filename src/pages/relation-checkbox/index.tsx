@@ -1,13 +1,14 @@
 import React, { PureComponent } from 'react'
 import Panel from '@/components/panel'
-import { Card } from 'antd'
+import { Card, Form, Button } from 'antd'
+import { FormComponentProps } from 'antd/lib/form/Form'
 import RelationCheckbox, { Option, ValuesProp } from '@/components/relation-checkbox'
 
 interface RelationCheckboxPageState {
   list: Option[]
   value: ValuesProp
 }
-class RelationCheckboxPage extends PureComponent<any, RelationCheckboxPageState> {
+class RelationCheckboxPage extends PureComponent<FormComponentProps, RelationCheckboxPageState> {
   state: RelationCheckboxPageState = {
     list: [
       {
@@ -40,7 +41,19 @@ class RelationCheckboxPage extends PureComponent<any, RelationCheckboxPageState>
     console.log(value, 'value')
   }
 
+  handleSubmit = (e: any) => {
+    e.preventDefault()
+    this.props.form.validateFields(
+      (err: any, values: any) => {
+        if (!err) {
+          console.log('Received values of form: ', values)
+        }
+      }
+    )
+  }
+
   render () {
+    const { getFieldDecorator } = this.props.form
     const { list, value } = this.state
     return (
       <Panel title='关联复选'>
@@ -64,9 +77,25 @@ class RelationCheckboxPage extends PureComponent<any, RelationCheckboxPageState>
             }}
           />
         </Card>
+        <Card style={{ marginTop: 24 }} type='inner' title='在表单中使用'>
+          <Form onSubmit={this.handleSubmit}>
+            <Form.Item>
+              {getFieldDecorator('seclectIds')(
+                <RelationCheckbox
+                  options={list}
+                />
+              )}
+            </Form.Item>
+            <Form.Item wrapperCol={{ span: 12 }}>
+              <Button type='primary' htmlType='submit'>
+                提交
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
       </Panel>
     )
   }
 }
 
-export default RelationCheckboxPage
+export default Form.create()(RelationCheckboxPage)
