@@ -1,3 +1,5 @@
+import asyncComponent from '@/components/async-component'
+
 const makeCategorys = (categorys: any[]) => {
   return categorys.reduce((pre, next, i) => {
     return [
@@ -20,35 +22,43 @@ export const categorys = makeCategorys([
     list: [
       {
         text: '裁剪上传组件',
-        url: '/clip-upload'
+        url: '/clip-upload',
+        component: asyncComponent(() => import('@/pages/clip-upload'))
       },
       {
         text: '颜色选择组件',
-        url: '/color-picker'
+        url: '/color-picker',
+        component: asyncComponent(() => import('@/pages/color-picker'))
       },
       {
         text: '表单组件',
-        url: '/form'
+        url: '/form',
+        component: asyncComponent(() => import('@/pages/form'))
       },
       {
         text: '下拉搜索选择组件',
-        url: '/select-search-fetch'
+        url: '/select-search-fetch',
+        component: asyncComponent(() => import('@/pages/select-search-fetch'))
       },
       {
         text: '打印',
-        url: '/print'
+        url: '/print',
+        component: asyncComponent(() => import('@/pages/print'))
       },
       {
         text: 'React打印',
-        url: '/react-print'
+        url: '/react-print',
+        component: asyncComponent(() => import('@/pages/react-print'))
       },
       {
         text: '表格打印',
-        url: '/table-print'
+        url: '/table-print',
+        component: asyncComponent(() => import('@/pages/table-print'))
       },
       {
         text: '关联复选',
-        url: '/relation-checkbox'
+        url: '/relation-checkbox',
+        component: asyncComponent(() => import('@/pages/relation-checkbox'))
       }
     ]
   },
@@ -57,19 +67,23 @@ export const categorys = makeCategorys([
     list: [
       {
         text: '表格操作',
-        url: '/action-view'
+        url: '/action-view',
+        component: asyncComponent(() => import('@/pages/action-view'))
       },
       {
         text: '表格列表',
-        url: '/list-page'
+        url: '/list-page',
+        component: asyncComponent(() => import('@/pages/list-page'))
       },
       {
         text: '轮播预览',
-        url: '/carousel-preview'
+        url: '/carousel-preview',
+        component: asyncComponent(() => import('@/pages/carousel-preview'))
       },
       {
         text: 'column渲染组件',
-        url: '/column-wrap'
+        url: '/column-wrap',
+        component: asyncComponent(() => import('@/pages/column-wrap'))
       }
     ]
   },
@@ -78,7 +92,8 @@ export const categorys = makeCategorys([
     list: [
       {
         text: 'demo',
-        url: '/demo'
+        url: '/demo',
+        component: asyncComponent(() => import('@/pages/demo'))
       }
     ]
   }

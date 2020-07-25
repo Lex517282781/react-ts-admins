@@ -1,9 +1,6 @@
 import React, { PureComponent } from 'react'
-import ReactToPrint, { PrintContextConsumer } from 'react-to-print'
 import Panel from '@/components/panel'
-import Print from '@/components/print'
-import styles from './style.module.styl'
-import './style.styl'
+import Print, { PrintProps } from '@/components/print'
 
 const colums = [
   {
@@ -36,67 +33,24 @@ const data = [...new Array(100)].map((_, i) => ({
   e: 'e' + i
 }))
 
-class ComponentToPrint extends React.Component {
-  render () {
-    return (
-      <div>
-        <Print>
-          <div style={{ padding: '20px 20px 0' }}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  {
-                    colums.map((item) => <th key={item.key}>{item.title}</th>)
-                  }
-                </tr>
-              </thead>
-            </table>
-          </div>
-          <table className={styles.table}>
-            <tbody>
-              {
-                data.map((row: any, i: number) => (
-                  <tr key={i}>
-                    {
-                      colums.map((col, j) => (
-                        <td key={j}>
-                          {
-                            row[col.key]
-                          }
-                        </td>
-                      ))
-                    }
-                  </tr>
-                ))
-              }
-            </tbody>
-          </table>
-          <div style={{ border: '1px solid red' }}>底部</div>
-        </Print>
-      </div>
-    )
-  }
-}
+type PrintPageProps = PrintProps
 
-class PrintPage extends PureComponent {
-  componentRef: any
+class PrintPage extends PureComponent<PrintPageProps> {
+  handlePrint = () => {
+    this.props.print({
+      colums,
+      data,
+      foot: 123
+    })
+  }
+
   render () {
     return (
       <Panel title='打印'>
-        <ReactToPrint pageStyle={'@page { margin: 20cm 2.6cm 3.5cm;'} content={() => this.componentRef}>
-          <PrintContextConsumer>
-            {({ handlePrint }) => (
-              <button onClick={handlePrint}>Print this out!</button>
-            )}
-          </PrintContextConsumer>
-        </ReactToPrint>
-        <div style={{ display: 'block' }}>
-          <ComponentToPrint ref={el => (this.componentRef = el)} />
-        </div>
-        {/* <Print /> */}
+        <button onClick={this.handlePrint}>Print this out!</button>
       </Panel>
     )
   }
 }
 
-export default PrintPage
+export default Print(PrintPage)

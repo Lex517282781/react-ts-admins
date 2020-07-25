@@ -1,148 +1,76 @@
-import React, { PureComponent, Fragment } from 'react'
+import React, { PureComponent } from 'react'
+import ReactToPrint from 'react-to-print'
+import PrintBlock from './components/PrintBlock'
 import {
-  Colums
+  PrintItem,
+  PrintOption,
+  PrintConfig
 } from './config/interface'
 import styles from './style.module.styl'
 import './style.styl'
 
-interface Props {
-  /* 表格表头字段 */
-  colums?: Colums
-  /* 表格上部分 */
-  head?: React.ReactNode
-  /* 表格内容部分 */
-  body?: any[]
-  /* 表格底部分 */
-  foot?: React.ReactNode
-  children?: React.ReactNode
+export interface PrintProps {
+  print: (option: PrintOption, config?: PrintConfig | boolean) => void
 }
 
-class Print extends PureComponent<Props> {
-  render () {
-    const { colums = [], head = null, body = [], foot = null } = this.props
-    let children = this.props.children
-    children = Array.isArray(children)
-      ? children
-      : [children]
+interface PrintState {
+  printBlocks: PrintItem[]
+  debug?: boolean
+  onAfterPrint?: () => void
+}
 
-    const count = React.Children.count(children)
-    let headContent = null
-    let bodyContent = null
-    let footContent = null
-
-    if (count === 1) {
-      bodyContent = React.Children.map(children, (child, i) => {
-        return (
-          <Fragment key={i}>
-            {child}
-          </Fragment>
-        )
-      })
-    } else if (count !== 0) {
-      headContent = React.Children.map(
-        React.Children.toArray(
-          children
-        ).slice(0, 1),
-        (child, i) => {
-          return (
-            <Fragment key={i}>
-              {child}
-            </Fragment>
-          )
-        }
-      )
-      bodyContent = React.Children.map(
-        React.Children.toArray(
-          children
-        ).slice(1, 2),
-        (child, i) => {
-          return (
-            <Fragment key={i}>
-              {child}
-            </Fragment>
-          )
-        }
-      )
-      footContent = React.Children.map(
-        React.Children.toArray(
-          children
-        ).slice(2),
-        (child, i) => {
-          return (
-            <Fragment key={i}>
-              {child}
-            </Fragment>
-          )
-        }
-      )
+function PrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
+  return class Print extends PureComponent<T, PrintState> {
+    contentRef: HTMLDivElement | null = null
+    printRef: any
+    state: PrintState = {
+      printBlocks: [],
+      debug: false
     }
 
-    return (
-      <div>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th colSpan={colums.length}>
-                <div>{head}</div>
-                <div>{headContent}</div>
-                {
-                  (!!colums.length) && (
-                    <table className={styles.table}>
-                      <thead>
-                        <tr>
-                          {
-                            colums.map((item) => <th key={item.key}>{item.title}</th>)
-                          }
-                        </tr>
-                      </thead>
-                    </table>
-                  )
-                }
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td colSpan={colums.length}>
-                {
-                  (!!body.length) && (
-                    <table className={styles.table}>
-                      <tbody>
-                        {
-                          body.map((row: any, i: number) => (
-                            <tr key={i}>
-                              {
-                                colums.map((col, j) => (
-                                  <td key={j}>
-                                    {
-                                      row[col.key]
-                                    }
-                                  </td>
-                                ))
-                              }
-                            </tr>
-                          ))
-                        }
-                      </tbody>
-                    </table>
-                  )
-                }
-                {bodyContent}
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan={colums.length}>
-                {foot}
-                {footContent}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    )
+    print = (option: PrintOption, config?: PrintConfig | boolean) => {
+      option = Array.isArray(option) ? option : [option]
+      config = typeof config === 'boolean'
+        ? { debug: config }
+        : { ...(config || {}) }
+      this.setState({
+        printBlocks: option
+      }, () => {
+        if (this.printRef) {
+          this.printRef.handlePrint()
+        }
+      })
+    }
+
+    render () {
+      const { printBlocks } = this.state
+      const direction = 'landscape'
+      return (
+        <div>
+          <Wrapper print={this.print} {...this.props} />
+          <ReactToPrint
+            pageStyle={`@page { size: ${direction}; margin: 10mm; } @media print { body { -webkit-print-color-adjust: exact; } }`}
+            ref={ref => { this.printRef = ref }}
+            content={() => this.contentRef}
+            trigger={() => <div />}
+            onBeforePrint={() => {}}
+            onAfterPrint={() => {}}
+          />
+          <div
+            ref={ref => { this.contentRef = ref }}
+          >
+            {
+              printBlocks.map((item: PrintItem, i: number) => {
+                return (
+                  <PrintBlock key={i} {...item} />
+                )
+              })
+            }
+          </div>
+        </div>
+      )
+    }
   }
 }
 
-export default Print
+export default PrintWrap
