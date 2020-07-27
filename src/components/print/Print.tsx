@@ -6,8 +6,7 @@ import {
   PrintOption,
   PrintConfig
 } from './config/interface'
-import styles from './style.module.styl'
-import './style.styl'
+import * as defaultConfig from './config/config'
 
 export interface PrintProps {
   print: (option: PrintOption, config?: PrintConfig | boolean) => void
@@ -15,6 +14,10 @@ export interface PrintProps {
 
 interface PrintState {
   printBlocks: PrintItem[]
+  /* 打印方向 */
+  direction?: string
+  margin?: number
+  init?: boolean
   debug?: boolean
   onAfterPrint?: () => void
 }
@@ -25,31 +28,37 @@ function PrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
     printRef: any
     state: PrintState = {
       printBlocks: [],
+      init: false,
       debug: false
     }
 
     print = (option: PrintOption, config?: PrintConfig | boolean) => {
       option = Array.isArray(option) ? option : [option]
       config = typeof config === 'boolean'
-        ? { debug: config }
-        : { ...(config || {}) }
+        ? { ...defaultConfig, debug: config }
+        : { ...defaultConfig, ...(config || {}) }
       this.setState({
-        printBlocks: option
+        printBlocks: option,
+        init: true,
+        ...config
       }, () => {
-        if (this.printRef) {
+        if (this.printRef && (!this.state.debug)) {
           this.printRef.handlePrint()
         }
       })
     }
 
     render () {
-      const { printBlocks } = this.state
-      const direction = 'landscape'
+      const { printBlocks, debug, direction, margin } = this.state
+
       return (
         <div>
           <Wrapper print={this.print} {...this.props} />
           <ReactToPrint
-            pageStyle={`@page { size: ${direction}; margin: 10mm; } @media print { body { -webkit-print-color-adjust: exact; } }`}
+            pageStyle={`
+              @page { size: ${direction}; margin: ${margin}mm; } 
+              @media print { body { -webkit-print-color-adjust: exact; } }`
+            }
             ref={ref => { this.printRef = ref }}
             content={() => this.contentRef}
             trigger={() => <div />}
@@ -57,15 +66,27 @@ function PrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
             onAfterPrint={() => {}}
           />
           <div
-            ref={ref => { this.contentRef = ref }}
-          >
-            {
-              printBlocks.map((item: PrintItem, i: number) => {
-                return (
-                  <PrintBlock key={i} {...item} />
-                )
-              })
+            style={
+              debug ? {} : {
+                position: 'absolute',
+                left: '-999999px',
+                top: '-999999px',
+                visibility: 'hidden',
+                zIndex: -999999
+              }
             }
+          >
+            <div
+              ref={ref => { this.contentRef = ref }}
+            >
+              {
+                printBlocks.map((item: PrintItem, i: number) => {
+                  return (
+                    <PrintBlock key={i} {...item} />
+                  )
+                })
+              }
+            </div>
           </div>
         </div>
       )

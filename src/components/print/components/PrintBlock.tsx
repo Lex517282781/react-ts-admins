@@ -3,6 +3,7 @@ import {
   Colums
 } from '../config/interface'
 import styles from '../style.module.styl'
+import '../style.styl'
 
 interface PrintBlockProps {
   /* 表格表头字段 */
@@ -29,6 +30,16 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
     let headContent = null
     let bodyContent = null
     let footContent = null
+
+    const columsLength = colums.length
+    const noWidthColumsLength = colums.filter(item => !item.width).length
+    const widthColumsTotal = colums.filter(item => item.width).reduce((sum, item) => {
+      if (item.width) {
+        return sum + Number(item.width?.replace('%', ''))
+      }
+      return sum
+    }, 0)
+    const restWidth = `${((100 - widthColumsTotal) / noWidthColumsLength)}%`
 
     if (count === 1) {
       bodyContent = React.Children.map(children, (child, i) => {
@@ -83,16 +94,23 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th colSpan={colums.length}>
+              <th className={styles.colums} colSpan={columsLength}>
                 <div>{head}</div>
                 <div>{headContent}</div>
                 {
-                  (!!colums.length) && (
+                  (!!columsLength) && (
                     <table className={styles.table}>
                       <thead>
                         <tr>
                           {
-                            colums.map((item) => <th key={item.key}>{item.title}</th>)
+                            colums.map((item) => (
+                              <th
+                                style={{ width: item.width || restWidth }}
+                                key={item.key}
+                              >
+                                {item.title}
+                              </th>
+                            ))
                           }
                         </tr>
                       </thead>
@@ -102,19 +120,19 @@ class PrintBlock extends PureComponent<PrintBlockProps> {
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className={styles.tbody}>
             <tr>
-              <td colSpan={colums.length}>
+              <td className={styles.content} colSpan={colums.length}>
                 {
                   (!!data.length) && (
-                    <table className={styles.table}>
+                    <table style={{ marginTop: -1 }} className={styles.table}>
                       <tbody>
                         {
                           data.map((row: any, i: number) => (
                             <tr key={i}>
                               {
                                 colums.map((col, j) => (
-                                  <td key={j}>
+                                  <td style={{ width: colums[j].width || restWidth }} key={j}>
                                     {
                                       row[col.key]
                                     }

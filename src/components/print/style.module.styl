@@ -1,3 +1,24 @@
 .table
   width: 100%
+  page-break-after: avoid
+  page-break-inside: avoid
+
+.colums, .content
+  padding: 0
+
+.colums th, .content td
+  border: 1px solid #1a1a1a
+  word-wrap: break-word
+  word-break:break-all
+
+.colums th
+  border-bottom: none
   text-align: center
+
+tfoot
+  td
+    border: none
+
+tr
+  page-break-inside: avoid
+  page-break-after: auto

@@ -22,7 +22,8 @@ interface RelationCheckboxItemProps {
     checkedList: ValuesProp,
     excludeItem: ValuesProp,
     excludeValues: ValuesProp,
-    key: ValueProp
+    key: ValueProp,
+    all?: boolean
   ) => void
   /* 全部选择项 */
   values: ValuesProp
@@ -55,10 +56,16 @@ class RelationCheckboxItem extends PureComponent<RelationCheckboxItemProps, Rela
     const curValues = options.map(item => item.value)
     // 所有已选项中过滤当前可选项的即为当前可选择项中的已选项
     const checkedList = nextProps.values.filter(item => curValues.includes(item))
+    let checkAll
+    if (options.length) {
+      checkAll = checkedList.length === options.length
+    } else {
+      checkAll = nextProps.values.includes(nextProps.value)
+    }
     return {
       checkedList,
       indeterminate: !!checkedList.length && checkedList.length < options.length,
-      checkAll: checkedList.length === options.length,
+      checkAll,
       values: nextProps.values
     }
   }
@@ -87,8 +94,8 @@ class RelationCheckboxItem extends PureComponent<RelationCheckboxItemProps, Rela
   handleItemAllChange = (e: any) => {
     const { options, onChange, value } = this.props
     const curValues = options.map(item => item.value)
-    const checkedList = e.target.checked ? options.map(item => item.value) : []
     const checkAll = e.target.checked
+    const checkedList = checkAll ? options.map(item => item.value) : []
     this.setState({
       checkedList,
       indeterminate: false,
@@ -96,9 +103,17 @@ class RelationCheckboxItem extends PureComponent<RelationCheckboxItemProps, Rela
     }, () => {
       if (typeof onChange === 'function') {
         const excludeValues = difference(curValues, checkedList)
-        const excludeItem = excludeValues.length ? [value, ...excludeValues] : excludeValues
+        let excludeItem: ValueProp[] = []
+        if (curValues.length) {
+          excludeItem = excludeValues.length ? [value, ...excludeValues] : excludeValues
+        } else if (checkAll) {
+          excludeItem = []
+        } else {
+          excludeItem = [value]
+        }
+
         const checkedItem = checkAll ? [value, ...checkedList] : checkedList
-        onChange(checkedItem, checkedList, excludeItem, excludeValues, value)
+        onChange(checkedItem, checkedList, excludeItem, excludeValues, value, checkAll)
       }
     })
   }
@@ -115,7 +130,7 @@ class RelationCheckboxItem extends PureComponent<RelationCheckboxItemProps, Rela
 
     const { checkedList, checkAll, indeterminate } = this.state
 
-    let labelStr: React.ReactNode = label
+    let labelStr: React.ReactNode = '全部  '
     if (labelProcess) {
       labelStr = labelProcess(checkedList)
     }
@@ -126,12 +141,13 @@ class RelationCheckboxItem extends PureComponent<RelationCheckboxItemProps, Rela
           {
             labelShow && (
               <Col span={lableSpan}>
+                {label}
                 <Checkbox
                   indeterminate={indeterminate}
                   onChange={this.handleItemAllChange}
                   checked={checkAll}
                 >
-                  {label}
+                  {labelStr}
                 </Checkbox>
               </Col>
             )

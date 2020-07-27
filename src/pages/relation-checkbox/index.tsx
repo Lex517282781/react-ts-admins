@@ -32,6 +32,10 @@ class RelationCheckboxPage extends PureComponent<FormComponentProps, RelationChe
             value: '2-2'
           }
         ]
+      },
+      {
+        label: '选项3',
+        value: '3'
       }
     ],
     value: ['1-2']
@@ -65,7 +69,7 @@ class RelationCheckboxPage extends PureComponent<FormComponentProps, RelationChe
             }}
           />
         </Card>
-        <Card style={{ marginTop: 24 }} type='inner' title='受控使用'>
+        {/* <Card style={{ marginTop: 24 }} type='inner' title='受控使用'>
           <RelationCheckbox
             options={list}
             value={value}
@@ -92,7 +96,7 @@ class RelationCheckboxPage extends PureComponent<FormComponentProps, RelationChe
               </Button>
             </Form.Item>
           </Form>
-        </Card>
+        </Card> */}
       </Panel>
     )
   }

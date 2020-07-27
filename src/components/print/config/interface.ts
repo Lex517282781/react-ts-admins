@@ -1,6 +1,11 @@
 export interface ColumsItem {
   key: string
   title: string
+  /* 宽度 百分比 或者 px 如: 20% 20px */
+  width?: string
+  /* 计算宽度 百分比 或者 px 如: 20% 20px */
+  calcWidth?: string
+  align?: 'left' | 'center' | 'right'
 }
 
 export type Colums = Array<ColumsItem>
@@ -28,6 +33,7 @@ export interface PrintConfig {
   /* 初始化 */
   init?: boolean,
   direction?: 'auto' | 'landscape' | 'portrait',
+  margin?: number
   debug?: boolean,
   /* 固定页面 即页面在最底部显示 */
   fixed?: boolean

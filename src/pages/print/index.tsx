@@ -39,6 +39,7 @@ class PrintPage extends PureComponent<PrintPageProps> {
   handlePrint = () => {
     this.props.print({
       colums,
+      head: [...new Array(20)].join('456'),
       data,
       foot: 123
     })
