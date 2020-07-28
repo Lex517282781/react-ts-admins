@@ -35,23 +35,25 @@ const getValues = (options: any[], value: any[]) => {
 }
 
 interface RelationCheckboxProps {
+  /* 选项列表 */
   options: Option[]
-  /* 一级全部显示文案 */
+  /* 顶部全部选项是否显示 */
+  topAllSelectShow?: boolean
+  /* 一级全部选项是否显示 */
+  oneAllSelectShow?: boolean
+  /* 顶部全部显示文案修改方法 */
+  topLabelProcess?: (value: ValuesProp) => React.ReactNode
+  /* 一全部显示文案修改方法 */
   oneLabelProcess?: (value: ValuesProp) => React.ReactNode
-  /* 二级全部显示文案 */
-  twoLabelProcess?: (value: ValuesProp) => React.ReactNode
-  /* 一级全部显示文案是否显示 */
-  oneLabelShow?: boolean
-  /* 二级全部显示文案是否显示 */
-  twoLabelShow?: boolean
-  /* 二级label宽度 */
-  lableSpan?: number
-  /* 二级value宽度 */
-  valueSpan?: number
+  /* 一级显示宽度比例 */
+  oneSpan?: number
+  /* 二级显示宽度比例 */
+  twoSpan?: number
   onChange?: (values: ValuesProp) => void
   value?: ValuesProp
-  /* 是否需要透除全部的id */
-  isAll?: boolean
+  /* 是否g过滤全部的id */
+  filterAllIds?: boolean
+  /* 是否显示划线样式 */
   divider?: boolean
 }
 
@@ -91,9 +93,11 @@ class RelationCheckbox extends PureComponent<RelationCheckboxProps, RelationChec
     const allKeys = getAllKeys(nextProps.options)
     const value = getValues(nextProps.options, nextProps.value)
     const indeterminate = !!value.length && value.length < allKeys.length
+    const checkAll = allKeys.length === value.length
     return {
       options: nextProps.options,
       indeterminate,
+      checkAll,
       allKeys,
       value,
       preValue: value
@@ -101,9 +105,9 @@ class RelationCheckbox extends PureComponent<RelationCheckboxProps, RelationChec
   }
 
   outChange = (value: ValuesProp) => {
-    const { onChange, isAll = true, options } = this.props
+    const { onChange, filterAllIds = true, options } = this.props
     let newValue = []
-    if (!isAll) {
+    if (!filterAllIds) {
       const oneKeys = options.filter(item => {
         if (item.children && item.children.length) {
           return true
@@ -165,12 +169,12 @@ class RelationCheckbox extends PureComponent<RelationCheckboxProps, RelationChec
   render () {
     const {
       options,
+      topLabelProcess,
       oneLabelProcess,
-      twoLabelProcess,
-      oneLabelShow = true,
-      twoLabelShow,
-      lableSpan,
-      valueSpan,
+      topAllSelectShow = true,
+      oneAllSelectShow,
+      oneSpan,
+      twoSpan,
       divider = true
     } = this.props
 
@@ -178,14 +182,14 @@ class RelationCheckbox extends PureComponent<RelationCheckboxProps, RelationChec
 
     let lebel: React.ReactNode = '全部'
 
-    if (oneLabelProcess) {
-      lebel = oneLabelProcess(value)
+    if (topLabelProcess) {
+      lebel = topLabelProcess(value)
     }
 
     return (
       <div>
         {
-          oneLabelShow && (
+          topAllSelectShow && (
             <>
               <div>
                 <Checkbox
@@ -207,14 +211,14 @@ class RelationCheckbox extends PureComponent<RelationCheckboxProps, RelationChec
         {options.map((item) => (
           <RelationCheckboxItem
             key={item.value}
-            labelProcess={twoLabelProcess}
+            labelProcess={oneLabelProcess}
             label={item.label}
             value={item.value}
             values={value}
             options={item.children || []}
-            labelShow={twoLabelShow}
-            lableSpan={lableSpan}
-            valueSpan={valueSpan}
+            allSelectShow={oneAllSelectShow}
+            oneSpan={oneSpan}
+            twoSpan={twoSpan}
             onChange={this.handleItemChange}
           />
         ))}

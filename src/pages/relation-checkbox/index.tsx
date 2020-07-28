@@ -38,7 +38,7 @@ class RelationCheckboxPage extends PureComponent<FormComponentProps, RelationChe
         value: '3'
       }
     ],
-    value: ['2']
+    value: ['1', '2', '3']
   }
 
   handleChange = (value: any) => {
@@ -63,7 +63,7 @@ class RelationCheckboxPage extends PureComponent<FormComponentProps, RelationChe
       <Panel title='关联复选'>
         <Card type='inner' title='非受控使用'>
           <RelationCheckbox
-            isAll={false}
+            filterAllIds={false}
             options={list}
             onChange={(value: any) => {
               console.log(value, '非受控使用')
