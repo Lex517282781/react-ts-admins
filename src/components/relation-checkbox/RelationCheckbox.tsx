@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
 import { Checkbox, Divider } from 'antd'
-import { isEqual, difference, union } from 'lodash'
+import { isEqual, difference, union, intersection } from 'lodash'
 import RelationCheckboxItem from './components/RelationCheckboxItem'
 import { ValuesProp, Option } from './config/interface'
 
@@ -15,6 +15,23 @@ const getAllKeys = (options: any[]) => {
     }, [])
   }
   return getAllKeysFn(options)
+}
+
+const getValues = (options: any[], value: any[]) => {
+  options.forEach(item => {
+    if (item.children && item.children.length) {
+      const keys = item.children.map((item: any) => item.value)
+      if (value.includes(item.value)) {
+        value = union(value, keys)
+        return
+      }
+      const intersectionArr = intersection(value, keys)
+      if (keys.length === intersectionArr.length) {
+        value = [...value, item.value]
+      }
+    }
+  })
+  return value
 }
 
 interface RelationCheckboxProps {
@@ -33,6 +50,9 @@ interface RelationCheckboxProps {
   valueSpan?: number
   onChange?: (values: ValuesProp) => void
   value?: ValuesProp
+  /* 是否需要透除全部的id */
+  isAll?: boolean
+  divider?: boolean
 }
 
 interface RelationCheckboxState {
@@ -68,16 +88,38 @@ class RelationCheckbox extends PureComponent<RelationCheckboxProps, RelationChec
       }
     }
 
+    const allKeys = getAllKeys(nextProps.options)
+    const value = getValues(nextProps.options, nextProps.value)
+    const indeterminate = !!value.length && value.length < allKeys.length
     return {
       options: nextProps.options,
-      allKeys: getAllKeys(nextProps.options),
-      value: nextProps.value,
-      preValue: nextProps.value
+      indeterminate,
+      allKeys,
+      value,
+      preValue: value
+    }
+  }
+
+  outChange = (value: ValuesProp) => {
+    const { onChange, isAll = true, options } = this.props
+    let newValue = []
+    if (!isAll) {
+      const oneKeys = options.filter(item => {
+        if (item.children && item.children.length) {
+          return true
+        }
+        return false
+      }).map(item => item.value)
+      newValue = difference(value, oneKeys)
+    } else {
+      newValue = value
+    }
+    if (onChange) {
+      onChange([...newValue])
     }
   }
 
   handleCheckAllChange = (e: any) => {
-    const { onChange } = this.props
     const { allKeys } = this.state
     const checkAll = e.target.checked
     const value = checkAll ? allKeys : []
@@ -86,9 +128,7 @@ class RelationCheckbox extends PureComponent<RelationCheckboxProps, RelationChec
       indeterminate: false,
       value
     }, () => {
-      if (onChange) {
-        onChange(value)
-      }
+      this.outChange(value)
     })
   }
 
@@ -110,7 +150,6 @@ class RelationCheckbox extends PureComponent<RelationCheckboxProps, RelationChec
 
   handleItemChange = (item: ValuesProp, _: ValuesProp, excludeItem: ValuesProp) => {
     const { value, allKeys } = this.state
-    const { onChange } = this.props
     // 在已经选择项目合并子项选择的选项列表, 且排除子选项中未选择的选项列表
     const newValue = difference(union(value, item), excludeItem)
     const checkAll = newValue.length === allKeys.length
@@ -119,9 +158,7 @@ class RelationCheckbox extends PureComponent<RelationCheckboxProps, RelationChec
       checkAll,
       indeterminate: !!newValue.length && newValue.length < allKeys.length
     }, () => {
-      if (onChange) {
-        onChange(newValue)
-      }
+      this.outChange(newValue)
     })
   }
 
@@ -133,7 +170,8 @@ class RelationCheckbox extends PureComponent<RelationCheckboxProps, RelationChec
       oneLabelShow = true,
       twoLabelShow,
       lableSpan,
-      valueSpan
+      valueSpan,
+      divider = true
     } = this.props
 
     const { indeterminate, checkAll, value } = this.state
@@ -158,7 +196,11 @@ class RelationCheckbox extends PureComponent<RelationCheckboxProps, RelationChec
                   {lebel}
                 </Checkbox>
               </div>
-              <Divider style={{ margin: '12px 0' }} />
+              {
+                divider && (
+                  <Divider style={{ margin: '12px 0' }} />
+                )
+              }
             </>
           )
         }
