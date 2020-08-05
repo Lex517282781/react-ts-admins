@@ -12,11 +12,22 @@ class SheetPrintPage extends React.Component<
   handlePrint = () => {
     this.props.print({
       dataSource: data1,
-      colums: colums1
+      colums: colums1,
+      header: (
+        <div>134</div>
+      ),
+      footer: (
+        <div>134</div>
+      )
     })
   }
 
   render () {
+    // return (
+    //   <div style={{ width: 794, height: 1123, background: 'red' }}>
+    //     1111
+    //   </div>
+    // )
     return (
       <div>
         <button onClick={this.handlePrint}>print</button>

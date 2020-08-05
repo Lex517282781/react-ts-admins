@@ -1,22 +1,35 @@
 import React, { PureComponent } from 'react'
-
+import { PrintItem } from '../config/interface'
 interface FooterProps {
-  children?: React.ReactNode
+  data: PrintItem
 }
 
 class Footer extends PureComponent<FooterProps> {
   footerRef: HTMLDivElement | null = null
   componentDidMount () {
+    const { data } = this.props
+    data._footerH = this.footerRef?.offsetHeight || 0
   }
 
   render () {
-    const { children } = this.props
-
+    const { data } = this.props
+    const { footer } = data
+    const style: React.CSSProperties = {}
+    let footerEl = null
+    if (data._footerH) {
+      style.height = data._footerH
+    }
+    if (typeof footer === 'function') {
+      footerEl = footer()
+    } else {
+      footerEl = footer
+    }
     return (
       <div
+        style={style}
         ref={ ref => { this.footerRef = ref } }
       >
-        {children}
+        {footerEl}
       </div>
     )
   }

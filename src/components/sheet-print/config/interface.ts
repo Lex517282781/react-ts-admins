@@ -17,16 +17,21 @@ export interface PrintItem {
   colums: Colum[]
   /* 表格数据 */
   dataSource: {
-    h?: number,
+    _h?: number,
     [k: string]: any
   }[]
   /* 打印留白 */
   margin?: number
+  _headerH?: number
+  _footerH?: number
+  _thH?: number
 }
 
 export interface PrintConfig {
   debug?: boolean
   direction?: 'landscape' | 'portrait'
+  /* 打印边距 */
+  margin?: number
 }
 
 export interface SheetPrintProps {

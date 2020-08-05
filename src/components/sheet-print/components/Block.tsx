@@ -7,6 +7,7 @@ import { PrintItem } from '../config/interface'
 import styles from '../style.module.styl'
 
 interface BlockProps {
+  index: number
   data: PrintItem
 }
 
@@ -14,13 +15,13 @@ class Block extends PureComponent<BlockProps> {
   componentDidMount () {}
 
   render () {
-    const { data } = this.props
+    const { index, data } = this.props
     const { colums, dataSource } = data
 
     return (
-      <div>
+      <div className={styles.block}>
         <div className={styles.header}>
-          <Header />
+          <Header data={data} />
         </div>
         <div className={styles.content}>
           <table>
@@ -31,7 +32,7 @@ class Block extends PureComponent<BlockProps> {
               {dataSource.map((item, j) => {
                 return (
                   <TdRow
-                    key={j}
+                    key={index + '-' + j}
                     colums={colums}
                     data={item}
                   />
@@ -41,7 +42,7 @@ class Block extends PureComponent<BlockProps> {
           </table>
         </div>
         <div className={styles.footer}>
-          <Footer />
+          <Footer data={data} />
         </div>
       </div>
     )

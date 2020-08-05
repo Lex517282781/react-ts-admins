@@ -20,6 +20,7 @@ class ThRow extends PureComponent<ThRowProps> {
     if (data._thH) {
       style.height = data._thH
     }
+
     return (
       <tr
         className={styles.tr}
