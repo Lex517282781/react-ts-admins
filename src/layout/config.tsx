@@ -56,6 +56,11 @@ export const categorys = makeCategorys([
         component: asyncComponent(() => import('@/pages/table-print'))
       },
       {
+        text: 'sheet打印',
+        url: '/sheet-print',
+        component: asyncComponent(() => import('@/pages/sheet-print'))
+      },
+      {
         text: '关联复选',
         url: '/relation-checkbox',
         component: asyncComponent(() => import('@/pages/relation-checkbox'))

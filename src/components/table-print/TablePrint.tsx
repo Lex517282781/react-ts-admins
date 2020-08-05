@@ -394,7 +394,7 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
               init && (
                 <>
                   <ReactToPrint
-                    pageStyle={`@page { size: ${direction}; margin: 0mm; } @media print { body { -webkit-print-color-adjust: exact; } }`}
+                    pageStyle={`@page { size: ${direction}; } @media print { body { -webkit-print-color-adjust: exact; } }`}
                     ref={ref => { this.printRef = ref }}
                     trigger={() => <div />}
                     content={() => this.contentRef}
@@ -421,11 +421,11 @@ function TablePrintWrap <T = any> (Wrapper: React.ComponentType<T>) {
                     style={
                       debug
                         ? {} : {
-                          position: 'absolute',
-                          left: '-999999px',
-                          top: '-999999px',
-                          visibility: 'hidden',
-                          zIndex: -999999
+                          // position: 'absolute',
+                          // left: '-999999px',
+                          // top: '-999999px',
+                          // visibility: 'hidden',
+                          // zIndex: -999999
                         }
                     }
                   >

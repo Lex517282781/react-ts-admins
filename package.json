@@ -31,6 +31,7 @@
     "case-sensitive-paths-webpack-plugin": "2.3.0",
     "classnames": "^2.2.6",
     "css-loader": "3.4.2",
+    "decimal.js": "^10.2.0",
     "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
     "eslint": "^6.6.0",
@@ -98,18 +99,13 @@
     "lint:fix": "eslint './src/**/*.{ts,tsx}'"
   },
   "eslintConfig": {
-    "extends": [
-      "react-app",
-      "shared-config"
-    ],
+    "extends": ["react-app", "shared-config"],
     "rules": {
       "additional-rule": "warn"
     },
     "overrides": [
       {
-        "files": [
-          "**/*.ts?(x)"
-        ],
+        "files": ["**/*.ts?(x)"],
         "rules": {
           "additional-typescript-only-rule": "warn",
           "quotes": [
@@ -124,11 +120,7 @@
     ]
   },
   "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
+    "production": [">0.2%", "not dead", "not op_mini all"],
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
@@ -136,19 +128,13 @@
     ]
   },
   "jest": {
-    "roots": [
-      "<rootDir>/src"
-    ],
+    "roots": ["<rootDir>/src"],
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
       "!src/**/*.d.ts"
     ],
-    "setupFiles": [
-      "react-app-polyfill/jsdom"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/setupTests.ts"
-    ],
+    "setupFiles": ["react-app-polyfill/jsdom"],
+    "setupFilesAfterEnv": ["<rootDir>/src/setupTests.ts"],
     "testMatch": [
       "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
       "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"

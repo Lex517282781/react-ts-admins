@@ -8,11 +8,10 @@
 
 1. src/layout/config 添加配置
 2. src/pages 添加组件演示代码
-3. src/Routers.jsx 添加演示代码路由
-4. src/components 添加组件源代码
-5. src/pages 引入 src/components中的组件
-6. 查看 src/pages 预览
-7. 完整 src/components 和 src/pages 代码
+3. src/components 添加组件源代码
+4. src/pages 引入 src/components中的组件
+5. 查看 src/pages 预览
+6. 完整 src/components 和 src/pages 代码
 
 ## src/components 文件规范
 
