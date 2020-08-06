@@ -151,7 +151,7 @@ function SheetPrintWrap<T = any> (
       const { pageHeight } = this.state
       const { dataSource, _headerH = 0, _footerH = 0, _thH = 0 } = block
       const maxTableHeight = pageHeight - _headerH - _footerH - _thH - 1
-      const dataSourceDivs: any[] = []
+      const dataSourceDivs: any[][] = []
       const l = dataSource.length
       let splitIndex = 0
       let i = 0
