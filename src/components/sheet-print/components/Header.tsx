@@ -20,7 +20,7 @@ class Header extends PureComponent<HeaderProps> {
       style.height = data._headerH
     }
     if (typeof header === 'function') {
-      headEl = header()
+      headEl = header(data)
     } else {
       headEl = header
     }

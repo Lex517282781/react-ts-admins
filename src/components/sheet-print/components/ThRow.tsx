@@ -30,7 +30,12 @@ class ThRow extends PureComponent<ThRowProps> {
         }}
       >
         {colums.map((item: Colum) => (
-          <th className={styles.td} key={item.key}>{item.title}</th>
+          <th
+            style={{ width: item.width, textAlign: item.align || 'center' }}
+            className={styles.td} key={item.key}
+          >
+            {item.title}
+          </th>
         ))}
       </tr>
     )

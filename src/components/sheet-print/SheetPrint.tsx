@@ -1,7 +1,8 @@
 import React, { PureComponent, Fragment } from 'react'
 import ReactToPrint from 'react-to-print'
 import Block from './components/Block'
-import { PrintItem, PrintConfig } from './config/interface'
+import Decimal from 'decimal.js'
+import { PrintItem, PrintConfig, Colum } from './config/interface'
 import {
   mm2px,
   getA4W,
@@ -12,10 +13,6 @@ import styles from './style.module.styl'
 
 const a4W = getA4W()
 const a4H = getA4H()
-const marginTop = mm2px(10)
-const marginRight = mm2px(10)
-const marginBottom = mm2px(10)
-const marginLeft = mm2px(10)
 interface SheetPrintState {
   blocks: PrintItem[]
   preBlocks: PrintItem[]
@@ -24,7 +21,10 @@ interface SheetPrintState {
   /* 计算完成 */
   finish: boolean
   init: boolean
-  margin?: number
+  /* 打印边距 */
+  margin?: number | string
+  pageWidth: number
+  pageHeight: number
 }
 
 function SheetPrintWrap<T = any> (
@@ -39,11 +39,11 @@ function SheetPrintWrap<T = any> (
     state: SheetPrintState = {
       blocks: [],
       preBlocks: [],
-      direction: 'portrait',
       debug: false,
       finish: false,
       init: false,
-      margin: 0
+      pageWidth: 0,
+      pageHeight: 0
     }
 
     print = (
@@ -62,12 +62,30 @@ function SheetPrintWrap<T = any> (
           ...config || {}
         }) as PrintConfig
 
+      const [
+        marginTop = 0,
+        marginRight = 0,
+        marginBottom = 0,
+        marginLeft = 0
+      ] = this.getMargin(config.margin || 0)
+
+      let pageWidth = 0
+      let pageHeight = 0
+      if (config.direction === 'landscape') {
+        pageHeight = a4W - mm2px(marginTop) - mm2px(marginBottom)
+        pageWidth = a4H - mm2px(marginRight) - (marginLeft)
+      } else if (config.direction === 'portrait') {
+        pageHeight = a4H - mm2px(marginTop) - mm2px(marginBottom)
+        pageWidth = a4W - mm2px(marginRight) - mm2px(marginLeft)
+      }
       this.setState(
         {
           preBlocks: option,
           ...config,
           finish: false,
-          init: true
+          init: true,
+          pageWidth,
+          pageHeight
         },
         () => {
           this.calculate()
@@ -75,14 +93,48 @@ function SheetPrintWrap<T = any> (
       )
     }
 
+    /* 计算自动填充Colums中没有width的值 */
+    formatColums = (blocks: PrintItem[], pageWidth: number): PrintItem[] => {
+      return blocks.map(({ colums, ...item }) => {
+        const noWidthColums = colums.filter((colItem: Colum) => !colItem.width)
+        const noWidthColumsNum = noWidthColums.length
+        const widthColumsTotalWidth = colums.filter((colItem: Colum) => !!colItem.width).reduce((pre: number, next: Colum) => {
+          if (next.width) {
+            if ((/%/).test(next.width)) {
+              return pre + new Decimal(Number(next.width.replace('%', ''))).dividedBy(100).times(pageWidth).toNumber()
+            } else {
+              return pre + Number(next.width.replace('px', ''))
+            }
+          }
+          return pre
+        }, 0)
+        const restColumsWidth = pageWidth - widthColumsTotalWidth
+        noWidthColums.forEach(item => {
+          item.width = new Decimal(restColumsWidth).times(100).dividedBy(noWidthColumsNum).dividedBy(pageWidth).toNumber() + '%'
+        })
+
+        return {
+          ...item,
+          colums
+        }
+      })
+    }
+
+    /* 计算 */
     calculate = () => {
       const { preBlocks } = this.state
-      const blocks = preBlocks.reduce((pre: any, next: any) => {
+      const moduleTotal = preBlocks.length
+      const blocks = preBlocks.reduce((pre: any, next: any, i: number) => {
         return [
           ...pre,
-          ...(this.processBlock(next))
+          ...(this.processBlock(next, i + 1, moduleTotal))
         ]
       }, [])
+      const globalPages = blocks.length
+      blocks.forEach((block, i) => {
+        block._globalPage = i + 1
+        block._globalPages = globalPages
+      })
       this.setState({
         blocks,
         finish: true
@@ -94,22 +146,17 @@ function SheetPrintWrap<T = any> (
       })
     }
 
-    processBlock = (block: PrintItem) => {
-      const { direction } = this.state
+    /* 每个block计算 */
+    processBlock = (block: PrintItem, moduleIndex: number, moduleTotal: number) => {
+      const { pageHeight } = this.state
       const { dataSource, _headerH = 0, _footerH = 0, _thH = 0 } = block
-      let pageHeight = a4H - marginTop - marginBottom
-      if (direction === 'landscape') {
-        pageHeight = a4W - marginTop - marginBottom
-      } else if (direction === 'portrait') {
-        pageHeight = a4H - marginTop - marginBottom
-      }
-      console.log(pageHeight, 'pageHeight')
       const maxTableHeight = pageHeight - _headerH - _footerH - _thH - 1
       const dataSourceDivs: any[] = []
       const l = dataSource.length
       let splitIndex = 0
       let i = 0
       let sum = 0
+      // 循环dataSource过去 到sum小于maxTableHeight的时候分割数组 再次循环剩下的dataSource 直到分割完成
       while (i < l) {
         const curItem = dataSource[i]
         sum += curItem._h || 0
@@ -122,21 +169,49 @@ function SheetPrintWrap<T = any> (
           i++
         }
       }
-      return dataSourceDivs.map(item => ({
+      return dataSourceDivs.map((item, i) => ({
         ...block,
-        dataSource: item
+        dataSource: item,
+        _modulePage: i + 1,
+        _modulePages: dataSourceDivs.length,
+        _moduleIndex: moduleIndex,
+        _moduleTotal: moduleTotal
       }))
     }
 
+    getMargin = (margin: number | string): [number, number, number, number] => {
+      if (typeof margin === 'number') {
+        return [margin, margin, margin, margin]
+      } else if (typeof margin === 'string') {
+        const marginArr = margin.split(' ')
+        switch (marginArr.length) {
+        case 1:
+          return [+marginArr[0], +marginArr[0], +marginArr[0], +marginArr[0]]
+        case 2:
+          return [+marginArr[0], +marginArr[1], +marginArr[0], +marginArr[1]]
+        case 3:
+          return [+marginArr[0], +marginArr[1], +marginArr[2], +marginArr[1]]
+        default:
+          return [+marginArr[0], +marginArr[1], +marginArr[2], +marginArr[3]]
+        }
+      } else {
+        return [0, 0, 0, 0]
+      }
+    }
+
     render () {
-      const { preBlocks, blocks, direction, finish, init, margin } = this.state
-      let pageWidth = a4W - marginRight - marginLeft
+      const { preBlocks, blocks, direction, finish, init, margin, pageWidth } = this.state
+      const [
+        marginTop = 0,
+        marginRight = 0,
+        marginBottom = 0,
+        marginLeft = 0
+      ] = this.getMargin(margin || 0)
+
       let size = '210mm 297mm'
       if (direction === 'landscape') {
-        pageWidth = a4H - marginRight - marginLeft
         size = '297mm 210mm'
       } else if (direction === 'portrait') {
-        pageWidth = a4W - marginRight - marginLeft
         size = '210mm 297mm'
       }
 
@@ -147,7 +222,7 @@ function SheetPrintWrap<T = any> (
             init && (
               <>
                 <ReactToPrint
-                  pageStyle={`@page { size: ${size}; margin: ${margin}mm; }`}
+                  pageStyle={`@page { size: ${size}; margin: ${marginTop}mm ${marginRight}mm ${marginBottom}mm ${marginLeft}mm; }`}
                   trigger={() => <div />}
                   ref={ref => { this.printRef = ref }}
                   content={() => this.contentRef}
@@ -160,7 +235,7 @@ function SheetPrintWrap<T = any> (
                 <div
                   style={{
                     width: pageWidth,
-                    background: 'red'
+                    margin: '0 auto'
                   }}
                   className={styles['print-content']}
                   ref={ref => { this.contentRef = ref }}

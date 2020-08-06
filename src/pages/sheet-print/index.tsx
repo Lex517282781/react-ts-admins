@@ -1,4 +1,5 @@
 import React from 'react'
+import Panel from '@/components/panel'
 import SheetPrint, {
   SheetPrintProps
 } from '@/components/sheet-print'
@@ -29,9 +30,10 @@ class SheetPrintPage extends React.Component<
     //   </div>
     // )
     return (
-      <div>
+      <Panel title='sheet打印'>
         <button onClick={this.handlePrint}>print</button>
-      </div>
+        <br /><br />
+      </Panel>
     )
   }
 }
