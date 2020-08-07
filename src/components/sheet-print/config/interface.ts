@@ -40,6 +40,8 @@ export interface PrintItem {
   _globalPage?: number
   /* 全局总页码 */
   _globalPages?: number
+  /* 是否固定布局 固定布局footer会显示在最底部 */
+  fixed?: boolean
 }
 
 export interface PrintConfig {
@@ -47,6 +49,8 @@ export interface PrintConfig {
   direction?: 'landscape' | 'portrait'
   /* 打印边距 */
   margin?: number
+  /* 是否固定布局 固定布局footer会显示在最底部 */
+  fixed?: boolean
 }
 
 export interface SheetPrintProps {

@@ -10,7 +10,7 @@ interface SheetPrintPageProps extends SheetPrintProps {}
 class SheetPrintPage extends React.Component<
   SheetPrintPageProps
 > {
-  handlePrint = () => {
+  handlePrint1 = () => {
     this.props.print({
       dataSource: data1,
       colums: colums1,
@@ -19,20 +19,45 @@ class SheetPrintPage extends React.Component<
       ),
       footer: (
         <div>134</div>
-      )
+      ),
+      fixed: true
+    }, {
+      debug: true
     })
   }
 
+  handlePrint2 = () => {
+    this.props.print([
+      {
+        dataSource: data1,
+        colums: colums1,
+        header: (
+          <div>123</div>
+        ),
+        footer: (
+          <div>456</div>
+        ),
+        fixed: true
+      },
+      {
+        dataSource: data1,
+        colums: colums1,
+        header: (
+          <div>789</div>
+        ),
+        footer: (
+          <div>012</div>
+        )
+      }
+    ])
+  }
+
   render () {
-    // return (
-    //   <div style={{ width: 794, height: 1123, background: 'red' }}>
-    //     1111
-    //   </div>
-    // )
     return (
       <Panel title='sheet打印'>
-        <button onClick={this.handlePrint}>print</button>
+        <button onClick={this.handlePrint1}>Single print</button>
         <br /><br />
+        <button onClick={this.handlePrint2}>Multi print</button>
       </Panel>
     )
   }

@@ -13,6 +13,7 @@ import styles from './style.module.styl'
 
 const a4W = getA4W()
 const a4H = getA4H()
+
 interface SheetPrintState {
   blocks: PrintItem[]
   preBlocks: PrintItem[]
@@ -62,6 +63,9 @@ function SheetPrintWrap<T = any> (
           ...config || {}
         }) as PrintConfig
 
+      const { fixed, ...stateConfig } = config
+      option = option.map(item => ({ fixed, ...item }))
+
       const [
         marginTop = 0,
         marginRight = 0,
@@ -81,7 +85,7 @@ function SheetPrintWrap<T = any> (
       this.setState(
         {
           preBlocks: option,
-          ...config,
+          ...stateConfig,
           finish: false,
           init: true,
           pageWidth,
@@ -200,7 +204,7 @@ function SheetPrintWrap<T = any> (
     }
 
     render () {
-      const { preBlocks, blocks, direction, finish, init, margin, pageWidth } = this.state
+      const { debug, preBlocks, blocks, direction, finish, init, margin, pageWidth, pageHeight } = this.state
       const [
         marginTop = 0,
         marginRight = 0,
@@ -233,19 +237,30 @@ function SheetPrintWrap<T = any> (
                   }}
                 />
                 <div
-                  style={{
-                    width: pageWidth,
-                    margin: '0 auto'
-                  }}
-                  className={styles['print-content']}
-                  ref={ref => { this.contentRef = ref }}
+                  style={
+                    debug ? {} : {
+                      position: 'absolute',
+                      left: '-999999px',
+                      top: '-999999px',
+                      visibility: 'hidden',
+                      zIndex: -999999
+                    }
+                  }
                 >
-                  {(finish ? blocks : preBlocks).map((item: PrintItem, i) => (
-                    <Fragment key={i + JSON.stringify(finish)}>
-                      <Block index={i} data={item} />
-                      <div style={{ pageBreakAfter: 'always' }} />
-                    </Fragment>
-                  ))}
+                  <div
+                    style={{
+                      width: pageWidth
+                    }}
+                    className={styles['print-content']}
+                    ref={ref => { this.contentRef = ref }}
+                  >
+                    {(finish ? blocks : preBlocks).map((item: PrintItem, i) => (
+                      <Fragment key={i + JSON.stringify(finish)}>
+                        <Block pageHeight={pageHeight} index={i} data={item} />
+                        <div style={{ pageBreakAfter: 'always' }} />
+                      </Fragment>
+                    ))}
+                  </div>
                 </div>
               </>
             )

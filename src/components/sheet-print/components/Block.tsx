@@ -7,6 +7,7 @@ import { PrintItem } from '../config/interface'
 import styles from '../style.module.styl'
 
 interface BlockProps {
+  pageHeight: number
   index: number
   data: PrintItem
 }
@@ -15,11 +16,18 @@ class Block extends PureComponent<BlockProps> {
   componentDidMount () {}
 
   render () {
-    const { index, data } = this.props
-    const { colums, dataSource } = data
+    const { index, data, pageHeight } = this.props
+    const { colums, dataSource, fixed } = data
 
     return (
-      <div className={styles.block}>
+      <div
+        style={
+          fixed ? {
+            height: pageHeight
+          } : {}
+        }
+        className={styles.block}
+      >
         <div className={styles.header}>
           <Header data={data} />
         </div>
@@ -41,7 +49,16 @@ class Block extends PureComponent<BlockProps> {
             </tbody>
           </table>
         </div>
-        <div className={styles.footer}>
+        <div
+          className={styles.footer}
+          style={
+            fixed ? {
+              position: 'absolute',
+              width: '100%',
+              bottom: 0
+            } : {}
+          }
+        >
           <Footer data={data} />
         </div>
       </div>
