@@ -20,7 +20,16 @@ class Footer extends PureComponent<FooterProps> {
       style.height = data._footerH
     }
     if (typeof footer === 'function') {
-      footerEl = footer()
+      footerEl = footer(
+        data._modulePage,
+        data._modulePages,
+        data._globalPage,
+        data._globalPages,
+        data._moduleIndex,
+        data._moduleTotal,
+        data.dataSource,
+        data
+      )
     } else {
       footerEl = footer
     }

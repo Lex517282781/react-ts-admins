@@ -3,6 +3,8 @@ import Panel from '@/components/panel'
 import SheetPrint, {
   SheetPrintProps
 } from '@/components/sheet-print'
+import Header1 from './header1'
+import Footer1 from './footer1'
 import { colums1, data1 } from './mock'
 
 interface SheetPrintPageProps extends SheetPrintProps {}
@@ -15,11 +17,16 @@ class SheetPrintPage extends React.Component<
       dataSource: data1,
       colums: colums1,
       header: (
-        <div>134</div>
+        <Header1 />
       ),
       footer: (
-        <div>134</div>
-      ),
+        _modulePage,
+        _modulePages,
+        _globalPage,
+        _globalPages,
+        _moduleIndex,
+        _moduleTotal
+      ) => <Footer1 _modulePage={_modulePage} _modulePages={_modulePages} _moduleIndex={_moduleIndex} _moduleTotal={_moduleTotal} _globalPage={_globalPage} _globalPages={_globalPages} />,
       fixed: true
     }, {
       debug: true
@@ -35,8 +42,13 @@ class SheetPrintPage extends React.Component<
           <div>123</div>
         ),
         footer: (
-          <div>456</div>
-        ),
+          _modulePage,
+          _modulePages,
+          _globalPage,
+          _globalPages,
+          _moduleIndex,
+          _moduleTotal
+        ) => <Footer1 _modulePage={_modulePage} _modulePages={_modulePages} _moduleIndex={_moduleIndex} _moduleTotal={_moduleTotal} _globalPage={_globalPage} _globalPages={_globalPages} />,
         fixed: true
       },
       {
@@ -46,8 +58,13 @@ class SheetPrintPage extends React.Component<
           <div>789</div>
         ),
         footer: (
-          <div>012</div>
-        )
+          _modulePage,
+          _modulePages,
+          _globalPage,
+          _globalPages,
+          _moduleIndex,
+          _moduleTotal
+        ) => <Footer1 _modulePage={_modulePage} _modulePages={_modulePages} _moduleIndex={_moduleIndex} _moduleTotal={_moduleTotal} _globalPage={_globalPage} _globalPages={_globalPages} />
       }
     ])
   }

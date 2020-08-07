@@ -64,7 +64,16 @@ function SheetPrintWrap<T = any> (
         }) as PrintConfig
 
       const { fixed, ...stateConfig } = config
-      option = option.map(item => ({ fixed, ...item }))
+      option = option.map(item => ({
+        fixed,
+        _moduleIndex: 0,
+        _moduleTotal: 0,
+        _modulePage: 0,
+        _modulePages: 0,
+        _globalPage: 0,
+        _globalPages: 0,
+        ...item
+      }))
 
       const [
         marginTop = 0,
