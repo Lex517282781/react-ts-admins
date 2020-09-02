@@ -1,4 +1,4 @@
 import SheetPrint from './SheetPrint'
-export { SheetPrintProps } from './config/interface'
+export { Colum, PrintItem, PrintConfig, SheetPrintProps } from './config/interface'
 
 export default SheetPrint

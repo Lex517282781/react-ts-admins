@@ -30,9 +30,9 @@ class TdRow extends PureComponent<TdRowProps> {
         }}
       >
         {colums.map((item: Colum) => (
-          <td className={styles.td} key={item.key}>
+          <td style={{ textAlign: item.align }} className={styles.td} key={item.key}>
             {
-              data[item.key]
+              item.render ? item.render(data[item.key], data) : data[item.key]
             }
           </td>
         ))}

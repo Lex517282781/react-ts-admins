@@ -1,4 +1,5 @@
 export const defaultConfig = {
   direction: 'portrait',
-  margin: '10 10 10'
+  margin: '8 10 4',
+  align: 'center'
 }

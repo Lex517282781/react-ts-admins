@@ -6,9 +6,12 @@ export interface Colum {
   title: React.ReactNode
   width?: string
   align?: 'left' | 'center' | 'right'
+  render?: (text: any, record: any) => React.ReactNode
 }
 
 export interface PrintItem {
+  /* 模块索引 */
+  _key?: string | number
   /* 头部元素 */
   header?: ((...param: PrintItemRestParam) => React.ReactNode) | React.ReactNode
   /* 底部元素 */
@@ -42,6 +45,7 @@ export interface PrintItem {
   _globalPages?: number
   /* 是否固定布局 固定布局footer会显示在最底部 */
   fixed?: boolean
+  [key: string]: any
 }
 
 export interface PrintConfig {
@@ -51,6 +55,8 @@ export interface PrintConfig {
   margin?: number
   /* 是否固定布局 固定布局footer会显示在最底部 */
   fixed?: boolean
+  align?: 'left' | 'center' | 'right'
+  processBlock?: (data: PrintItem[]) => PrintItem[]
 }
 
 export interface SheetPrintProps {

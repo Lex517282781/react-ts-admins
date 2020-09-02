@@ -63,17 +63,21 @@ function SheetPrintWrap<T = any> (
           ...config || {}
         }) as PrintConfig
 
-      const { fixed, ...stateConfig } = config
-      option = option.map(item => ({
-        fixed,
-        _moduleIndex: 0,
-        _moduleTotal: 0,
-        _modulePage: 0,
-        _modulePages: 0,
-        _globalPage: 0,
-        _globalPages: 0,
-        ...item
-      }))
+      const { fixed, align, processBlock, ...stateConfig } = config
+      option = option.map(({ colums, ...item }) => {
+        return {
+          fixed,
+          _moduleIndex: 0,
+          _moduleTotal: 0,
+          _modulePage: 0,
+          _modulePages: 0,
+          _globalPage: 0,
+          _globalPages: 0,
+          // 批量赋colum的默认值
+          colums: colums.map(cItem => ({ ...cItem, align: cItem.align || align })),
+          ...item
+        }
+      })
 
       const [
         marginTop = 0,
@@ -81,6 +85,8 @@ function SheetPrintWrap<T = any> (
         marginBottom = 0,
         marginLeft = 0
       ] = this.getMargin(config.margin || 0)
+
+      console.log(this.getMargin(config.margin || 0))
 
       let pageWidth = 0
       let pageHeight = 0
@@ -101,7 +107,7 @@ function SheetPrintWrap<T = any> (
           pageHeight
         },
         () => {
-          this.calculate()
+          this.calculate(processBlock)
         }
       )
     }
@@ -134,10 +140,10 @@ function SheetPrintWrap<T = any> (
     }
 
     /* 计算 */
-    calculate = () => {
+    calculate = (processBlock?: (data: PrintItem[]) => PrintItem[]) => {
       const { preBlocks } = this.state
       const moduleTotal = preBlocks.length
-      const blocks = preBlocks.reduce((pre: any, next: any, i: number) => {
+      let blocks = preBlocks.reduce((pre: PrintItem[], next: PrintItem, i: number) => {
         return [
           ...pre,
           ...(this.processBlock(next, i + 1, moduleTotal))
@@ -148,6 +154,9 @@ function SheetPrintWrap<T = any> (
         block._globalPage = i + 1
         block._globalPages = globalPages
       })
+      if (typeof processBlock === 'function') {
+        blocks = processBlock(blocks)
+      }
       this.setState({
         blocks,
         finish: true
@@ -184,6 +193,7 @@ function SheetPrintWrap<T = any> (
       }
       return dataSourceDivs.map((item, i) => ({
         ...block,
+        _key: block._key || moduleIndex,
         dataSource: item,
         _modulePage: i + 1,
         _modulePages: dataSourceDivs.length,
@@ -266,7 +276,11 @@ function SheetPrintWrap<T = any> (
                     {(finish ? blocks : preBlocks).map((item: PrintItem, i) => (
                       <Fragment key={i + JSON.stringify(finish)}>
                         <Block pageHeight={pageHeight} index={i} data={item} />
-                        <div style={{ pageBreakAfter: 'always' }} />
+                        {/* {
+                          !item.fixed && (
+                            <div style={{ pageBreakAfter: 'always' }} />
+                          )
+                        } */}
                       </Fragment>
                     ))}
                   </div>
